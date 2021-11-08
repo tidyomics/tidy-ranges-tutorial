@@ -1,3 +1,6 @@
+# Join example
+
+```{r}
 library(dplyr)
 library(tidyr)
 library(randomNames)
@@ -36,3 +39,4 @@ shared_friends %>%
   group_by(classmate) %>%
   summarize(in_common=n(), median_bday=median(birthday)) %>%
   complete(classmate, fill=list(count=0))
+```

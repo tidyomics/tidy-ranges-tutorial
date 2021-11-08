@@ -1,0 +1,18 @@
+--- 
+title: "Tidy Ranges Tutorial"
+author: "nullranges devel team"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: book.bib
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "Basic examples of computing tidy operations on ranges."
+---
+
+# Packages
+
+These examples focus on the packages *dplyr*, *plyranges*,
+*nullranges*, and *excluderanges*.
