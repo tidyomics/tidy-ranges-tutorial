@@ -27,12 +27,12 @@ class <- class %>%
   arrange(classmate) %>%
   mutate(classmate=factor(classmate))
 
-friends <- friends %>%
+shared_friends <- friends %>%
   inner_join(class, by="friend") %>%
   arrange(classmate, friend) %>%
   relocate(classmate)
 
-friends %>%
+shared_friends %>%
   group_by(classmate) %>%
   summarize(in_common=n(), median_bday=median(birthday)) %>%
   complete(classmate, fill=list(count=0))
