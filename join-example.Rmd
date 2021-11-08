@@ -1,40 +1,51 @@
 # Join example
 
-```{r}
+```{r message=FALSE}
 library(dplyr)
 library(tidyr)
 library(randomNames)
+```
 
+```{r}
 m <- 17 # size of class
 n <- 100 # size of population
 nf <- 12 # number of friends
-
 set.seed(5)
 people <- randomNames(m + n,
                       name.order="first.last",
                       name.sep=" ")
+```
 
+```{r}
 pop <- data.frame(person=people[-(1:m)],
                   birthday=sample(31, n, TRUE))
 friends <- data.frame(friend=sample(people, nf))
 class_people <- people[1:m]
+```
 
+```{r}
 loop <- rep(1:m, each=nf)
 idx <- as.vector(replicate(m, sample(n, nf)))
-
 class <- data.frame(classmate=class_people[loop],
                     friend=pop$person[idx],
                     birthday=pop$birthday[idx])
+```
 
+```{r}
 class <- class %>%
   arrange(classmate) %>%
   mutate(classmate=factor(classmate))
+```
 
+```{r}
 shared_friends <- friends %>%
   inner_join(class, by="friend") %>%
   arrange(classmate, friend) %>%
   relocate(classmate)
+shared_friends
+```
 
+```{r}
 shared_friends %>%
   group_by(classmate) %>%
   summarize(in_common=n(), median_bday=median(birthday)) %>%

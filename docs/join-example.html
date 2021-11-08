@@ -4,21 +4,24 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 2 Join example | Tidy Ranges Tutorial</title>
-  <meta name="description" content="Basic examples of computing tidy operations on ranges." />
+  <title>Chapter 1 Join example | Tidy Ranges Tutorial</title>
+  <meta name="description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 2 Join example | Tidy Ranges Tutorial" />
+  <meta property="og:title" content="Chapter 1 Join example | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Basic examples of computing tidy operations on ranges." />
+  <meta property="og:description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 2 Join example | Tidy Ranges Tutorial" />
+  <meta name="twitter:title" content="Chapter 1 Join example | Tidy Ranges Tutorial" />
   
-  <meta name="twitter:description" content="Basic examples of computing tidy operations on ranges." />
+  <meta name="twitter:description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
   
 
 <meta name="author" content="nullranges devel team" />
@@ -134,8 +137,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">Tidy Ranges Tutorial</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Packages</a></li>
-<li class="chapter" data-level="2" data-path="join-example.html"><a href="join-example.html"><i class="fa fa-check"></i><b>2</b> Join example</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-example.html"><a href="join-example.html"><i class="fa fa-check"></i><b>1</b> Join example</a></li>
 </ul>
 
       </nav>
@@ -154,61 +157,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
             <section class="normal" id="section-">
 <div id="join-example" class="section level1">
-<h1><span class="header-section-number">Chapter 2</span> Join example</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)</a></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:testthat&#39;:
-## 
-##     matches</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;tidyr&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:testthat&#39;:
-## 
-##     matches</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">library</span>(randomNames)</a></code></pre></div>
-<pre><code>## randomNames 1.5-0.0  (4-21-2021). For help: &gt;help(&quot;randomNames&quot;) or visit https://centerforassessment.github.io/randomNames</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">m &lt;-<span class="st"> </span><span class="dv">17</span> <span class="co"># size of class</span></a>
-<a class="sourceLine" id="cb11-2" title="2">n &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># size of population</span></a>
-<a class="sourceLine" id="cb11-3" title="3">nf &lt;-<span class="st"> </span><span class="dv">12</span> <span class="co"># number of friends</span></a>
-<a class="sourceLine" id="cb11-4" title="4"></a>
-<a class="sourceLine" id="cb11-5" title="5"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb11-6" title="6">people &lt;-<span class="st"> </span><span class="kw">randomNames</span>(m <span class="op">+</span><span class="st"> </span>n,</a>
-<a class="sourceLine" id="cb11-7" title="7">                      <span class="dt">name.order=</span><span class="st">&quot;first.last&quot;</span>,</a>
-<a class="sourceLine" id="cb11-8" title="8">                      <span class="dt">name.sep=</span><span class="st">&quot; &quot;</span>)</a>
-<a class="sourceLine" id="cb11-9" title="9"></a>
-<a class="sourceLine" id="cb11-10" title="10">pop &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">person=</span>people[<span class="op">-</span>(<span class="dv">1</span><span class="op">:</span>m)],</a>
-<a class="sourceLine" id="cb11-11" title="11">                  <span class="dt">birthday=</span><span class="kw">sample</span>(<span class="dv">31</span>, n, <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb11-12" title="12">friends &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">friend=</span><span class="kw">sample</span>(people, nf))</a>
-<a class="sourceLine" id="cb11-13" title="13">class_people &lt;-<span class="st"> </span>people[<span class="dv">1</span><span class="op">:</span>m]</a>
-<a class="sourceLine" id="cb11-14" title="14"></a>
-<a class="sourceLine" id="cb11-15" title="15">loop &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span>m, <span class="dt">each=</span>nf)</a>
-<a class="sourceLine" id="cb11-16" title="16">idx &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">replicate</span>(m, <span class="kw">sample</span>(n, nf)))</a>
-<a class="sourceLine" id="cb11-17" title="17"></a>
-<a class="sourceLine" id="cb11-18" title="18">class &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">classmate=</span>class_people[loop],</a>
-<a class="sourceLine" id="cb11-19" title="19">                    <span class="dt">friend=</span>pop<span class="op">$</span>person[idx],</a>
-<a class="sourceLine" id="cb11-20" title="20">                    <span class="dt">birthday=</span>pop<span class="op">$</span>birthday[idx])</a>
-<a class="sourceLine" id="cb11-21" title="21"></a>
-<a class="sourceLine" id="cb11-22" title="22">class &lt;-<span class="st"> </span>class <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-23" title="23"><span class="st">  </span><span class="kw">arrange</span>(classmate) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-24" title="24"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">classmate=</span><span class="kw">factor</span>(classmate))</a>
-<a class="sourceLine" id="cb11-25" title="25"></a>
-<a class="sourceLine" id="cb11-26" title="26">shared_friends &lt;-<span class="st"> </span>friends <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-27" title="27"><span class="st">  </span><span class="kw">inner_join</span>(class, <span class="dt">by=</span><span class="st">&quot;friend&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-28" title="28"><span class="st">  </span><span class="kw">arrange</span>(classmate, friend) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-29" title="29"><span class="st">  </span><span class="kw">relocate</span>(classmate)</a>
-<a class="sourceLine" id="cb11-30" title="30"></a>
-<a class="sourceLine" id="cb11-31" title="31">shared_friends <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-32" title="32"><span class="st">  </span><span class="kw">group_by</span>(classmate) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-33" title="33"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">in_common=</span><span class="kw">n</span>(), <span class="dt">median_bday=</span><span class="kw">median</span>(birthday)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-34" title="34"><span class="st">  </span><span class="kw">complete</span>(classmate, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
+<h1><span class="header-section-number">Chapter 1</span> Join example</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(randomNames)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">m &lt;-<span class="st"> </span><span class="dv">17</span> <span class="co"># size of class</span></a>
+<a class="sourceLine" id="cb2-2" title="2">n &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># size of population</span></a>
+<a class="sourceLine" id="cb2-3" title="3">nf &lt;-<span class="st"> </span><span class="dv">12</span> <span class="co"># number of friends</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb2-5" title="5">people &lt;-<span class="st"> </span><span class="kw">randomNames</span>(m <span class="op">+</span><span class="st"> </span>n,</a>
+<a class="sourceLine" id="cb2-6" title="6">                      <span class="dt">name.order=</span><span class="st">&quot;first.last&quot;</span>,</a>
+<a class="sourceLine" id="cb2-7" title="7">                      <span class="dt">name.sep=</span><span class="st">&quot; &quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">pop &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">person=</span>people[<span class="op">-</span>(<span class="dv">1</span><span class="op">:</span>m)],</a>
+<a class="sourceLine" id="cb3-2" title="2">                  <span class="dt">birthday=</span><span class="kw">sample</span>(<span class="dv">31</span>, n, <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb3-3" title="3">friends &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">friend=</span><span class="kw">sample</span>(people, nf))</a>
+<a class="sourceLine" id="cb3-4" title="4">class_people &lt;-<span class="st"> </span>people[<span class="dv">1</span><span class="op">:</span>m]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">loop &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span>m, <span class="dt">each=</span>nf)</a>
+<a class="sourceLine" id="cb4-2" title="2">idx &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">replicate</span>(m, <span class="kw">sample</span>(n, nf)))</a>
+<a class="sourceLine" id="cb4-3" title="3">class &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">classmate=</span>class_people[loop],</a>
+<a class="sourceLine" id="cb4-4" title="4">                    <span class="dt">friend=</span>pop<span class="op">$</span>person[idx],</a>
+<a class="sourceLine" id="cb4-5" title="5">                    <span class="dt">birthday=</span>pop<span class="op">$</span>birthday[idx])</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">class &lt;-<span class="st"> </span>class <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="st">  </span><span class="kw">arrange</span>(classmate) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">classmate=</span><span class="kw">factor</span>(classmate))</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">shared_friends &lt;-<span class="st"> </span>friends <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">inner_join</span>(class, <span class="dt">by=</span><span class="st">&quot;friend&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">arrange</span>(classmate, friend) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="st">  </span><span class="kw">relocate</span>(classmate)</a>
+<a class="sourceLine" id="cb6-5" title="5">shared_friends</a></code></pre></div>
+<pre><code>##                classmate             friend birthday
+## 1          Brandon Jones Christopher Rivera       13
+## 2          Brandon Jones       Jose Jimenez       26
+## 3          Brandon Jones    Maria Hernandez       15
+## 4          Brandon Jones         Tuli Hoang        7
+## 5     Christopher Herron         Tuli Hoang        7
+## 6     Christopher Herron  William Steinbach       15
+## 7         Haley Polhamus   Cellene Millhone       23
+## 8         Haley Polhamus  William Steinbach       15
+## 9  Juan Villegas Cabrera     Alyssa Kinanee       30
+## 10 Juan Villegas Cabrera       Malik Gammon        5
+## 11 Juan Villegas Cabrera     Tajhae Bohanna       31
+## 12     Maisara el-Arshad     Kaylyn Judkins        2
+## 13     Maisara el-Arshad    Maria Hernandez       15
+## 14     Maisara el-Arshad     Tajhae Bohanna       31
+## 15        Michael Mcgill Christopher Rivera       13
+## 16        Michael Mcgill    Maria Hernandez       15
+## 17        Noah Pettinger     Kaylyn Judkins        2
+## 18        Noah Pettinger     Tajhae Bohanna       31
+## 19         Orion Villani       Malik Gammon        5
+## 20         Shane Ranaldi     Alyssa Kinanee       30
+## 21         Shane Ranaldi  William Steinbach       15
+## 22   Stephanie Hernandez Asmaa el-Abdelnour       29
+## 23   Zachary Roe-Huffman    Maria Hernandez       15</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">shared_friends <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(classmate) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">in_common=</span><span class="kw">n</span>(), <span class="dt">median_bday=</span><span class="kw">median</span>(birthday)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="st">  </span><span class="kw">complete</span>(classmate, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
 <pre><code>## # A tibble: 17 × 3
 ##    classmate             in_common median_bday
 ##    &lt;fct&gt;                     &lt;int&gt;       &lt;dbl&gt;

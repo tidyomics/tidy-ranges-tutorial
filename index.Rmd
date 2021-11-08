@@ -9,10 +9,15 @@ bibliography: book.bib
 biblio-style: apalike
 link-citations: yes
 github-repo: rstudio/bookdown-demo
-description: "Basic examples of computing tidy operations on ranges."
+description: |
+    Basic examples of computing operations on genomic ranges using the
+    tidy data philosophy.
 ---
 
-# Packages
+# About {-}
+
+We provide examples of computing operations on genomic ranges using the
+[tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).
 
 These examples focus on the packages *dplyr*, *plyranges*,
 *nullranges*, and *excluderanges*.
