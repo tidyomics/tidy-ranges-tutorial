@@ -158,32 +158,53 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="join-example" class="section level1">
 <h1><span class="header-section-number">Chapter 1</span> Join example</h1>
+<p>Objective: show that a “join” is like an overlap</p>
+<p>We start with a quick example explaining why we use functions called
+<code>join</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)</a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(tidyr)</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(randomNames)</a></code></pre></div>
+<p>Let’s set up a simulation where we have 17 classmates (not counting
+ourselves) in a school of 118. Suppose every member of the class has
+12 friends outside of class.</p>
+<p>We want to find out, for each classmate, how many friends we have in
+common and also, of our shared friends, what is a typical birthday.
+Let’s define typical as the median birthday of our shared friends.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">m &lt;-<span class="st"> </span><span class="dv">17</span> <span class="co"># size of class</span></a>
-<a class="sourceLine" id="cb2-2" title="2">n &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># size of population</span></a>
-<a class="sourceLine" id="cb2-3" title="3">nf &lt;-<span class="st"> </span><span class="dv">12</span> <span class="co"># number of friends</span></a>
+<a class="sourceLine" id="cb2-2" title="2">n &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># size of others in school</span></a>
+<a class="sourceLine" id="cb2-3" title="3">nf &lt;-<span class="st"> </span><span class="dv">12</span> <span class="co"># number of friends outside class</span></a>
 <a class="sourceLine" id="cb2-4" title="4"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
 <a class="sourceLine" id="cb2-5" title="5">people &lt;-<span class="st"> </span><span class="kw">randomNames</span>(m <span class="op">+</span><span class="st"> </span>n,</a>
 <a class="sourceLine" id="cb2-6" title="6">                      <span class="dt">name.order=</span><span class="st">&quot;first.last&quot;</span>,</a>
 <a class="sourceLine" id="cb2-7" title="7">                      <span class="dt">name.sep=</span><span class="st">&quot; &quot;</span>)</a></code></pre></div>
+<p>We define the population of potential friends (those outside the
+class) as <code>pop</code>, and our 12 friends are in <code>friends</code>. Finally, we
+define the people that are in our class as <code>class_people</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">pop &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">person=</span>people[<span class="op">-</span>(<span class="dv">1</span><span class="op">:</span>m)],</a>
 <a class="sourceLine" id="cb3-2" title="2">                  <span class="dt">birthday=</span><span class="kw">sample</span>(<span class="dv">31</span>, n, <span class="ot">TRUE</span>))</a>
 <a class="sourceLine" id="cb3-3" title="3">friends &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">friend=</span><span class="kw">sample</span>(people, nf))</a>
 <a class="sourceLine" id="cb3-4" title="4">class_people &lt;-<span class="st"> </span>people[<span class="dv">1</span><span class="op">:</span>m]</a></code></pre></div>
+<p>The following sets up a data.frame, where each row gives, for a given
+classmate, their friends, and the friends’ birthdays.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">loop &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span>m, <span class="dt">each=</span>nf)</a>
 <a class="sourceLine" id="cb4-2" title="2">idx &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">replicate</span>(m, <span class="kw">sample</span>(n, nf)))</a>
 <a class="sourceLine" id="cb4-3" title="3">class &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">classmate=</span>class_people[loop],</a>
 <a class="sourceLine" id="cb4-4" title="4">                    <span class="dt">friend=</span>pop<span class="op">$</span>person[idx],</a>
 <a class="sourceLine" id="cb4-5" title="5">                    <span class="dt">birthday=</span>pop<span class="op">$</span>birthday[idx])</a></code></pre></div>
+<p>Sort this by classmate alphabetically, and make classmate into a
+factor. This last step is important, as it will help us to keep track
+of the classmates for whom we share <em>no</em> friends outside of class.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">class &lt;-<span class="st"> </span>class <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="st">  </span><span class="kw">arrange</span>(classmate) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb5-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">classmate=</span><span class="kw">factor</span>(classmate))</a></code></pre></div>
+<p>We perform an <code>inner_join</code> by <code>"friend"</code>. This just means we look for
+classmates where we have overlapping friends, and we drop the rows
+where we don’t share any friends. “Inner” refers to the fact that we
+are keeping the overlap in the <em>inside</em> of two intersecting circles.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">shared_friends &lt;-<span class="st"> </span>friends <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">inner_join</span>(class, <span class="dt">by=</span><span class="st">&quot;friend&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">arrange</span>(classmate, friend) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="st">  </span><span class="kw">relocate</span>(classmate)</a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="st">  </span><span class="kw">relocate</span>(classmate) <span class="co"># classmate to 1st column</span></a>
 <a class="sourceLine" id="cb6-5" title="5">shared_friends</a></code></pre></div>
 <pre><code>##                classmate             friend birthday
 ## 1          Brandon Jones Christopher Rivera       13
@@ -209,6 +230,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 21         Shane Ranaldi  William Steinbach       15
 ## 22   Stephanie Hernandez Asmaa el-Abdelnour       29
 ## 23   Zachary Roe-Huffman    Maria Hernandez       15</code></pre>
+<p>Lastly, we perform some summarization: compute the number of friends
+in common with <code>n()</code> and the median birthday of shared friends. The
+<code>complete()</code> command at the end fills in 0 for those classmates for
+whom we share no friends (here, the <code>factor()</code> command earlier becomes
+relevant).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">shared_friends <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(classmate) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">in_common=</span><span class="kw">n</span>(), <span class="dt">median_bday=</span><span class="kw">median</span>(birthday)) <span class="op">%&gt;%</span></a>

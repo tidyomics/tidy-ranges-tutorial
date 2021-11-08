@@ -1,20 +1,37 @@
 # Join example
 
+Objective: show that a "join" is like an overlap
+
+We start with a quick example explaining why we use functions called
+`join`.
+
 ```{r message=FALSE}
 library(dplyr)
 library(tidyr)
 library(randomNames)
 ```
 
+Let's set up a simulation where we have 17 classmates (not counting
+ourselves) in a school of 118. Suppose every member of the class has
+12 friends outside of class. 
+
+We want to find out, for each classmate, how many friends we have in
+common and also, of our shared friends, what is a typical birthday.
+Let's define typical as the median birthday of our shared friends.
+
 ```{r}
 m <- 17 # size of class
-n <- 100 # size of population
-nf <- 12 # number of friends
+n <- 100 # size of others in school
+nf <- 12 # number of friends outside class
 set.seed(5)
 people <- randomNames(m + n,
                       name.order="first.last",
                       name.sep=" ")
 ```
+
+We define the population of potential friends (those outside the
+class) as `pop`, and our 12 friends are in `friends`. Finally, we
+define the people that are in our class as `class_people`.
 
 ```{r}
 pop <- data.frame(person=people[-(1:m)],
@@ -22,6 +39,9 @@ pop <- data.frame(person=people[-(1:m)],
 friends <- data.frame(friend=sample(people, nf))
 class_people <- people[1:m]
 ```
+
+The following sets up a data.frame, where each row gives, for a given
+classmate, their friends, and the friends' birthdays.
 
 ```{r}
 loop <- rep(1:m, each=nf)
@@ -31,19 +51,34 @@ class <- data.frame(classmate=class_people[loop],
                     birthday=pop$birthday[idx])
 ```
 
+Sort this by classmate alphabetically, and make classmate into a
+factor. This last step is important, as it will help us to keep track
+of the classmates for whom we share _no_ friends outside of class.
+
 ```{r}
 class <- class %>%
   arrange(classmate) %>%
   mutate(classmate=factor(classmate))
 ```
 
+We perform an `inner_join` by `"friend"`. This just means we look for
+classmates where we have overlapping friends, and we drop the rows
+where we don't share any friends. "Inner" refers to the fact that we
+are keeping the overlap in the _inside_ of two intersecting circles.
+
 ```{r}
 shared_friends <- friends %>%
   inner_join(class, by="friend") %>%
   arrange(classmate, friend) %>%
-  relocate(classmate)
+  relocate(classmate) # classmate to 1st column
 shared_friends
 ```
+
+Lastly, we perform some summarization: compute the number of friends
+in common with `n()` and the median birthday of shared friends. The
+`complete()` command at the end fills in 0 for those classmates for
+whom we share no friends (here, the `factor()` command earlier becomes
+relevant).
 
 ```{r}
 shared_friends %>%
