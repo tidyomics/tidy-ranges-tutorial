@@ -334,20 +334,44 @@ last base).</p>
 ##   &lt;factor&gt; &lt;integer&gt;  &lt;numeric&gt;
 ## 1      bar         4      18738
 ## 2      foo         2      26182</code></pre>
-<p>What about <code>"boo"</code>? We need to add a complete call to bring in the
-fact that we are missing those overlaps:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner_directed</span>(r) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(range_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count=</span><span class="kw">n</span>(), <span class="dt">mean_width=</span><span class="kw">mean</span>(width)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-5" title="5"><span class="st">  </span><span class="kw">complete</span>(range_id, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
+<p>What about <code>"boo"</code>? We need to add a <code>complete()</code> call to account for
+the fact that we are missing those overlaps after the join. We need to
+call the function explicitly from the <em>tidyr</em> package but by not
+loading the package we can avoid some function name conflicts with
+<em>plyranges</em>. Also we need to convert to data.frame (explanation
+follows).</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner_directed</span>(r) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(range_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count=</span><span class="kw">n</span>(), <span class="dt">mean_width=</span><span class="kw">mean</span>(width)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="st">  </span>tidyr<span class="op">::</span><span class="kw">complete</span>(range_id, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
 <pre><code>## # A tibble: 3 × 3
 ##   range_id count mean_width
 ##   &lt;fct&gt;    &lt;dbl&gt;      &lt;dbl&gt;
 ## 1 bar          4      18738
 ## 2 boo          0         NA
 ## 3 foo          2      26182</code></pre>
+<p>Why did we have to convert to data.frame before running <code>complete()</code>?
+This is because metadata columns of <em>GRanges</em> objects are in a format
+called <em>DataFrame</em> which the <em>tidyr</em> / <em>dplyr</em> functions don’t know
+how to operate on. To access these metadata columns, you can use any
+of these types of calls:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">mcols</span>(r)</a></code></pre></div>
+<pre><code>## DataFrame with 3 rows and 1 column
+##   range_id
+##   &lt;factor&gt;
+## 1      foo
+## 2      bar
+## 3      boo</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="kw">mcols</span>(r)<span class="op">$</span>range_id</a></code></pre></div>
+<pre><code>## [1] foo bar boo
+## Levels: bar boo foo</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1">r<span class="op">$</span>range_id <span class="co"># this works also</span></a></code></pre></div>
+<pre><code>## [1] foo bar boo
+## Levels: bar boo foo</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">mcols</span>(r)[[<span class="st">&quot;range_id&quot;</span>]] <span class="co"># for programmatic access</span></a></code></pre></div>
+<pre><code>## [1] foo bar boo
+## Levels: bar boo foo</code></pre>
 
 </div>
             </section>
