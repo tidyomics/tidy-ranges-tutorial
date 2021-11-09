@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Overlap GRanges with plyranges | Tidy Ranges Tutorial</title>
+  <meta name="description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Overlap GRanges with plyranges | Tidy Ranges Tutorial" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Overlap GRanges with plyranges | Tidy Ranges Tutorial" />
+  
+  <meta name="twitter:description" content="Basic examples of computing operations on genomic ranges using the
+tidy data philosophy." />
+  
+
+<meta name="author" content="nullranges devel team" />
+
+
+<meta name="date" content="2021-11-09" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="join-is-an-overlap.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy Ranges Tutorial</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Tidy Ranges Tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="overlap-granges-with-plyranges" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Overlap GRanges with plyranges</h1>
+<p>Objective: compute overlaps and summary statistics between two sets of
+genomic ranges. In particular, suppose we want to compute the mean
+genomic extent of genes in a set of query ranges.</p>
+<p>We move on from the classroom example by seeing how we compute
+overlaps when the features are in genomic space. We will use <em>GRanges</em>
+in the Bioconductor package <em>GenomicRanges</em> to represent the features
+and <em>plyranges</em> to compute the overlaps, similarly to how we used
+<em>dplyr</em> to compute the overlaps in the previous analysis. So
+data.frame is to <em>dplyr</em> as GRanges is to <em>plyranges</em>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">library</span>(plyranges)</a></code></pre></div>
+<p>Note the structure of the <em>GRanges</em> object:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">r &lt;-<span class="st"> </span><span class="kw">GRanges</span>(<span class="st">&quot;chr1&quot;</span>, <span class="kw">IRanges</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">c</span>(<span class="fl">34e6</span>,<span class="fl">36e6</span>,<span class="fl">36.6e6</span>),</a>
+<a class="sourceLine" id="cb11-2" title="2">                             <span class="dt">width=</span><span class="kw">c</span>(<span class="fl">2e5</span>,<span class="fl">2e5</span>,<span class="fl">1e5</span>)),</a>
+<a class="sourceLine" id="cb11-3" title="3">             <span class="dt">strand=</span><span class="kw">c</span>(<span class="st">&quot;+&quot;</span>,<span class="st">&quot;-&quot;</span>,<span class="st">&quot;-&quot;</span>),</a>
+<a class="sourceLine" id="cb11-4" title="4">             <span class="dt">range_id=</span><span class="kw">factor</span>(<span class="kw">c</span>(<span class="st">&quot;foo&quot;</span>,<span class="st">&quot;bar&quot;</span>,<span class="st">&quot;boo&quot;</span>)))</a>
+<a class="sourceLine" id="cb11-5" title="5">r</a></code></pre></div>
+<pre><code>## GRanges object with 3 ranges and 1 metadata column:
+##       seqnames            ranges strand | range_id
+##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt;
+##   [1]     chr1 34000001-34200000      + |      foo
+##   [2]     chr1 36000001-36200000      - |      bar
+##   [3]     chr1 36600001-36700000      - |      boo
+##   -------
+##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
+<p>In case you haven’t seen this before, <em>GRanges</em> objects have specific
+functions to pull out information. See <code>?GRanges</code> for details.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">length</span>(r)</a></code></pre></div>
+<pre><code>## [1] 3</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">seqnames</span>(r)</a></code></pre></div>
+<pre><code>## factor-Rle of length 3 with 1 run
+##   Lengths:    3
+##   Values : chr1
+## Levels(1): chr1</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">strand</span>(r)</a></code></pre></div>
+<pre><code>## factor-Rle of length 3 with 2 runs
+##   Lengths: 1 2
+##   Values : + -
+## Levels(3): + - *</code></pre>
+<p>Let’s find which genes overlap a region of interest:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">library</span>(EnsDb.Hsapiens.v86)</a>
+<a class="sourceLine" id="cb19-2" title="2">g &lt;-<span class="st"> </span><span class="kw">genes</span>(EnsDb.Hsapiens.v86)</a></code></pre></div>
+<p>The following lines use convenience functions to convert to,
+e.g. <code>"chr1"</code>, …, <code>"chrY"</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">library</span>(GenomeInfoDb)</a>
+<a class="sourceLine" id="cb20-2" title="2">g &lt;-<span class="st"> </span><span class="kw">keepStandardChromosomes</span>(g, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>)</a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="kw">seqlevelsStyle</span>(g) &lt;-<span class="st"> &quot;UCSC&quot;</span></a></code></pre></div>
+<p>Now we are ready to test for overlaps.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">r <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(g)</a></code></pre></div>
+<pre><code>## GRanges object with 13 ranges and 7 metadata columns:
+##        seqnames            ranges strand | range_id         gene_id   gene_name
+##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt;     &lt;character&gt; &lt;character&gt;
+##    [1]     chr1 34000001-34200000      + |      foo ENSG00000121904       CSMD2
+##    [2]     chr1 34000001-34200000      + |      foo ENSG00000201148    RNA5SP42
+##    [3]     chr1 34000001-34200000      + |      foo ENSG00000142698     C1orf94
+##    [4]     chr1 36000001-36200000      - |      bar ENSG00000126070        AGO3
+##    [5]     chr1 36000001-36200000      - |      bar ENSG00000271554 RP4-665N4.8
+##    ...      ...               ...    ... .      ...             ...         ...
+##    [9]     chr1 36000001-36200000      - |      bar ENSG00000171812      COL8A2
+##   [10]     chr1 36000001-36200000      - |      bar ENSG00000054116     TRAPPC3
+##   [11]     chr1 36000001-36200000      - |      bar ENSG00000116871      MAP7D1
+##   [12]     chr1 36000001-36200000      - |      bar ENSG00000264592   RN7SL131P
+##   [13]     chr1 36600001-36700000      - |      boo ENSG00000230214      FTLP18
+##                gene_biotype seq_coord_system      symbol entrezid
+##                 &lt;character&gt;      &lt;character&gt; &lt;character&gt;   &lt;list&gt;
+##    [1]       protein_coding       chromosome       CSMD2   114784
+##    [2]                 rRNA       chromosome    RNA5SP42     &lt;NA&gt;
+##    [3]       protein_coding       chromosome     C1orf94    84970
+##    [4]       protein_coding       chromosome        AGO3   192669
+##    [5]            antisense       chromosome RP4-665N4.8     &lt;NA&gt;
+##    ...                  ...              ...         ...      ...
+##    [9]       protein_coding       chromosome      COL8A2     1296
+##   [10]       protein_coding       chromosome     TRAPPC3    27095
+##   [11]       protein_coding       chromosome      MAP7D1    55700
+##   [12]             misc_RNA       chromosome   RN7SL131P     &lt;NA&gt;
+##   [13] processed_pseudogene       chromosome      FTLP18     &lt;NA&gt;
+##   -------
+##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
+<p>We can also perform summarization by columns either in the <code>gr</code> or the
+<code>g</code> object:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">r <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(g) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(range_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb23-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count=</span><span class="kw">n</span>())</a></code></pre></div>
+<pre><code>## DataFrame with 3 rows and 2 columns
+##   range_id     count
+##   &lt;factor&gt; &lt;integer&gt;
+## 1      bar         9
+## 2      boo         1
+## 3      foo         3</code></pre>
+<p>This is giving us the same information as the following:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1">r <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">count_overlaps</span>(g)</a></code></pre></div>
+<pre><code>## [1] 3 9 1</code></pre>
+<p>If we want the gene ranges, we swap order of the ranges in the
+command:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(r)</a></code></pre></div>
+<pre><code>## GRanges object with 13 ranges and 7 metadata columns:
+##                   seqnames            ranges strand |         gene_id
+##                      &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |     &lt;character&gt;
+##   ENSG00000121904     chr1 33513999-34165842      - | ENSG00000121904
+##   ENSG00000201148     chr1 34112949-34113063      + | ENSG00000201148
+##   ENSG00000142698     chr1 34166883-34219131      + | ENSG00000142698
+##   ENSG00000126070     chr1 35930718-36072500      + | ENSG00000126070
+##   ENSG00000271554     chr1 35992109-36013630      - | ENSG00000271554
+##               ...      ...               ...    ... .             ...
+##   ENSG00000171812     chr1 36095236-36125220      - | ENSG00000171812
+##   ENSG00000054116     chr1 36136570-36156053      - | ENSG00000054116
+##   ENSG00000116871     chr1 36155579-36180849      + | ENSG00000116871
+##   ENSG00000264592     chr1 36191915-36192170      + | ENSG00000264592
+##   ENSG00000230214     chr1 36630335-36630857      + | ENSG00000230214
+##                     gene_name         gene_biotype seq_coord_system      symbol
+##                   &lt;character&gt;          &lt;character&gt;      &lt;character&gt; &lt;character&gt;
+##   ENSG00000121904       CSMD2       protein_coding       chromosome       CSMD2
+##   ENSG00000201148    RNA5SP42                 rRNA       chromosome    RNA5SP42
+##   ENSG00000142698     C1orf94       protein_coding       chromosome     C1orf94
+##   ENSG00000126070        AGO3       protein_coding       chromosome        AGO3
+##   ENSG00000271554 RP4-665N4.8            antisense       chromosome RP4-665N4.8
+##               ...         ...                  ...              ...         ...
+##   ENSG00000171812      COL8A2       protein_coding       chromosome      COL8A2
+##   ENSG00000054116     TRAPPC3       protein_coding       chromosome     TRAPPC3
+##   ENSG00000116871      MAP7D1       protein_coding       chromosome      MAP7D1
+##   ENSG00000264592   RN7SL131P             misc_RNA       chromosome   RN7SL131P
+##   ENSG00000230214      FTLP18 processed_pseudogene       chromosome      FTLP18
+##                   entrezid range_id
+##                     &lt;list&gt; &lt;factor&gt;
+##   ENSG00000121904   114784      foo
+##   ENSG00000201148     &lt;NA&gt;      foo
+##   ENSG00000142698    84970      foo
+##   ENSG00000126070   192669      bar
+##   ENSG00000271554     &lt;NA&gt;      bar
+##               ...      ...      ...
+##   ENSG00000171812     1296      bar
+##   ENSG00000054116    27095      bar
+##   ENSG00000116871    55700      bar
+##   ENSG00000264592     &lt;NA&gt;      bar
+##   ENSG00000230214     &lt;NA&gt;      boo
+##   -------
+##   seqinfo: 25 sequences from hg38 genome</code></pre>
+<p>If we want strand specific overlaps, we can add <code>_directed</code>:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner_directed</span>(r)</a></code></pre></div>
+<pre><code>## GRanges object with 6 ranges and 7 metadata columns:
+##                   seqnames            ranges strand |         gene_id
+##                      &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |     &lt;character&gt;
+##   ENSG00000201148     chr1 34112949-34113063      + | ENSG00000201148
+##   ENSG00000142698     chr1 34166883-34219131      + | ENSG00000142698
+##   ENSG00000271554     chr1 35992109-36013630      - | ENSG00000271554
+##   ENSG00000232862     chr1 36080066-36084026      - | ENSG00000232862
+##   ENSG00000171812     chr1 36095236-36125220      - | ENSG00000171812
+##   ENSG00000054116     chr1 36136570-36156053      - | ENSG00000054116
+##                     gene_name           gene_biotype seq_coord_system
+##                   &lt;character&gt;            &lt;character&gt;      &lt;character&gt;
+##   ENSG00000201148    RNA5SP42                   rRNA       chromosome
+##   ENSG00000142698     C1orf94         protein_coding       chromosome
+##   ENSG00000271554 RP4-665N4.8              antisense       chromosome
+##   ENSG00000232862 RP4-665N4.4 transcribed_processe..       chromosome
+##   ENSG00000171812      COL8A2         protein_coding       chromosome
+##   ENSG00000054116     TRAPPC3         protein_coding       chromosome
+##                        symbol entrezid range_id
+##                   &lt;character&gt;   &lt;list&gt; &lt;factor&gt;
+##   ENSG00000201148    RNA5SP42     &lt;NA&gt;      foo
+##   ENSG00000142698     C1orf94    84970      foo
+##   ENSG00000271554 RP4-665N4.8     &lt;NA&gt;      bar
+##   ENSG00000232862 RP4-665N4.4     &lt;NA&gt;      bar
+##   ENSG00000171812      COL8A2     1296      bar
+##   ENSG00000054116     TRAPPC3    27095      bar
+##   -------
+##   seqinfo: 25 sequences from hg38 genome</code></pre>
+<p>Now we can access, e.g. the genomic extent of the genes (first base to
+last base).</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner_directed</span>(r) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(range_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count=</span><span class="kw">n</span>(), <span class="dt">mean_width=</span><span class="kw">mean</span>(width))</a></code></pre></div>
+<pre><code>## DataFrame with 2 rows and 3 columns
+##   range_id     count mean_width
+##   &lt;factor&gt; &lt;integer&gt;  &lt;numeric&gt;
+## 1      bar         4      18738
+## 2      foo         2      26182</code></pre>
+<p>What about <code>"boo"</code>? We need to add a complete call to bring in the
+fact that we are missing those overlaps:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner_directed</span>(r) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(range_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb34-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count=</span><span class="kw">n</span>(), <span class="dt">mean_width=</span><span class="kw">mean</span>(width)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb34-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb34-5" title="5"><span class="st">  </span><span class="kw">complete</span>(range_id, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
+<pre><code>## # A tibble: 3 × 3
+##   range_id count mean_width
+##   &lt;fct&gt;    &lt;dbl&gt;      &lt;dbl&gt;
+## 1 bar          4      18738
+## 2 boo          0         NA
+## 3 foo          2      26182</code></pre>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="join-is-an-overlap.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["tidy-ranges-tutorial.pdf", "tidy-ranges-tutorial.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

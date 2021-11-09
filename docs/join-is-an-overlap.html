@@ -4,12 +4,12 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 1 Join example | Tidy Ranges Tutorial</title>
+  <title>Chapter 1 Join is an overlap | Tidy Ranges Tutorial</title>
   <meta name="description" content="Basic examples of computing operations on genomic ranges using the
 tidy data philosophy." />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 1 Join example | Tidy Ranges Tutorial" />
+  <meta property="og:title" content="Chapter 1 Join is an overlap | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
   
   
@@ -18,7 +18,7 @@ tidy data philosophy." />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 1 Join example | Tidy Ranges Tutorial" />
+  <meta name="twitter:title" content="Chapter 1 Join is an overlap | Tidy Ranges Tutorial" />
   
   <meta name="twitter:description" content="Basic examples of computing operations on genomic ranges using the
 tidy data philosophy." />
@@ -27,7 +27,7 @@ tidy data philosophy." />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-11-08" />
+<meta name="date" content="2021-11-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +35,7 @@ tidy data philosophy." />
   
   
 <link rel="prev" href="index.html"/>
-
+<link rel="next" href="overlap-granges-with-plyranges.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -138,7 +138,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <li class="divider"></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
-<li class="chapter" data-level="1" data-path="join-example.html"><a href="join-example.html"><i class="fa fa-check"></i><b>1</b> Join example</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
 </ul>
 
       </nav>
@@ -156,9 +157,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="join-example" class="section level1">
-<h1><span class="header-section-number">Chapter 1</span> Join example</h1>
-<p>Objective: show that a “join” is like an overlap</p>
+<div id="join-is-an-overlap" class="section level1">
+<h1><span class="header-section-number">Chapter 1</span> Join is an overlap</h1>
+<p>Objective: learn that a “join” is like an overlap.</p>
 <p>We start with a quick example explaining why we use functions called
 <code>join</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)</a>
@@ -200,7 +201,9 @@ of the classmates for whom we share <em>no</em> friends outside of class.</p>
 <p>We perform an <code>inner_join</code> by <code>"friend"</code>. This just means we look for
 classmates where we have overlapping friends, and we drop the rows
 where we don’t share any friends. “Inner” refers to the fact that we
-are keeping the overlap in the <em>inside</em> of two intersecting circles.</p>
+are keeping the overlap in the <em>inside</em> of two intersecting circles.
+Note that the join operation brings along the metadata (extra data)
+about the friends’ birthdays.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">shared_friends &lt;-<span class="st"> </span>friends <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">inner_join</span>(class, <span class="dt">by=</span><span class="st">&quot;friend&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">arrange</span>(classmate, friend) <span class="op">%&gt;%</span></a>
@@ -266,8 +269,8 @@ relevant).</p>
           </div>
         </div>
       </div>
-<a href="index.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="overlap-granges-with-plyranges.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

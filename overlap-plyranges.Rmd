@@ -1,0 +1,109 @@
+# Overlap GRanges with plyranges
+
+Objective: compute overlaps and summary statistics between two sets of
+genomic ranges. In particular, suppose we want to compute the mean
+genomic extent of genes in a set of query ranges.
+
+We move on from the classroom example by seeing how we compute
+overlaps when the features are in genomic space. We will use *GRanges*
+in the Bioconductor package *GenomicRanges* to represent the features
+and *plyranges* to compute the overlaps, similarly to how we used
+*dplyr* to compute the overlaps in the previous analysis. So
+data.frame is to *dplyr* as GRanges is to *plyranges*.
+
+```{r message=FALSE}
+library(plyranges)
+```
+
+Note the structure of the *GRanges* object:
+
+```{r}
+r <- GRanges("chr1", IRanges(1 + c(34e6,36e6,36.6e6),
+                             width=c(2e5,2e5,1e5)),
+             strand=c("+","-","-"),
+             range_id=factor(c("foo","bar","boo")))
+r
+```
+
+In case you haven't seen this before, *GRanges* objects have specific
+functions to pull out information. See `?GRanges` for details.
+
+```{r}
+length(r)
+seqnames(r)
+strand(r)
+```
+
+Let's find which genes overlap a region of interest:
+
+```{r message=FALSE}
+library(EnsDb.Hsapiens.v86)
+g <- genes(EnsDb.Hsapiens.v86)
+```
+
+The following lines use convenience functions to convert to,
+e.g. `"chr1"`, ..., `"chrY"`.
+
+```{r}
+library(GenomeInfoDb)
+g <- keepStandardChromosomes(g, pruning.mode="coarse")
+seqlevelsStyle(g) <- "UCSC"
+```
+
+Now we are ready to test for overlaps.
+
+```{r}
+r %>% join_overlap_left(g)
+```
+
+We can also perform summarization by columns either in the `gr` or the
+`g` object:
+
+```{r}
+r %>% join_overlap_left(g) %>%
+  group_by(range_id) %>%
+  summarize(count=n())
+```
+
+This is giving us the same information as the following:
+
+```{r}
+r %>% count_overlaps(g)
+```
+
+If we want the gene ranges, we swap order of the ranges in the
+command:
+
+```{r}
+g %>% join_overlap_inner(r)
+```
+
+If we want strand specific overlaps, we can add `_directed`:
+
+```{r}
+g %>% join_overlap_inner_directed(r)
+```
+
+Now we can access, e.g. the genomic extent of the genes (first base to
+last base).
+
+```{r}
+g %>% join_overlap_inner_directed(r) %>%
+  group_by(range_id) %>%
+  summarize(count=n(), mean_width=mean(width))
+```
+
+What about `"boo"`? We need to add a complete call to bring in the
+fact that we are missing those overlaps:
+
+```{r message=FALSE}
+library(tidyr)
+```
+
+```{r}
+g %>% join_overlap_inner_directed(r) %>%
+  group_by(range_id) %>%
+  summarize(count=n(), mean_width=mean(width)) %>%
+  as.data.frame() %>%
+  complete(range_id, fill=list(count=0))
+```

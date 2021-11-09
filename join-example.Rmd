@@ -1,6 +1,6 @@
-# Join example
+# Join is an overlap
 
-Objective: show that a "join" is like an overlap
+Objective: learn that a "join" is like an overlap.
 
 We start with a quick example explaining why we use functions called
 `join`.
@@ -65,6 +65,8 @@ We perform an `inner_join` by `"friend"`. This just means we look for
 classmates where we have overlapping friends, and we drop the rows
 where we don't share any friends. "Inner" refers to the fact that we
 are keeping the overlap in the _inside_ of two intersecting circles.
+Note that the join operation brings along the metadata (extra data)
+about the friends' birthdays.
 
 ```{r}
 shared_friends <- friends %>%

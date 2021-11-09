@@ -1,7 +1,9 @@
 book_filename: "tidy-ranges-tutorial"
 output_dir: "docs"
-rmd_files: ["index.Rmd", "join-example.Rmd"]
+rmd_files: ["index.Rmd", "join-example.Rmd",
+            "overlap-plyranges.Rmd"]
 language:
   ui:
     chapter_name: "Chapter "
 delete_merged_file: true
+new_session: yes
