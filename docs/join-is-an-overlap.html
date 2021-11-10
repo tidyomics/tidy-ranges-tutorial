@@ -27,7 +27,7 @@ tidy data philosophy." />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-11-09" />
+<meta name="date" content="2021-11-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -140,6 +140,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
 <li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
 <li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
+<li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 </ul>
 
       </nav>
@@ -235,8 +236,8 @@ about the friends’ birthdays.</p>
 ## 23   Zachary Roe-Huffman    Maria Hernandez       15</code></pre>
 <p>Lastly, we perform some summarization: compute the number of friends
 in common with <code>n()</code> and the median birthday of shared friends. The
-<code>complete()</code> command at the end fills in 0 for those classmates for
-whom we share no friends (here, the <code>factor()</code> command earlier becomes
+<code>complete</code> call at the end fills in 0 for those classmates for
+whom we share no friends (here, the use of <code>factor</code> earlier becomes
 relevant).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">shared_friends <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(classmate) <span class="op">%&gt;%</span></a>

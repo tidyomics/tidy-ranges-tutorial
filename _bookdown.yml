@@ -2,7 +2,8 @@ book_filename: "tidy-ranges-tutorial"
 output_dir: "docs"
 rmd_files: ["index.Rmd",
             "join-is-an-overlap.Rmd",
-            "overlap-granges-with-plyranges.Rmd"]
+            "overlap-granges-with-plyranges.Rmd",
+	    "tissue-specific-promoter-marks.Rmd"]
 language:
   ui:
     chapter_name: "Chapter "

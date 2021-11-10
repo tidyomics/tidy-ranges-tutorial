@@ -78,8 +78,8 @@ shared_friends
 
 Lastly, we perform some summarization: compute the number of friends
 in common with `n()` and the median birthday of shared friends. The
-`complete()` command at the end fills in 0 for those classmates for
-whom we share no friends (here, the `factor()` command earlier becomes
+`complete` call at the end fills in 0 for those classmates for
+whom we share no friends (here, the use of `factor` earlier becomes
 relevant).
 
 ```{r}

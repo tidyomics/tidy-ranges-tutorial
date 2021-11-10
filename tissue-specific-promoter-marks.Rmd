@@ -1,6 +1,10 @@
 # Tissue-specific promoter marks
 
-Objective: 
+Objective: determine if promoters marks (e.g. H3K27ac) are specific to
+genes that are expressed in a tissue-specific manner.
+
+We will load expression data from the GTEx project, which gives
+median expression in TPM for each tissue.
 
 ```{r message=FALSE}
 library(tidyr)
@@ -8,11 +12,19 @@ library(dplyr)
 gtex <- read.delim("GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip=2)
 ```
 
+We select two tissues, bladder and kidney, and convert the data from a
+wide format into a tidy format.
+
 ```{r}
 tissues <- gtex %>% dplyr::select(Name, Bladder, Kidney...Cortex) %>%
   dplyr::rename(gene = Name, Kidney = Kidney...Cortex) %>%
   dplyr::mutate(gene = sub("\\..*","",gene)) %>%
   pivot_longer(!gene, names_to="tissue", values_to="tpm")
+```
+
+Now define two vectors of genes that are specific to bladder and kidney:
+
+```{r}
 bladder_expr <- tissues %>%
   dplyr::filter(tissue == "Bladder" & tpm > 10) %>%
   pull(gene)
@@ -24,26 +36,45 @@ bladder_expr <- setdiff(bladder_expr, int)
 kidney_expr <- setdiff(kidney_expr, int)
 ```
 
+Next, use an existing TxDb to locate these genes in the genomes. While
+we usually recommend to use GENCODE genes for human analysis, because
+the ENCODE chromatin modification peak files on AnnotationHub are in
+hg19, we use the UCSC hg19 genes here for simplicity of the code:
+
 ```{r message=FALSE}
 library(plyranges)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
 ```
 
+Add the ENSEMBL ID and pull out the two tissue-specific sets. 
+
 ```{r}
 g <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 g <- g %>% mutate(ensembl = mapIds(org.Hs.eg.db, gene_id, "ENSEMBL", "ENTREZID"))
 bladder_g <- g %>% filter(ensembl %in% bladder_expr)
 kidney_g <- g %>% filter(ensembl %in% kidney_expr)
+```
+
+Finally we combine the two sets with `bind_ranges`, and we change
+the feature size from the whole gene extent (the range from the
+leftmost exon to rightmost exon), to just the TSS, using `anchor_5p`
+and `mutate`.
+
+```{r}
 tss <- bind_ranges(bladder=bladder_g, kidney=kidney_g, .id="gtissue") %>%
   anchor_5p() %>%
   mutate(width=1)
 ```
 
-```{r messages=FALSE}
+Now we will obtain the H3K27ac peak sets:
+
+```{r message=FALSE}
 library(AnnotationHub)
 ah <- AnnotationHub()
 ```
+
+We download these and scale so they have the same 90% quantile of `signalValue`.
 
 ```{r}
 query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
@@ -54,12 +85,22 @@ kidney_pks <- ah[["AH43443"]]
 kidney_pks <- kidney_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
 ```
 
+Combine the peaks from bladder and kidney, filter to those with < 0.1%
+FDR, and center the peak on the summit (the `"peak"` column gives the
+shift from the left side to the summit).
+
 ```{r}
 pks <- bind_ranges(bladder=bladder_pks, kidney=kidney_pks, .id="ptissue") %>%
   filter(qValue >= 3, width <= 1000) %>%
   mutate(start = start + peak) %>%
   plyranges::select(-peak) %>%
   mutate(width = 1)
+```
+
+Finally, once we have two tidy range sets, the *plyranges* analysis is
+just a few lines:
+
+```{r}
 tss %>% join_overlap_left(pks, maxgap=500) %>%
   group_by(gtissue, ptissue) %>%
   summarize(count = n(), meanSignal = mean(signalValue))
