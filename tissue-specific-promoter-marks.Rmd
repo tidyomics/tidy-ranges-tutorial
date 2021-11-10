@@ -1,0 +1,71 @@
+# Tissue-specific promoter marks
+
+Objective: 
+
+```{r message=FALSE}
+library(tidyr)
+library(dplyr)
+gtex <- read.delim("GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip=2)
+```
+
+```{r}
+tissues <- gtex %>% dplyr::select(Name, Bladder, Kidney...Cortex) %>%
+  dplyr::rename(gene = Name, Kidney = Kidney...Cortex) %>%
+  dplyr::mutate(gene = sub("\\..*","",gene)) %>%
+  pivot_longer(!gene, names_to="tissue", values_to="tpm")
+bladder_expr <- tissues %>%
+  dplyr::filter(tissue == "Bladder" & tpm > 10) %>%
+  pull(gene)
+kidney_expr <- tissues %>%
+  dplyr::filter(tissue == "Kidney" & tpm > 10) %>%
+  pull(gene)
+int <- intersect(bladder_expr, kidney_expr)
+bladder_expr <- setdiff(bladder_expr, int)
+kidney_expr <- setdiff(kidney_expr, int)
+```
+
+```{r message=FALSE}
+library(plyranges)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+```
+
+```{r}
+g <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+g <- g %>% mutate(ensembl = mapIds(org.Hs.eg.db, gene_id, "ENSEMBL", "ENTREZID"))
+bladder_g <- g %>% filter(ensembl %in% bladder_expr)
+kidney_g <- g %>% filter(ensembl %in% kidney_expr)
+tss <- bind_ranges(bladder=bladder_g, kidney=kidney_g, .id="gtissue") %>%
+  anchor_5p() %>%
+  mutate(width=1)
+```
+
+```{r messages=FALSE}
+library(AnnotationHub)
+ah <- AnnotationHub()
+```
+
+```{r}
+query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
+bladder_pks <- ah[["AH44180"]]
+bladder_pks <- bladder_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
+query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
+kidney_pks <- ah[["AH43443"]]
+kidney_pks <- kidney_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
+```
+
+```{r}
+pks <- bind_ranges(bladder=bladder_pks, kidney=kidney_pks, .id="ptissue") %>%
+  filter(qValue >= 3, width <= 1000) %>%
+  mutate(start = start + peak) %>%
+  plyranges::select(-peak) %>%
+  mutate(width = 1)
+tss %>% join_overlap_left(pks, maxgap=500) %>%
+  group_by(gtissue, ptissue) %>%
+  summarize(count = n(), meanSignal = mean(signalValue))
+```
+
+What's wrong with this analysis?
+
+* We didn't figure out the expressed promoter, we just looked at the
+  left or rightmost isoform (for + or - strand genes, respectively). 
