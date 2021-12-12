@@ -8,8 +8,7 @@ median expression in TPM for each tissue.
 
 ```{r message=FALSE}
 library(tidyr)
-library(dplyr)
-gtex <- read.delim("GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip=2)
+gtex <- read.delim("data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip=2)
 ```
 
 We select two tissues, bladder and kidney, and convert the data from a
@@ -27,10 +26,10 @@ Now define two vectors of genes that are specific to bladder and kidney:
 ```{r}
 bladder_expr <- tissues %>%
   dplyr::filter(tissue == "Bladder" & tpm > 10) %>%
-  pull(gene)
+  dplyr::pull(gene)
 kidney_expr <- tissues %>%
   dplyr::filter(tissue == "Kidney" & tpm > 10) %>%
-  pull(gene)
+  dplyr::pull(gene)
 int <- intersect(bladder_expr, kidney_expr)
 bladder_expr <- setdiff(bladder_expr, int)
 kidney_expr <- setdiff(kidney_expr, int)
@@ -42,7 +41,6 @@ the ENCODE chromatin modification peak files on AnnotationHub are in
 hg19, we use the UCSC hg19 genes here for simplicity of the code:
 
 ```{r message=FALSE}
-library(plyranges)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
 ```
@@ -51,6 +49,10 @@ Add the ENSEMBL ID and pull out the two tissue-specific sets.
 
 ```{r}
 g <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+```
+
+```{r message=FALSE}
+library(plyranges)
 g <- g %>% mutate(ensembl = mapIds(org.Hs.eg.db, gene_id, "ENSEMBL", "ENTREZID"))
 bladder_g <- g %>% filter(ensembl %in% bladder_expr)
 kidney_g <- g %>% filter(ensembl %in% kidney_expr)
@@ -86,14 +88,14 @@ kidney_pks <- kidney_pks %>% mutate(signalValue = signalValue / quantile(signalV
 ```
 
 Combine the peaks from bladder and kidney, filter to those with < 0.1%
-FDR, and center the peak on the summit (the `"peak"` column gives the
+FDR, and center the peak on the summit (the `peak` column gives the
 shift from the left side to the summit).
 
 ```{r}
 pks <- bind_ranges(bladder=bladder_pks, kidney=kidney_pks, .id="ptissue") %>%
-  filter(qValue >= 3, width <= 1000) %>%
+  filter(qValue > 3, width <= 1000) %>%
   mutate(start = start + peak) %>%
-  plyranges::select(-peak) %>%
+  select(-peak) %>%
   mutate(width = 1)
 ```
 

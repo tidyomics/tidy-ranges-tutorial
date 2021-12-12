@@ -3,7 +3,8 @@ output_dir: "docs"
 rmd_files: ["index.Rmd",
             "join-is-an-overlap.Rmd",
             "overlap-granges-with-plyranges.Rmd",
-	    "tissue-specific-promoter-marks.Rmd"]
+	    "tissue-specific-promoter-marks.Rmd",
+	    "bootstrap-overlap.Rmd"]
 language:
   ui:
     chapter_name: "Chapter "

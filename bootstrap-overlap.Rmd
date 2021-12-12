@@ -1,0 +1,105 @@
+# Bootstrap overlap
+
+Objective: 
+
+```{r message=FALSE}
+library(AnnotationHub)
+ah <- AnnotationHub()
+kidney_pks <- ah[["AH43443"]]
+bladder_pks <- ah[["AH44180"]]
+```
+
+```{r}
+# hg19.Crawford.wgEncodeDukeMapabilityRegionsExcludable
+query(ah, c("excluderanges","hg19"))
+exclude <- ah[["AH95912"]] 
+```
+
+```{r}
+x <- kidney_pks
+y <- bladder_pks
+x <- keepStandardChromosomes(x)
+seqlevels(x, pruning.mode="coarse") <- setdiff(seqlevels(x), "chrM")
+seqlevels(y, pruning.mode="coarse") <- seqlevels(x)
+seqlevels(exclude, pruning.mode="coarse") <- seqlevels(x)
+```
+
+```{r message=FALSE}
+library(plyranges)
+```
+
+```{r}
+exclude <- exclude %>%
+  filter(width(exclude) >= 500)
+```
+
+```{r}
+q_thr <- 4
+s_thr <- 10
+x <- x %>% filter(qValue > q_thr & signalValue > s_thr) %>%
+  sort()
+y <- y %>% filter(qValue > q_thr & signalValue > s_thr) %>%
+  sort()
+```
+
+```{r}
+obs <- x %>% mutate(n_overlaps = count_overlaps(., y))
+obs %>% summarize(sum = sum(n_overlaps))
+table( obs$n_overlaps )
+```
+
+```{r}
+y %>% mutate(n_overlaps = count_overlaps(., exclude)) %>%
+  summarize(sum = sum(n_overlaps))
+```
+
+```{r}
+library(nullranges)
+R <- 100 # number of iterations
+pks_to_boot <- y %>%
+  mutate(id=seq_len(length(peak))) %>%
+  select(id)
+set.seed(5)
+boots <- bootRanges(pks_to_boot, blockLength=5e5, R=R, exclude=exclude)
+```
+
+examine properties of permuted 'y' over iterations
+
+```{r}
+stats <- boots %>% group_by(iter) %>%
+  summarize(n = n(), sum_width=sum(width)/1e6) %>%
+  as.data.frame()
+summary(stats)
+```
+
+detail of how we count hits, an ID of NA = no hit
+
+```{r}
+counter <- function(id) sum(!is.na(id)) 
+```
+
+```{r message=FALSE}
+library(tidyr)
+```
+
+```{r}
+null <- x %>% join_overlap_left(boots) %>%
+  group_by(iter) %>%
+  summarize(n_overlaps=counter(id)) %>%
+  as.data.frame() %>%
+  complete(iter, fill=list(rate=0)) %>%
+  drop_na()
+head(null)
+```
+
+```{r}
+obs_overlaps <- sum(obs$n_overlaps) # the observed count of overlaps
+obs_overlaps
+```
+
+```{r boot-hist, message=FALSE}
+library(ggplot2)
+ggplot(null, aes(n_overlaps)) +
+  geom_histogram(binwidth=5) +
+  ggtitle("bootstrap overlaps")
+```
