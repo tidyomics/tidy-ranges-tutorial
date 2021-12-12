@@ -79,10 +79,10 @@ ah <- AnnotationHub()
 We download these and scale so they have the same 90% quantile of `signalValue`.
 
 ```{r}
-query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
+# query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
 bladder_pks <- ah[["AH44180"]]
 bladder_pks <- bladder_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
-query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
+# query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
 kidney_pks <- ah[["AH43443"]]
 kidney_pks <- kidney_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
 ```
