@@ -27,7 +27,7 @@ tidy data philosophy." />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-12-12" />
+<meta name="date" content="2021-12-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +35,7 @@ tidy data philosophy." />
   
   
 <link rel="prev" href="tissue-specific-promoter-marks.html"/>
-
+<link rel="next" href="references.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -142,6 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
       </nav>
@@ -161,124 +162,281 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="bootstrap-overlap" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Bootstrap overlap</h1>
-<p>Objective:</p>
+<p>Objective: determine if one set of peaks are overlapping another set
+of peaks more or less than expected when comparing to sets of <em>null</em>
+features.</p>
+<p>The null features can be generated in a variety of ways – here we
+will generate them by resampling large blocks of one of the peak
+sets. The motivation for sampling blocks, instead of placing features
+uniformly along the chromosome (“shuffling”), is to better preserve
+inter-feature distances, because genomic features tend to cluster in
+the genome, even after considering things like excluded regions. This
+technique of generating null feature sets is called <em>block bootstrap
+resampling</em>, and we will use the <em>nullranges</em> implementation of the
+block bootstrapping algorithm to generate the null features, followed
+by overlap analysis with <em>plyranges</em>. The approach used in
+<em>nullranges</em> to generate bootstrap ranges closely follows the method
+described by <span class="citation">Bickel et al. (<a href="#ref-bickel2010">2010</a>)</span>.</p>
+<p>We start by loading the kidney and bladder H3K27ac ChIP-seq peaks used
+in the previous analysis.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(AnnotationHub)</a>
 <a class="sourceLine" id="cb1-2" title="2">ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</a>
 <a class="sourceLine" id="cb1-3" title="3">kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</a>
 <a class="sourceLine" id="cb1-4" title="4">bladder_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH44180&quot;</span>]]</a></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># hg19.Crawford.wgEncodeDukeMapabilityRegionsExcludable</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="kw">query</span>(ah, <span class="kw">c</span>(<span class="st">&quot;excluderanges&quot;</span>,<span class="st">&quot;hg19&quot;</span>))</a></code></pre></div>
-<pre><code>## AnnotationHub with 12 records
-## # snapshotDate(): 2021-10-20
-## # $dataprovider: UCSC, ENCODE
-## # $species: Homo sapiens
-## # $rdataclass: GRanges
-## # additional mcols(): taxonomyid, genome, description,
-## #   coordinate_1_based, maintainer, rdatadateadded, preparerclass, tags,
-## #   rdatapath, sourceurl, sourcetype 
-## # retrieve records with, e.g., &#39;object[[&quot;AH95910&quot;]]&#39; 
-## 
-##             title                                                    
-##   AH95910 | hg19.Bernstein.Mint_Excludable_hg19.rds                  
-##   AH95911 | hg19.Birney.wgEncodeDacMapabilityConsensusExcludable.rds 
-##   AH95912 | hg19.Crawford.wgEncodeDukeMapabilityRegionsExcludable.rds
-##   AH95913 | hg19.Wold.hg19mitoExcludable.rds                         
-##   AH95914 | hg19.Yeo.eCLIP_Excludableregions.hg19.rds                
-##   ...       ...                                                      
-##   AH95929 | hg19.UCSC.contig.rds                                     
-##   AH95930 | hg19.UCSC.heterochromatin.rds                            
-##   AH95931 | hg19.UCSC.scaffold.rds                                   
-##   AH95932 | hg19.UCSC.short_arm.rds                                  
-##   AH95933 | hg19.UCSC.telomere.rds</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">exclude &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH95912&quot;</span>]] </a></code></pre></div>
-<pre><code>## loading from cache</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">x &lt;-<span class="st"> </span>kidney_pks</a>
-<a class="sourceLine" id="cb6-2" title="2">y &lt;-<span class="st"> </span>bladder_pks</a>
-<a class="sourceLine" id="cb6-3" title="3">x &lt;-<span class="st"> </span><span class="kw">keepStandardChromosomes</span>(x)</a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="kw">seqlevels</span>(x, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">seqlevels</span>(x), <span class="st">&quot;chrM&quot;</span>)</a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="kw">seqlevels</span>(y, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="kw">seqlevels</span>(exclude, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</a></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(plyranges)</a></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">exclude &lt;-<span class="st"> </span>exclude <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">width</span>(exclude) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">500</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">q_thr &lt;-<span class="st"> </span><span class="dv">4</span></a>
-<a class="sourceLine" id="cb9-2" title="2">s_thr &lt;-<span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb9-3" title="3">x &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="st">  </span><span class="kw">sort</span>()</a>
-<a class="sourceLine" id="cb9-5" title="5">y &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="st">  </span><span class="kw">sort</span>()</a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">obs &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., y))</a>
-<a class="sourceLine" id="cb10-2" title="2">obs <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">sum =</span> <span class="kw">sum</span>(n_overlaps))</a></code></pre></div>
+<p>We will additionally obtain an excluded region set, so that we avoid
+placing bootstrap features into regions of the genome that don’t
+typically have features. A variety of possible exclude lists are
+provided by the <em>excluderanges</em> packages and available via
+<em>AnnotationHub</em>. Here we will use the
+<code>hg19.Crawford.wgEncodeDukeMapabilityRegionsExcludable</code> regions, as
+they are available for hg19, which is the genome used with the peak
+sets.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># query(ah, c(&quot;excluderanges&quot;,&quot;hg19&quot;))</span></a>
+<a class="sourceLine" id="cb2-2" title="2">exclude &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH95912&quot;</span>]]</a></code></pre></div>
+<p>To make the code more generic, we will rename the kidney peaks to <code>x</code>
+and the bladder peaks to <code>y</code>. We will be looking for overlaps with
+features in <code>x</code> as the query set: how many of the features in <code>x</code>
+overlap features in <code>y</code>?</p>
+<p>The following code reduces our analysis to looking only at standard
+chromosomes, excluding the mitochondrial genome (too small for
+including in the block bootstrap).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(GenomeInfoDb)</a>
+<a class="sourceLine" id="cb3-2" title="2">x &lt;-<span class="st"> </span>kidney_pks</a>
+<a class="sourceLine" id="cb3-3" title="3">y &lt;-<span class="st"> </span>bladder_pks</a>
+<a class="sourceLine" id="cb3-4" title="4">x &lt;-<span class="st"> </span><span class="kw">keepStandardChromosomes</span>(x)</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">seqlevels</span>(x, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">seqlevels</span>(x), <span class="st">&quot;chrM&quot;</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">seqlevels</span>(y, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="kw">seqlevels</span>(exclude, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</a></code></pre></div>
+<p>We are mostly concerned with avoiding placing bootstrapped features in
+large regions in the exclude list, so we subset the exclude list to
+features larger than 500 bp.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">library</span>(plyranges)</a>
+<a class="sourceLine" id="cb4-2" title="2">exclude &lt;-<span class="st"> </span>exclude <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">width</span>(exclude) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">500</span>)</a></code></pre></div>
+<p>We also subset to the peaks for kidney and bladder which have q-value
+less than 0.001 and signal value greater than 9 (these are arbitrary
+filter values, just for demonstration).</p>
+<p>For further analysis, we will need the features in <code>y</code> to be sorted,
+for the bootstrapping, here we sort both sets.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">q_thr &lt;-<span class="st"> </span><span class="dv">3</span></a>
+<a class="sourceLine" id="cb5-2" title="2">s_thr &lt;-<span class="st"> </span><span class="dv">9</span></a>
+<a class="sourceLine" id="cb5-3" title="3">x &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="st">  </span><span class="kw">sort</span>()</a>
+<a class="sourceLine" id="cb5-5" title="5">y &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="st">  </span><span class="kw">sort</span>()</a></code></pre></div>
+<p>Now we can assess how many overlaps we observed between <code>x</code> and <code>y</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">obs &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., y))</a>
+<a class="sourceLine" id="cb6-2" title="2">obs <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">sum =</span> <span class="kw">sum</span>(n_overlaps))</a></code></pre></div>
 <pre><code>## DataFrame with 1 row and 1 column
 ##         sum
 ##   &lt;integer&gt;
-## 1      3776</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">table</span>( obs<span class="op">$</span>n_overlaps )</a></code></pre></div>
+## 1      5073</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">table</span>( obs<span class="op">$</span>n_overlaps )</a></code></pre></div>
 <pre><code>## 
-##    0    1    2    3    4 
-## 7863 3075  315   21    2</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">y <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., exclude)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">sum =</span> <span class="kw">sum</span>(n_overlaps))</a></code></pre></div>
+##    0    1    2    3    4    6 
+## 9453 3966  486   39    3    1</code></pre>
+<p>We can check if any of the features of <code>y</code> fall in the excluded
+regions:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">y <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., exclude)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">sum =</span> <span class="kw">sum</span>(n_overlaps))</a></code></pre></div>
 <pre><code>## DataFrame with 1 row and 1 column
 ##         sum
 ##   &lt;integer&gt;
 ## 1         0</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">library</span>(nullranges)</a>
-<a class="sourceLine" id="cb16-2" title="2">R &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># number of iterations</span></a>
-<a class="sourceLine" id="cb16-3" title="3">pks_to_boot &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id=</span><span class="kw">seq_len</span>(<span class="kw">length</span>(peak))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-5" title="5"><span class="st">  </span><span class="kw">select</span>(id)</a>
-<a class="sourceLine" id="cb16-6" title="6"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb16-7" title="7">boots &lt;-<span class="st"> </span><span class="kw">bootRanges</span>(pks_to_boot, <span class="dt">blockLength=</span><span class="fl">5e5</span>, <span class="dt">R=</span>R, <span class="dt">exclude=</span>exclude)</a></code></pre></div>
-<p>examine properties of permuted ‘y’ over iterations</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">stats &lt;-<span class="st"> </span>boots <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n =</span> <span class="kw">n</span>(), <span class="dt">sum_width=</span><span class="kw">sum</span>(width)<span class="op">/</span><span class="fl">1e6</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="st">  </span><span class="kw">as.data.frame</span>()</a>
-<a class="sourceLine" id="cb17-4" title="4"><span class="kw">summary</span>(stats)</a></code></pre></div>
+<p>The following chunk of code does the bootstrapping of features in
+<code>y</code>. Here we subset first to metadata columns of interest (an <code>id</code>
+variable that we create, and the signal value which we rename to
+<code>signal</code>). The <code>bootRanges</code> function returns the 100 bootstrap
+feature sets combined into one <em>GRanges</em> object – this tidy format
+facilitates downstream analysis as we will see. The bootstrap
+iteration is stored in the <code>iter</code> metadata column.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">library</span>(nullranges)</a>
+<a class="sourceLine" id="cb12-2" title="2">R &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># number of iterations</span></a>
+<a class="sourceLine" id="cb12-3" title="3">pks_to_boot &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id =</span> <span class="kw">seq_along</span>(y)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="st">  </span><span class="kw">select</span>(id, <span class="dt">signal =</span> signalValue)</a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb12-7" title="7">boots &lt;-<span class="st"> </span><span class="kw">bootRanges</span>(pks_to_boot, <span class="dt">blockLength=</span><span class="fl">5e5</span>, <span class="dt">R=</span>R, <span class="dt">exclude=</span>exclude)</a>
+<a class="sourceLine" id="cb12-8" title="8">boots</a></code></pre></div>
+<pre><code>## bootRanges object with 582286 ranges and 5 metadata columns:
+##            seqnames            ranges strand |        id    signal     block
+##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt;
+##        [1]     chr1   2011397-2011809      * |       931  14.42934         5
+##        [2]     chr1   2011973-2012399      * |       932  17.57052         5
+##        [3]     chr1   2012505-2013073      * |       933   9.64691         5
+##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6
+##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6
+##        ...      ...               ...    ... .       ...       ...       ...
+##   [582282]     chrY 55017962-55019381      * |      4606   10.6726      6198
+##   [582283]     chrY 55020728-55021448      * |      4607   10.2813      6198
+##   [582284]     chrY 56057780-56058485      * |       526   10.7459      6200
+##   [582285]     chrY 58301237-58301561      * |      2909   13.6510      6204
+##   [582286]     chrY 58469665-58470750      * |      2910   16.2352      6204
+##             iter blockLength
+##            &lt;Rle&gt;       &lt;Rle&gt;
+##        [1]     1      500000
+##        [2]     1      500000
+##        [3]     1      500000
+##        [4]     1      500000
+##        [5]     1      500000
+##        ...   ...         ...
+##   [582282]   100      500000
+##   [582283]   100      500000
+##   [582284]   100      500000
+##   [582285]   100      500000
+##   [582286]   100      500000
+##   -------
+##   seqinfo: 24 sequences from hg19 genome</code></pre>
+<p>The default use above of the <code>exclude</code> argument is to drop bootstrapped
+ranges that overlap the exclude list.</p>
+<p>We can examine properties of permuted <code>y</code> over iterations, and compare
+to the original <code>y</code>. To do so, we add the original features as <code>iter=0</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">combined &lt;-<span class="st"> </span>pks_to_boot <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">iter=</span><span class="dv">0</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="st">  </span><span class="kw">bind_ranges</span>(boots) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(iter)</a>
+<a class="sourceLine" id="cb14-3" title="3">stats &lt;-<span class="st"> </span>combined <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n =</span> <span class="kw">n</span>(),</a>
+<a class="sourceLine" id="cb14-5" title="5">            <span class="dt">sum_width=</span><span class="kw">sum</span>(width)<span class="op">/</span><span class="fl">1e6</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="st">  </span><span class="kw">as.data.frame</span>()</a>
+<a class="sourceLine" id="cb14-7" title="7">stats[<span class="dv">1</span>,]</a></code></pre></div>
+<pre><code>##   iter    n sum_width
+## 1    0 5838  5.068015</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">summary</span>(stats[<span class="op">-</span><span class="dv">1</span>,])</a></code></pre></div>
 <pre><code>##       iter          n          sum_width    
-##  1      : 1   Min.   :4110   Min.   :3.741  
-##  2      : 1   1st Qu.:4252   1st Qu.:3.910  
-##  3      : 1   Median :4318   Median :3.996  
-##  4      : 1   Mean   :4328   Mean   :3.987  
-##  5      : 1   3rd Qu.:4399   3rd Qu.:4.066  
-##  6      : 1   Max.   :4608   Max.   :4.241  
+##  1      : 1   Min.   :5586   Min.   :4.778  
+##  2      : 1   1st Qu.:5727   1st Qu.:4.966  
+##  3      : 1   Median :5814   Median :5.065  
+##  4      : 1   Mean   :5823   Mean   :5.055  
+##  5      : 1   3rd Qu.:5911   3rd Qu.:5.131  
+##  6      : 1   Max.   :6180   Max.   :5.375  
 ##  (Other):94</code></pre>
-<p>detail of how we count hits, an ID of NA = no hit</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">counter &lt;-<span class="st"> </span><span class="cf">function</span>(id) <span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(id)) </a></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">null &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(boots) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n_overlaps=</span><span class="kw">counter</span>(id)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-5" title="5"><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">rate=</span><span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-6" title="6"><span class="st">  </span><span class="kw">drop_na</span>()</a>
-<a class="sourceLine" id="cb21-7" title="7"><span class="kw">head</span>(null)</a></code></pre></div>
+<p>We can also look at distributions of various aspects, e.g. here the
+width of features, across a few of the bootstraps and the original
+feature set <code>y</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="kw">library</span>(ggridges)</a>
+<a class="sourceLine" id="cb18-3" title="3">combined <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(iter <span class="op">%in%</span><span class="st"> </span><span class="dv">0</span><span class="op">:</span><span class="dv">5</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="st">  </span><span class="kw">select</span>(iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="kw">ifelse</span>(iter <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="st">&quot;original&quot;</span>, <span class="st">&quot;boot&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb18-7" title="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="kw">log10</span>(width), iter, <span class="dt">fill=</span>type)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb18-8" title="8"><span class="st">  </span><span class="kw">geom_density_ridges</span>(<span class="dt">alpha =</span> <span class="fl">0.75</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb18-9" title="9"><span class="st">  </span><span class="kw">geom_text</span>(<span class="dt">data=</span><span class="kw">head</span>(stats),</a>
+<a class="sourceLine" id="cb18-10" title="10">            <span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.25</span>, <span class="dt">y=</span>iter, <span class="dt">label=</span><span class="kw">paste0</span>(<span class="st">&quot;n=&quot;</span>,n), <span class="dt">fill=</span><span class="ot">NULL</span>),</a>
+<a class="sourceLine" id="cb18-11" title="11">            <span class="dt">vjust=</span><span class="fl">1.5</span>)</a></code></pre></div>
+<p><img src="bootstrap-overlap_files/figure-html/boot-width-1.png" width="672" /></p>
+<p>To compute overlap with the null features, we need two functions from the
+<em>tidyr</em> package, <code>complete()</code> and <code>drop_na()</code>. We saw <code>complete()</code>
+before – this is used in the case that one of the iterations has no
+overlaps. In this case, we need to record the 0 value for proper
+inference and plots downstream. It is rare we would have no overlaps
+with so many features as we have in <code>x</code> and <code>y</code> but it’s good practice
+to leave the <code>complete()</code> as part of the workflow so the code works
+correctly in all cases.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">null &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_intersect</span>(boots) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n_overlaps=</span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">rate=</span><span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-6" title="6"><span class="st">  </span><span class="kw">drop_na</span>()</a>
+<a class="sourceLine" id="cb20-7" title="7"><span class="kw">head</span>(null)</a></code></pre></div>
 <pre><code>## # A tibble: 6 × 2
 ##   iter  n_overlaps
 ##   &lt;fct&gt;      &lt;int&gt;
-## 1 1             37
-## 2 2             36
-## 3 3             46
-## 4 4             27
-## 5 5             29
-## 6 6             41</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">obs_overlaps &lt;-<span class="st"> </span><span class="kw">sum</span>(obs<span class="op">$</span>n_overlaps) <span class="co"># the observed count of overlaps</span></a>
-<a class="sourceLine" id="cb23-2" title="2">obs_overlaps</a></code></pre></div>
-<pre><code>## [1] 3776</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb25-2" title="2"><span class="kw">ggplot</span>(null, <span class="kw">aes</span>(n_overlaps)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb25-3" title="3"><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth=</span><span class="dv">5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb25-4" title="4"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;bootstrap overlaps&quot;</span>)</a></code></pre></div>
+## 1 1             60
+## 2 2             60
+## 3 3             76
+## 4 4             51
+## 5 5             39
+## 6 6             66</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">obs_overlaps &lt;-<span class="st"> </span><span class="kw">sum</span>( obs<span class="op">$</span>n_overlaps )</a>
+<a class="sourceLine" id="cb22-2" title="2">obs_overlaps</a></code></pre></div>
+<pre><code>## [1] 5073</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">ggplot</span>(null, <span class="kw">aes</span>(n_overlaps)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-2" title="2"><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth=</span><span class="dv">5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;bootstrap overlaps&quot;</span>)</a></code></pre></div>
 <p><img src="bootstrap-overlap_files/figure-html/boot-hist-1.png" width="672" /></p>
+<p>Note that in the above chunks where we count overlaps, we are doubly
+(or triply, etc.) counting features in <code>x</code> if they hit more than one
+feature in <code>y</code> or <code>boots</code>. We can count statistics per <code>x</code> feature by
+adding another <code>group_by</code> into the stream of operations. This also
+allows us to do more complex operations, such as computing the
+maximum signal value for the overlapping features in <code>y</code> per feature
+in <code>x</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1">x &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">x_id =</span> <span class="kw">seq_along</span>(x))</a>
+<a class="sourceLine" id="cb25-2" title="2">obs &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(pks_to_boot) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-3" title="3"><span class="st">  </span><span class="kw">group_by</span>(x_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-4" title="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">num_overlaps =</span> <span class="kw">n</span>(),</a>
+<a class="sourceLine" id="cb25-5" title="5">            <span class="dt">max_signal =</span> <span class="kw">max</span>(signal))</a>
+<a class="sourceLine" id="cb25-6" title="6"><span class="kw">sum</span>( obs<span class="op">$</span>num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> )</a></code></pre></div>
+<pre><code>## [1] 4495</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">summary</span>( obs<span class="op">$</span>max_signal )</a></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   9.002  10.281  12.025  13.029  14.725  35.211</code></pre>
+<p>For the bootstrap ranges, we also need to add <code>iter</code> to the initial
+<code>group_by</code>, so we count per <code>x</code> feature and per iteration of the
+bootstrap:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">null &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(boots) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(x_id, iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">num_overlaps =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">any_hits =</span> <span class="kw">sum</span>(num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-7" title="7"><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">rate=</span><span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-8" title="8"><span class="st">  </span><span class="kw">drop_na</span>()</a>
+<a class="sourceLine" id="cb29-9" title="9"><span class="kw">head</span>(null)</a></code></pre></div>
+<pre><code>## # A tibble: 6 × 2
+##   iter  any_hits
+##   &lt;fct&gt;    &lt;int&gt;
+## 1 1           55
+## 2 2           55
+## 3 3           68
+## 4 4           50
+## 5 5           37
+## 6 6           63</code></pre>
+<p>The above code chunk then avoids double counting. We could also have
+made other per-<code>x</code>-feature statistics in the summarize step after the
+initial <code>group_by</code>, such as maximum signal of overlapping features.</p>
+<p>What’s wrong with this analysis? Suppose we don’t just want the count
+but the rate of overlaps, per iteration. We would need to keep track
+of the number of bootstrap features per iteration to divide by it.</p>
+<p>In this case, the easiest approach is likely to divide this out at the
+end:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">totals &lt;-<span class="st"> </span>boots <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">total=</span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="st">  </span><span class="kw">as.data.frame</span>()</a>
+<a class="sourceLine" id="cb31-4" title="4">null <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(totals) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rate =</span> any_hits<span class="op">/</span>total)</a></code></pre></div>
+<pre><code>## Joining, by = &quot;iter&quot;</code></pre>
+<pre><code>## # A tibble: 100 × 4
+##    iter  any_hits total    rate
+##    &lt;fct&gt;    &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
+##  1 1           55  6031 0.00912
+##  2 2           55  5710 0.00963
+##  3 3           68  5758 0.0118 
+##  4 4           50  5927 0.00844
+##  5 5           37  5713 0.00648
+##  6 6           63  5888 0.0107 
+##  7 7           57  5910 0.00964
+##  8 8           73  5836 0.0125 
+##  9 9           57  5770 0.00988
+## 10 10          51  5991 0.00851
+## # … with 90 more rows</code></pre>
 
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-bickel2010">
+<p>Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. “Subsampling Methods for Genomic Inference.” <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-{AOAS363}">https://doi.org/10.1214/10-{AOAS363}</a>.</p>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="tissue-specific-promoter-marks.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="tissue-specific-promoter-marks.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

@@ -39,6 +39,7 @@ Let's find which genes overlap a region of interest:
 ```{r message=FALSE}
 library(EnsDb.Hsapiens.v86)
 g <- genes(EnsDb.Hsapiens.v86)
+g <- g %>% plyranges::select(gene_name)
 ```
 
 The following lines use convenience functions to convert to,
@@ -50,17 +51,27 @@ g <- keepStandardChromosomes(g, pruning.mode="coarse")
 seqlevelsStyle(g) <- "UCSC"
 ```
 
-Now we are ready to test for overlaps.
+Now we are ready to test for overlaps. A left join gives us all the
+overlaps for ranges on the left side. If a range on the left has
+no overlaps it appears with `NA` for the metadata columns of the right
+side ranges.
 
 ```{r}
 r %>% join_overlap_left(g)
 ```
 
-We can also perform summarization by columns either in the `gr` or the
+If we want to exclude the zero matches cases, we can use an inner
+join:
+
+```{r}
+r %>% join_overlap_inner(g)
+```
+
+We can also perform summarization by columns either in the `r` or the
 `g` object:
 
 ```{r}
-r %>% join_overlap_left(g) %>%
+r %>% join_overlap_inner(g) %>%
   group_by(range_id) %>%
   summarize(count=n())
 ```

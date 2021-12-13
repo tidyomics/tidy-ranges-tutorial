@@ -27,7 +27,7 @@ tidy data philosophy." />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-12-12" />
+<meta name="date" content="2021-12-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -142,6 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
       </nav>
@@ -165,74 +166,80 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 genes that are expressed in a tissue-specific manner.</p>
 <p>We will load expression data from the GTEx project, which gives
 median expression in TPM for each tissue.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb1-2" title="2">gtex &lt;-<span class="st"> </span><span class="kw">read.delim</span>(<span class="st">&quot;data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz&quot;</span>, <span class="dt">skip=</span><span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb45-2" title="2">file &lt;-<span class="st"> &quot;data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz&quot;</span></a>
+<a class="sourceLine" id="cb45-3" title="3">gtex &lt;-<span class="st"> </span><span class="kw">read.delim</span>(file, <span class="dt">skip=</span><span class="dv">2</span>)</a></code></pre></div>
 <p>We select two tissues, bladder and kidney, and convert the data from a
 wide format into a tidy format.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">tissues &lt;-<span class="st"> </span>gtex <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(Name, Bladder, Kidney...Cortex) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">rename</span>(<span class="dt">gene =</span> Name, <span class="dt">Kidney =</span> Kidney...Cortex) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">gene =</span> <span class="kw">sub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">..*&quot;</span>,<span class="st">&quot;&quot;</span>,gene)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="op">!</span>gene, <span class="dt">names_to=</span><span class="st">&quot;tissue&quot;</span>, <span class="dt">values_to=</span><span class="st">&quot;tpm&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">tissues &lt;-<span class="st"> </span>gtex <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(Name, Bladder, Kidney...Cortex) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">rename</span>(<span class="dt">gene =</span> Name, <span class="dt">Kidney =</span> Kidney...Cortex) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb46-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">gene =</span> <span class="kw">sub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">..*&quot;</span>,<span class="st">&quot;&quot;</span>,gene)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb46-4" title="4"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="op">!</span>gene, <span class="dt">names_to=</span><span class="st">&quot;tissue&quot;</span>, <span class="dt">values_to=</span><span class="st">&quot;tpm&quot;</span>)</a></code></pre></div>
 <p>Now define two vectors of genes that are specific to bladder and kidney:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">bladder_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Bladder&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
-<a class="sourceLine" id="cb3-4" title="4">kidney_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Kidney&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
-<a class="sourceLine" id="cb3-7" title="7">int &lt;-<span class="st"> </span><span class="kw">intersect</span>(bladder_expr, kidney_expr)</a>
-<a class="sourceLine" id="cb3-8" title="8">bladder_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(bladder_expr, int)</a>
-<a class="sourceLine" id="cb3-9" title="9">kidney_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(kidney_expr, int)</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">bladder_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb47-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Bladder&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb47-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
+<a class="sourceLine" id="cb47-4" title="4">kidney_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb47-5" title="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Kidney&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb47-6" title="6"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
+<a class="sourceLine" id="cb47-7" title="7">int &lt;-<span class="st"> </span><span class="kw">intersect</span>(bladder_expr, kidney_expr)</a>
+<a class="sourceLine" id="cb47-8" title="8">bladder_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(bladder_expr, int)</a>
+<a class="sourceLine" id="cb47-9" title="9">kidney_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(kidney_expr, int)</a></code></pre></div>
 <p>Next, use an existing TxDb to locate these genes in the genomes. While
 we usually recommend to use GENCODE genes for human analysis, because
 the ENCODE chromatin modification peak files on AnnotationHub are in
 hg19, we use the UCSC hg19 genes here for simplicity of the code:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="kw">library</span>(org.Hs.eg.db)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="kw">library</span>(org.Hs.eg.db)</a></code></pre></div>
 <p>Add the ENSEMBL ID and pull out the two tissue-specific sets.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">g &lt;-<span class="st"> </span><span class="kw">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">g &lt;-<span class="st"> </span><span class="kw">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a></code></pre></div>
 <pre><code>##   403 genes were dropped because they have exons located on both strands
 ##   of the same reference sequence or on more than one reference sequence,
 ##   so cannot be represented by a single genomic range.
 ##   Use &#39;single.strand.genes.only=FALSE&#39; to get all the genes in a
 ##   GRangesList object, or use suppressMessages() to suppress this message.</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(plyranges)</a>
-<a class="sourceLine" id="cb7-2" title="2">g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">ensembl =</span> <span class="kw">mapIds</span>(org.Hs.eg.db, gene_id, <span class="st">&quot;ENSEMBL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</a>
-<a class="sourceLine" id="cb7-3" title="3">bladder_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>bladder_expr)</a>
-<a class="sourceLine" id="cb7-4" title="4">kidney_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>kidney_expr)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">library</span>(plyranges)</a>
+<a class="sourceLine" id="cb51-2" title="2">g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">ensembl =</span> <span class="kw">mapIds</span>(org.Hs.eg.db, gene_id, <span class="st">&quot;ENSEMBL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</a>
+<a class="sourceLine" id="cb51-3" title="3">bladder_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>bladder_expr)</a>
+<a class="sourceLine" id="cb51-4" title="4">kidney_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>kidney_expr)</a></code></pre></div>
 <p>Finally we combine the two sets with <code>bind_ranges</code>, and we change
 the feature size from the whole gene extent (the range from the
 leftmost exon to rightmost exon), to just the TSS, using <code>anchor_5p</code>
 and <code>mutate</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">tss &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_g, <span class="dt">kidney=</span>kidney_g, <span class="dt">.id=</span><span class="st">&quot;gtissue&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">anchor_5p</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width=</span><span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">tss &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_g,</a>
+<a class="sourceLine" id="cb52-2" title="2">                   <span class="dt">kidney=</span>kidney_g,</a>
+<a class="sourceLine" id="cb52-3" title="3">                   <span class="dt">.id=</span><span class="st">&quot;gtissue&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb52-4" title="4"><span class="st">  </span><span class="kw">anchor_5p</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb52-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width=</span><span class="dv">1</span>)</a></code></pre></div>
 <p>Now we will obtain the H3K27ac peak sets:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">library</span>(AnnotationHub)</a>
-<a class="sourceLine" id="cb9-2" title="2">ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">library</span>(AnnotationHub)</a>
+<a class="sourceLine" id="cb53-2" title="2">ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</a>
+<a class="sourceLine" id="cb53-3" title="3"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;bladder&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
+<a class="sourceLine" id="cb53-4" title="4">bladder_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH44180&quot;</span>]]</a>
+<a class="sourceLine" id="cb53-5" title="5"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;kidney&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
+<a class="sourceLine" id="cb53-6" title="6">kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</a></code></pre></div>
 <p>We download these and scale so they have the same 90% quantile of <code>signalValue</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;bladder&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
-<a class="sourceLine" id="cb10-2" title="2">bladder_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH44180&quot;</span>]]</a></code></pre></div>
-<pre><code>## loading from cache</code></pre>
-<pre><code>## require(&quot;rtracklayer&quot;)</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">bladder_pks &lt;-<span class="st"> </span>bladder_pks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">signalValue =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">quantile</span>(signalValue, <span class="fl">.9</span>)[[<span class="dv">1</span>]])</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;kidney&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
-<a class="sourceLine" id="cb13-3" title="3">kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</a></code></pre></div>
-<pre><code>## loading from cache</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">kidney_pks &lt;-<span class="st"> </span>kidney_pks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">signalValue =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">quantile</span>(signalValue, <span class="fl">.9</span>)[[<span class="dv">1</span>]])</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1">ninety &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">quantile</span>(x, <span class="fl">.9</span>, <span class="dt">names=</span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb54-2" title="2">bladder_pks &lt;-<span class="st"> </span>bladder_pks <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb54-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">signal =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">ninety</span>(signalValue))</a>
+<a class="sourceLine" id="cb54-4" title="4">kidney_pks &lt;-<span class="st"> </span>kidney_pks <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb54-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">signal =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">ninety</span>(signalValue))</a></code></pre></div>
 <p>Combine the peaks from bladder and kidney, filter to those with &lt; 0.1%
 FDR, and center the peak on the summit (the <code>peak</code> column gives the
 shift from the left side to the summit).</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">pks &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_pks, <span class="dt">kidney=</span>kidney_pks, <span class="dt">.id=</span><span class="st">&quot;ptissue&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-2" title="2"><span class="st">  </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span><span class="dv">3</span>, width <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> start <span class="op">+</span><span class="st"> </span>peak) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>peak) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width =</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">pks &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_pks,</a>
+<a class="sourceLine" id="cb55-2" title="2">                   <span class="dt">kidney=</span>kidney_pks,</a>
+<a class="sourceLine" id="cb55-3" title="3">                   <span class="dt">.id=</span><span class="st">&quot;ptissue&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-4" title="4"><span class="st">  </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span><span class="dv">3</span>, width <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> start <span class="op">+</span><span class="st"> </span>peak) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-6" title="6"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>peak) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width =</span> <span class="dv">1</span>)</a></code></pre></div>
 <p>Finally, once we have two tidy range sets, the <em>plyranges</em> analysis is
-just a few lines:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">tss <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(pks, <span class="dt">maxgap=</span><span class="dv">500</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(gtissue, ptissue) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count =</span> <span class="kw">n</span>(), <span class="dt">meanSignal =</span> <span class="kw">mean</span>(signalValue))</a></code></pre></div>
+just a few lines. It appears that tissue-specific peaks are enriched
+near the tissue-specific genes for both bladder and kidney.</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">tss <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(pks, <span class="dt">maxgap=</span><span class="dv">500</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb56-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(gtissue, ptissue) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb56-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count =</span> <span class="kw">n</span>(), <span class="dt">meanSignal =</span> <span class="kw">mean</span>(signal))</a></code></pre></div>
 <pre><code>## DataFrame with 6 rows and 4 columns
 ##   gtissue     ptissue     count meanSignal
 ##     &lt;Rle&gt; &lt;character&gt; &lt;integer&gt;  &lt;numeric&gt;

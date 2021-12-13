@@ -8,7 +8,8 @@ median expression in TPM for each tissue.
 
 ```{r message=FALSE}
 library(tidyr)
-gtex <- read.delim("data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip=2)
+file <- "data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz"
+gtex <- read.delim(file, skip=2)
 ```
 
 We select two tissues, bladder and kidney, and convert the data from a
@@ -64,27 +65,36 @@ leftmost exon to rightmost exon), to just the TSS, using `anchor_5p`
 and `mutate`.
 
 ```{r}
-tss <- bind_ranges(bladder=bladder_g, kidney=kidney_g, .id="gtissue") %>%
+tss <- bind_ranges(bladder=bladder_g,
+                   kidney=kidney_g,
+                   .id="gtissue") %>%
   anchor_5p() %>%
   mutate(width=1)
 ```
 
 Now we will obtain the H3K27ac peak sets:
 
-```{r message=FALSE}
+```{r eval=FALSE}
 library(AnnotationHub)
 ah <- AnnotationHub()
+# query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
+bladder_pks <- ah[["AH44180"]]
+# query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
+kidney_pks <- ah[["AH43443"]]
+```
+
+```{r echo=FALSE}
+load("data/peaks.rda")
 ```
 
 We download these and scale so they have the same 90% quantile of `signalValue`.
 
 ```{r}
-# query(ah, c("Homo sapiens", "bladder", "H3K27ac", "narrowPeak"))
-bladder_pks <- ah[["AH44180"]]
-bladder_pks <- bladder_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
-# query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
-kidney_pks <- ah[["AH43443"]]
-kidney_pks <- kidney_pks %>% mutate(signalValue = signalValue / quantile(signalValue, .9)[[1]])
+ninety <- function(x) quantile(x, .9, names=FALSE)
+bladder_pks <- bladder_pks %>%
+  mutate(signal = signalValue / ninety(signalValue))
+kidney_pks <- kidney_pks %>%
+  mutate(signal = signalValue / ninety(signalValue))
 ```
 
 Combine the peaks from bladder and kidney, filter to those with < 0.1%
@@ -92,7 +102,9 @@ FDR, and center the peak on the summit (the `peak` column gives the
 shift from the left side to the summit).
 
 ```{r}
-pks <- bind_ranges(bladder=bladder_pks, kidney=kidney_pks, .id="ptissue") %>%
+pks <- bind_ranges(bladder=bladder_pks,
+                   kidney=kidney_pks,
+                   .id="ptissue") %>%
   filter(qValue > 3, width <= 1000) %>%
   mutate(start = start + peak) %>%
   select(-peak) %>%
@@ -100,12 +112,13 @@ pks <- bind_ranges(bladder=bladder_pks, kidney=kidney_pks, .id="ptissue") %>%
 ```
 
 Finally, once we have two tidy range sets, the *plyranges* analysis is
-just a few lines:
+just a few lines. It appears that tissue-specific peaks are enriched
+near the tissue-specific genes for both bladder and kidney.
 
 ```{r}
 tss %>% join_overlap_left(pks, maxgap=500) %>%
   group_by(gtissue, ptissue) %>%
-  summarize(count = n(), meanSignal = mean(signalValue))
+  summarize(count = n(), meanSignal = mean(signal))
 ```
 
 What's wrong with this analysis?
