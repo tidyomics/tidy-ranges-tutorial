@@ -98,7 +98,7 @@ Now we can assess how many overlaps we observed between `x` and `y`:
 
 ```{r}
 obs <- x %>% mutate(n_overlaps = count_overlaps(., y))
-obs %>% summarize(sum = sum(n_overlaps))
+obs %>% summarize(total = sum(n_overlaps))
 table( obs$n_overlaps )
 ```
 
@@ -107,24 +107,29 @@ regions:
 
 ```{r}
 y %>% mutate(n_overlaps = count_overlaps(., exclude)) %>%
-  summarize(sum = sum(n_overlaps))
+  summarize(total = sum(n_overlaps))
 ```
 
 The following chunk of code does the bootstrapping of features in
 `y`. Here we subset first to metadata columns of interest (an `id`
 variable that we create, and the signal value which we rename to
-`signal`). The `bootRanges` function returns the 100 bootstrap
-feature sets combined into one *GRanges* object -- this tidy format
-facilitates downstream analysis as we will see. The bootstrap
-iteration is stored in the `iter` metadata column.
+`signal`). 
+
+```{r}
+pks_to_boot <- y %>%
+  mutate(id = seq_along(y)) %>%
+  select(id, signal = signalValue)
+```
+
+The `bootRanges` function returns the 100 bootstrap feature sets
+combined into one *GRanges* object -- this tidy format facilitates
+downstream analysis as we will see. The bootstrap iteration is stored
+in the `iter` metadata column.
 
 ```{r bootstrap}
 library(nullranges)
 R <- 100 # number of iterations
-pks_to_boot <- y %>%
-  mutate(id = seq_along(y)) %>%
-  select(id, signal = signalValue)
-set.seed(5)
+set.seed(5) # set seed for reproducibility
 boots <- bootRanges(pks_to_boot, blockLength=5e5, R=R, exclude=exclude)
 boots
 ```
@@ -133,15 +138,26 @@ The default use above of the `exclude` argument is to drop bootstrapped
 ranges that overlap the exclude list.
 
 We can examine properties of permuted `y` over iterations, and compare
-to the original `y`. To do so, we add the original features as `iter=0`.
+to the original `y`. To do so, we first add the original features as
+`iter=0`.
 
 ```{r}
 combined <- pks_to_boot %>% mutate(iter=0) %>%
   bind_ranges(boots) %>% select(iter)
+```
+
+Then compute summaries:
+
+```{r}
 stats <- combined %>% group_by(iter) %>%
   summarize(n = n(),
             sum_width=sum(width)/1e6) %>%
   as.data.frame()
+```
+
+Original `y` vs bootstrap:
+
+```{r}
 stats[1,]
 summary(stats[-1,])
 ```
@@ -164,39 +180,46 @@ combined %>% filter(iter %in% 0:5) %>%
             vjust=1.5)
 ```
 
-To compute overlap with the null features, we need two functions from the
-*tidyr* package, `complete()` and `drop_na()`. We saw `complete()`
-before -- this is used in the case that one of the iterations has no
-overlaps. In this case, we need to record the 0 value for proper
-inference and plots downstream. It is rare we would have no overlaps
-with so many features as we have in `x` and `y` but it's good practice
-to leave the `complete()` as part of the workflow so the code works
-correctly in all cases.
+To compute overlap with the null features, we need the `complete()`
+function from the *tidyr* package. We saw `complete()` before -- this
+is used in the case that one of the iterations has no overlaps. In
+this case, we need to record the 0 value for proper inference and
+plots downstream. It is rare we would have no overlaps with so many
+features as we have in `x` and `y` but it's good practice to leave the
+`complete()` as part of the workflow so the code works correctly in
+all cases.
+
+The overlap per iteration of the bootstrap is accomplished by a series
+of *plyranges* / *dplyr* commands (we switch to *dplyr* halfway
+through, after the `as.data.frame()` call).
 
 ```{r message=FALSE}
 library(tidyr)
-```
-
-```{r}
-null <- x %>% join_overlap_intersect(boots) %>%
+null <- x %>% join_overlap_inner(boots) %>%
   group_by(iter) %>%
-  summarize(n_overlaps=n()) %>%
+  summarize(n_overlaps = n()) %>%
   as.data.frame() %>%
-  complete(iter, fill=list(rate=0)) %>%
-  drop_na()
+  complete(iter, fill=list(n_overlaps = 0))
 head(null)
 ```
 
 ```{r}
-obs_overlaps <- sum( obs$n_overlaps )
-obs_overlaps
+sum( obs$n_overlaps )
 ```
+
+The observed number of overlaps is about two orders of magnitude more
+than the bootstrapped number, which makes sense as two tissues would
+be expected to share a number of similar regulatory regions (as marked
+by H3K27ac) -- more so than randomly placed genomic features, even
+after accounting for excluded regions and feature clustering.
 
 ```{r boot-hist}
 ggplot(null, aes(n_overlaps)) +
   geom_histogram(binwidth=5) +
   ggtitle("bootstrap overlaps")
 ```
+
+What could be improved with this analysis?
 
 Note that in the above chunks where we count overlaps, we are doubly
 (or triply, etc.) counting features in `x` if they hit more than one
@@ -206,9 +229,15 @@ allows us to do more complex operations, such as computing the
 maximum signal value for the overlapping features in `y` per feature
 in `x`:
 
+First add an ID variable to keep track of `x` features:
 
 ```{r}
 x <- x %>% mutate(x_id = seq_along(x))
+```
+
+Then perform an inner join, and group by the new `x` ID:
+
+```{r}
 obs <- x %>% join_overlap_inner(pks_to_boot) %>%
   group_by(x_id) %>%
   summarize(num_overlaps = n(),
@@ -217,9 +246,9 @@ sum( obs$num_overlaps > 0 )
 summary( obs$max_signal )
 ```
 
-For the bootstrap ranges, we also need to add `iter` to the initial
-`group_by`, so we count per `x` feature and per iteration of the
-bootstrap: 
+For the bootstrap ranges overlap step, we also need to add `iter` to
+the initial `group_by`, so we count per `x` feature and per iteration
+of the bootstrap:
 
 ```{r}
 null <- x %>% join_overlap_inner(boots) %>%
@@ -228,21 +257,42 @@ null <- x %>% join_overlap_inner(boots) %>%
   as.data.frame() %>%
   group_by(iter) %>%
   summarize(any_hits = sum(num_overlaps > 0)) %>%
-  complete(iter, fill=list(rate=0)) %>%
-  drop_na()
+  complete(iter, fill=list(any_hits = 0))
 head(null)
+```
+
+Still, we are seeing much more overlap in the observed data than in
+the bootstrap data:
+
+```{r}
+sum( obs$num_overlaps > 0 ) /
+  mean(null$any_hits)
 ```
 
 The above code chunk then avoids double counting. We could also have
 made other per-`x`-feature statistics in the summarize step after the
 initial `group_by`, such as maximum signal of overlapping features.
 
-What's wrong with this analysis? Suppose we don't just want the count
-but the rate of overlaps, per iteration. We would need to keep track
-of the number of bootstrap features per iteration to divide by it.
+What other ways could we have done this analysis? Suppose we don't
+just want the count of overlaps, but the rate of overlaps from the `y`
+perspective, keeping track of the variable number of features per
+bootstrap.
 
-In this case, the easiest approach is likely to divide this out at the
-end:
+We demonstrate one approach to obtain this rate for the bootstraps:
+
+```{r}
+x_thin <- x %>% select(x_id)
+null <- boots %>% select(id, iter) %>%
+  join_overlap_inner(x_thin) %>%
+  group_by(id, iter) %>%
+  summarize(num_overlaps = n()) %>%
+  as.data.frame() %>%
+  group_by(iter) %>%
+  summarize(any_hits = sum(num_overlaps > 0)) %>%
+  complete(iter, fill=list(any_hits = 0))
+```
+
+Now combine with the per-iteration total count:
 
 ```{r}
 totals <- boots %>% group_by(iter) %>%
