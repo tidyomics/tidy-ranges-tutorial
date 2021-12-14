@@ -27,7 +27,7 @@ tidy data philosophy." />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-12-13" />
+<meta name="date" content="2021-12-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -164,8 +164,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 3</span> Tissue-specific promoter marks</h1>
 <p>Objective: determine if promoters marks (e.g. H3K27ac) are specific to
 genes that are expressed in a tissue-specific manner.</p>
-<p>We will load expression data from the GTEx project, which gives
-median expression in TPM for each tissue.</p>
+<p>We will load expression data from the GTEx project <span class="citation">(Lonsdale and others <a href="#ref-gtex">2013</a>)</span>, which gives
+median expression in TPM for each tissue. We will use H3K27ac ChIP-seq
+data from the ENCODE project <span class="citation">(Dunham and others <a href="#ref-encode">2012</a>)</span>.</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">library</span>(tidyr)</a>
 <a class="sourceLine" id="cb45-2" title="2">file &lt;-<span class="st"> &quot;data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz&quot;</span></a>
 <a class="sourceLine" id="cb45-3" title="3">gtex &lt;-<span class="st"> </span><span class="kw">read.delim</span>(file, <span class="dt">skip=</span><span class="dv">2</span>)</a></code></pre></div>
@@ -255,6 +256,15 @@ near the tissue-specific genes for both bladder and kidney.</p>
 left or rightmost isoform (for + or - strand genes, respectively).</li>
 </ul>
 
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-encode">
+<p>Dunham, I., and others. 2012. “An integrated encyclopedia of DNA elements in the human genome.” <em>Nature</em> 489 (7414): 57–74.</p>
+</div>
+<div id="ref-gtex">
+<p>Lonsdale, J., and others. 2013. “The Genotype-Tissue Expression (GTEx) project.” <em>Nature Genetics</em> 45 (6): 580–85.</p>
+</div>
 </div>
             </section>
 

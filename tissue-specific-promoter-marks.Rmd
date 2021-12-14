@@ -3,8 +3,9 @@
 Objective: determine if promoters marks (e.g. H3K27ac) are specific to
 genes that are expressed in a tissue-specific manner.
 
-We will load expression data from the GTEx project, which gives
-median expression in TPM for each tissue.
+We will load expression data from the GTEx project [@gtex], which gives
+median expression in TPM for each tissue. We will use H3K27ac ChIP-seq
+data from the ENCODE project [@encode].
 
 ```{r message=FALSE}
 library(tidyr)

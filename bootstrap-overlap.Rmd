@@ -17,8 +17,8 @@ by overlap analysis with *plyranges*. The approach used in
 *nullranges* to generate bootstrap ranges closely follows the method
 described by @bickel2010.
 
-We start by loading the kidney and bladder H3K27ac ChIP-seq peaks used
-in the previous analysis.
+We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
+peaks used in the previous analysis [@encode].
 
 ```{r eval=FALSE}
 library(AnnotationHub)
