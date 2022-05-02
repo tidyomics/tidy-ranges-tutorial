@@ -1,0 +1,120 @@
+# SNP position in peaks
+
+Objective: determine the position of a set of SNPs in peaks, that is, determine the relative positions of those SNPs that overlap the peaks.
+
+We again will use the ENCODE kidney H3K27ac ChIP-seq peaks used in the previous analysis [@encode]. We will create some artificial SNPs: this analysis could generalize to any time that we have two ranges, where we are interested in the relative position of one set of ranges (SNPs) within the other set of ranges (peaks).
+
+```{r eval=FALSE}
+library(AnnotationHub)
+ah <- AnnotationHub()
+kidney_pks <- ah[["AH43443"]]
+```
+
+```{r echo=FALSE}
+load("data/peaks.rda")
+```
+
+We will filter the peaks to standard chromosomes, and include the same cutoffs we used in the previous analysis.
+
+```{r}
+suppressPackageStartupMessages(library(GenomeInfoDb))
+pks <- kidney_pks
+pks <- keepStandardChromosomes(pks)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tibble)
+  library(plyranges)
+})
+q_thr <- 3
+s_thr <- 9
+pks <- pks %>% 
+  filter(qValue > q_thr & signalValue > s_thr) %>%
+  sort()
+```
+
+A histogram of peak width:
+
+```{r peak-widths}
+library(ggplot2)
+pks %>% as_tibble %>%
+  filter(width < 5000) %>%
+  ggplot(aes(width)) + 
+  geom_histogram()
+```
+
+Let's subset to peaks that are less than 2000 in width:
+
+```{r}
+pks <- pks %>% filter(width < 2000)
+```
+
+Now, we may be interested in SNPs that are associated with regulatory function. While we could find these from a database of chromatin QTL or functionally validated variants, here we will just create a simulated set of SNPs for demonstration.
+
+```{r}
+set.seed(1)
+snps <- pks %>% 
+  slice(sample.int(n(), 2000)) %>%
+  anchor_5p() %>%
+  mutate(start=start + floor(runif(n(),0,width))) %>%
+  mutate(width=1)
+snps
+```
+
+These should all overlap peaks:
+
+```{r}
+snps %>% 
+  mutate(n_overlaps = count_overlaps(., pks)) %>%
+  summarize(tab=table(n_overlaps))
+```
+
+We now have a bit of a hack for this analysis: we add the start position and width of the peak as addition columns of metadata. This is because otherwise, we will lose the start position when we perform the overlap of SNPs in peaks, and we need it for later.
+
+```{r}
+pks_trim <- pks %>% 
+  select(name) %>%
+  mutate(peak_start=start, peak_width=width)
+```
+
+We can then obtain overlaps of SNPs with peaks, and add the relative position of the SNP within the peak extent. We use 1-based indexing, such that if the SNP is the same as the leftmost basepair of the peak, it gets counted as position 1.
+
+```{r}
+o <- snps %>% 
+  join_overlap_inner(pks_trim) %>%
+  mutate(rel_pos = start - peak_start + 1,
+         rel_frac = (rel_pos - 1) / (peak_width - 1 ))
+```
+
+Check our expectations about these new columns:
+
+```{r}
+all(o$rel_pos >= 1)
+all(o$rel_frac >= 0)
+all(o$rel_frac <= 1)
+```
+
+Finally, we can compute a histogram of where the SNPs fall in the peaks:
+
+```{r snp-pos-hist}
+o %>% 
+  as_tibble() %>%
+  ggplot(aes(rel_frac)) + 
+  geom_histogram(breaks=0:10/10)
+```
+
+Now stratifying by width of peak:
+
+```{r snp-pos-hist-facet}
+quantile(o$peak_width, 0:3/3)
+o %>%
+  mutate(width_bin = cut(peak_width,
+                         breaks=c(200,800,1300,2000),
+                         include.lowest=TRUE)) %>%
+  as_tibble() %>%
+  ggplot(aes(rel_frac)) + 
+  geom_histogram(breaks=0:10/10) + 
+  facet_wrap(~width_bin)
+```

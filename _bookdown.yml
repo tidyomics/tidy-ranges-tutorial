@@ -1,11 +1,13 @@
 book_filename: "tidy-ranges-tutorial"
 output_dir: "docs"
-rmd_files: ["index.Rmd",
-            "join-is-an-overlap.Rmd",
-            "overlap-granges-with-plyranges.Rmd",
-	    "tissue-specific-promoter-marks.Rmd",
-	    "bootstrap-overlap.Rmd",
-	    "references.Rmd"]
+rmd_files: 
+  ["index.Rmd",
+   "join-is-an-overlap.Rmd",
+   "overlap-granges-with-plyranges.Rmd",
+	 "tissue-specific-promoter-marks.Rmd",
+	 "bootstrap-overlap.Rmd",
+	 "snp-position-in-peaks.Rmd",
+	 "references.Rmd"]
 bibliography: references.bib
 language:
   ui:

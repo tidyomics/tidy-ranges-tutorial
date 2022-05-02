@@ -34,21 +34,23 @@ seqnames(r)
 strand(r)
 ```
 
-Let's find which genes overlap a region of interest:
+Let's find which genes overlap a region of interest. We will load the Ensembl genes, here from a Bioconductor data package (usually we would obtain these from AnnotationHub). The last lines use convenience functions to convert to, e.g. `"chr1"`, ..., `"chrY"`.
 
 ```{r message=FALSE}
 library(EnsDb.Hsapiens.v86)
-g <- genes(EnsDb.Hsapiens.v86)
-g <- g %>% plyranges::select(gene_name)
+library(GenomeInfoDb)
 ```
 
-The following lines use convenience functions to convert to,
-e.g. `"chr1"`, ..., `"chrY"`.
-
-```{r}
-library(GenomeInfoDb)
+```{r eval=FALSE}
+g <- genes(EnsDb.Hsapiens.v86)
+g <- g %>% plyranges::select(gene_name)
 g <- keepStandardChromosomes(g, pruning.mode="coarse")
 seqlevelsStyle(g) <- "UCSC"
+save(g, file="data/ens_genes.rda")
+```
+
+```{r echo=FALSE}
+load("data/ens_genes.rda")
 ```
 
 Now we are ready to test for overlaps. A left join gives us all the
@@ -108,18 +110,19 @@ What about `"boo"`? We need to add a `complete()` call to account for
 the fact that we are missing those overlaps after the join. We need to
 call the function explicitly from the *tidyr* package but by not
 loading the package we can avoid some function name conflicts with
-*plyranges*. Also we need to convert to data.frame (explanation
+*plyranges*. Also we need to convert to tibble (explanation
 follows).
 
 ```{r}
+library(tibble)
 g %>% join_overlap_inner_directed(r) %>%
   group_by(range_id) %>%
   summarize(count=n(), mean_width=mean(width)) %>%
-  as.data.frame() %>%
+  as_tibble() %>%
   tidyr::complete(range_id, fill=list(count=0))
 ```
 
-Why did we have to convert to data.frame before running `complete()`?
+Why did we have to convert to tibble before running `complete()`?
 This is because metadata columns of *GRanges* objects are in a format
 called *DataFrame* which the *tidyr* / *dplyr* functions don't know
 how to operate on. To access these metadata columns, you can use any
@@ -130,4 +133,11 @@ mcols(r)
 mcols(r)$range_id
 r$range_id # this works also
 mcols(r)[["range_id"]] # for programmatic access
+```
+
+But if you want to work on them in with *tidyr* / *dplyr*, you need to
+first convert to tibble (or data.frame):
+
+```{r}
+mcols(r) %>% as_tibble()
 ```

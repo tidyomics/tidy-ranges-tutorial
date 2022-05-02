@@ -5,29 +5,29 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 1 Join is an overlap | Tidy Ranges Tutorial</title>
-  <meta name="description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 1 Join is an overlap | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 1 Join is an overlap | Tidy Ranges Tutorial" />
   
-  <meta name="twitter:description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   
 
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-12-14" />
+<meta name="date" content="2022-05-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -36,6 +36,7 @@ tidy data philosophy." />
   
 <link rel="prev" href="index.html"/>
 <link rel="next" href="overlap-granges-with-plyranges.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -58,25 +59,27 @@ tidy data philosophy." />
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -85,9 +88,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -120,6 +123,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -142,6 +167,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -160,58 +186,58 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="join-is-an-overlap" class="section level1">
+<div id="join-is-an-overlap" class="section level1" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Join is an overlap</h1>
 <p>Objective: learn that a “join” is like an overlap.</p>
 <p>We start with a quick example explaining why we use functions called
 <code>join</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(randomNames)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="join-is-an-overlap.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="join-is-an-overlap.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="join-is-an-overlap.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(randomNames)</span></code></pre></div>
 <p>Let’s set up a simulation where we have 17 classmates (not counting
 ourselves) in a school of 118. Suppose every member of the class has
 12 friends outside of class.</p>
 <p>We want to find out, for each classmate, how many friends we have in
 common and also, of our shared friends, what is a typical birthday.
 Let’s define typical as the median birthday of our shared friends.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">m &lt;-<span class="st"> </span><span class="dv">17</span> <span class="co"># size of class</span></a>
-<a class="sourceLine" id="cb2-2" title="2">n &lt;-<span class="st"> </span><span class="dv">100</span> <span class="co"># size of others in school</span></a>
-<a class="sourceLine" id="cb2-3" title="3">nf &lt;-<span class="st"> </span><span class="dv">12</span> <span class="co"># number of friends outside class</span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb2-5" title="5">people &lt;-<span class="st"> </span><span class="kw">randomNames</span>(m <span class="op">+</span><span class="st"> </span>n,</a>
-<a class="sourceLine" id="cb2-6" title="6">                      <span class="dt">name.order=</span><span class="st">&quot;first.last&quot;</span>,</a>
-<a class="sourceLine" id="cb2-7" title="7">                      <span class="dt">name.sep=</span><span class="st">&quot; &quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="join-is-an-overlap.html#cb2-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">17</span> <span class="co"># size of class</span></span>
+<span id="cb2-2"><a href="join-is-an-overlap.html#cb2-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="co"># size of others in school</span></span>
+<span id="cb2-3"><a href="join-is-an-overlap.html#cb2-3" aria-hidden="true" tabindex="-1"></a>nf <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="co"># number of friends outside class</span></span>
+<span id="cb2-4"><a href="join-is-an-overlap.html#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb2-5"><a href="join-is-an-overlap.html#cb2-5" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> <span class="fu">randomNames</span>(m <span class="sc">+</span> n,</span>
+<span id="cb2-6"><a href="join-is-an-overlap.html#cb2-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">name.order=</span><span class="st">&quot;first.last&quot;</span>,</span>
+<span id="cb2-7"><a href="join-is-an-overlap.html#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">name.sep=</span><span class="st">&quot; &quot;</span>)</span></code></pre></div>
 <p>We define the population of potential friends (those outside the
 class) as <code>pop</code>, and our 12 friends are in <code>friends</code>. Finally, we
 define the people that are in our class as <code>class_people</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">pop &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">person=</span>people[<span class="op">-</span>(<span class="dv">1</span><span class="op">:</span>m)],</a>
-<a class="sourceLine" id="cb3-2" title="2">                  <span class="dt">birthday=</span><span class="kw">sample</span>(<span class="dv">31</span>, n, <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb3-3" title="3">friends &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">friend=</span><span class="kw">sample</span>(people, nf))</a>
-<a class="sourceLine" id="cb3-4" title="4">class_people &lt;-<span class="st"> </span>people[<span class="dv">1</span><span class="op">:</span>m]</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="join-is-an-overlap.html#cb3-1" aria-hidden="true" tabindex="-1"></a>pop <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">person=</span>people[<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span>m)],</span>
+<span id="cb3-2"><a href="join-is-an-overlap.html#cb3-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">birthday=</span><span class="fu">sample</span>(<span class="dv">31</span>, n, <span class="cn">TRUE</span>))</span>
+<span id="cb3-3"><a href="join-is-an-overlap.html#cb3-3" aria-hidden="true" tabindex="-1"></a>friends <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">friend=</span><span class="fu">sample</span>(people, nf))</span>
+<span id="cb3-4"><a href="join-is-an-overlap.html#cb3-4" aria-hidden="true" tabindex="-1"></a>class_people <span class="ot">&lt;-</span> people[<span class="dv">1</span><span class="sc">:</span>m]</span></code></pre></div>
 <p>The following sets up a data.frame, where each row gives, for a given
 classmate, their friends, and the friends’ birthdays.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">loop &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span>m, <span class="dt">each=</span>nf)</a>
-<a class="sourceLine" id="cb4-2" title="2">idx &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">replicate</span>(m, <span class="kw">sample</span>(n, nf)))</a>
-<a class="sourceLine" id="cb4-3" title="3">class &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">classmate=</span>class_people[loop],</a>
-<a class="sourceLine" id="cb4-4" title="4">                    <span class="dt">friend=</span>pop<span class="op">$</span>person[idx],</a>
-<a class="sourceLine" id="cb4-5" title="5">                    <span class="dt">birthday=</span>pop<span class="op">$</span>birthday[idx])</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="join-is-an-overlap.html#cb4-1" aria-hidden="true" tabindex="-1"></a>loop <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>m, <span class="at">each=</span>nf)</span>
+<span id="cb4-2"><a href="join-is-an-overlap.html#cb4-2" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">replicate</span>(m, <span class="fu">sample</span>(n, nf)))</span>
+<span id="cb4-3"><a href="join-is-an-overlap.html#cb4-3" aria-hidden="true" tabindex="-1"></a>class <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">classmate=</span>class_people[loop],</span>
+<span id="cb4-4"><a href="join-is-an-overlap.html#cb4-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">friend=</span>pop<span class="sc">$</span>person[idx],</span>
+<span id="cb4-5"><a href="join-is-an-overlap.html#cb4-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">birthday=</span>pop<span class="sc">$</span>birthday[idx])</span></code></pre></div>
 <p>Sort this by classmate alphabetically, and make classmate into a
 factor. This last step is important, as it will help us to keep track
 of the classmates for whom we share <em>no</em> friends outside of class.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">class &lt;-<span class="st"> </span>class <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="st">  </span><span class="kw">arrange</span>(classmate) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">classmate=</span><span class="kw">factor</span>(classmate))</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="join-is-an-overlap.html#cb5-1" aria-hidden="true" tabindex="-1"></a>class <span class="ot">&lt;-</span> class <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="join-is-an-overlap.html#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(classmate) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="join-is-an-overlap.html#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">classmate=</span><span class="fu">factor</span>(classmate))</span></code></pre></div>
 <p>We perform an <code>inner_join</code> by <code>"friend"</code>. This just means we look for
 classmates where we have overlapping friends, and we drop the rows
 where we don’t share any friends. “Inner” refers to the fact that we
 are keeping the overlap in the <em>inside</em> of two intersecting circles.
 Note that the join operation brings along the metadata (extra data)
 about the friends’ birthdays.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">shared_friends &lt;-<span class="st"> </span>friends <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">inner_join</span>(class, <span class="dt">by=</span><span class="st">&quot;friend&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">arrange</span>(classmate, friend) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="st">  </span><span class="kw">relocate</span>(classmate) <span class="co"># classmate to 1st column</span></a>
-<a class="sourceLine" id="cb6-5" title="5">shared_friends</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="join-is-an-overlap.html#cb6-1" aria-hidden="true" tabindex="-1"></a>shared_friends <span class="ot">&lt;-</span> friends <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="join-is-an-overlap.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(class, <span class="at">by=</span><span class="st">&quot;friend&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="join-is-an-overlap.html#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(classmate, friend) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="join-is-an-overlap.html#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(classmate) <span class="co"># classmate to 1st column</span></span>
+<span id="cb6-5"><a href="join-is-an-overlap.html#cb6-5" aria-hidden="true" tabindex="-1"></a>shared_friends</span></code></pre></div>
 <pre><code>##                classmate             friend birthday
 ## 1          Brandon Jones Christopher Rivera       13
 ## 2          Brandon Jones       Jose Jimenez       26
@@ -240,30 +266,31 @@ about the friends’ birthdays.</p>
 in common with <code>n()</code> and the median birthday of shared friends. The
 <code>complete</code> call at the end fills in 0 for those classmates for
 whom we share no friends (here, the use of <code>factor</code> earlier becomes
-relevant).</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">shared_friends <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(classmate) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">in_common=</span><span class="kw">n</span>(), <span class="dt">median_bday=</span><span class="kw">median</span>(birthday)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="st">  </span><span class="kw">complete</span>(classmate, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">count=</span><span class="dv">0</span>))</a></code></pre></div>
+relevant). We can choose which columns to fill in, and what value to
+add.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="join-is-an-overlap.html#cb8-1" aria-hidden="true" tabindex="-1"></a>shared_friends <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="join-is-an-overlap.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(classmate) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="join-is-an-overlap.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">in_common=</span><span class="fu">n</span>(), <span class="at">median_bday=</span><span class="fu">median</span>(birthday)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="join-is-an-overlap.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(classmate, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">in_common=</span><span class="dv">0</span>,<span class="at">median_bday=</span><span class="sc">-</span><span class="dv">1</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 17 × 3
 ##    classmate             in_common median_bday
-##    &lt;fct&gt;                     &lt;int&gt;       &lt;dbl&gt;
-##  1 Aaliyah Minter               NA        NA  
+##    &lt;fct&gt;                     &lt;dbl&gt;       &lt;dbl&gt;
+##  1 Aaliyah Minter                0        -1  
 ##  2 Brandon Jones                 4        14  
 ##  3 Christopher Herron            2        11  
-##  4 Collin Leon                  NA        NA  
+##  4 Collin Leon                   0        -1  
 ##  5 Haley Polhamus                2        19  
 ##  6 Juan Villegas Cabrera         3        30  
-##  7 Khaalid el-Ammar             NA        NA  
-##  8 Kianna Mcalevy               NA        NA  
-##  9 Maazin al-Ismael             NA        NA  
+##  7 Khaalid el-Ammar              0        -1  
+##  8 Kianna Mcalevy                0        -1  
+##  9 Maazin al-Ismael              0        -1  
 ## 10 Maisara el-Arshad             3        15  
 ## 11 Michael Mcgill                2        14  
 ## 12 Noah Pettinger                2        16.5
 ## 13 Orion Villani                 1         5  
 ## 14 Shane Ranaldi                 2        22.5
 ## 15 Stephanie Hernandez           1        29  
-## 16 Xavier Urueta                NA        NA  
+## 16 Xavier Urueta                 0        -1  
 ## 17 Zachary Roe-Huffman           1        15</code></pre>
 
 </div>

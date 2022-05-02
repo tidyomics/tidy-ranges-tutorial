@@ -10,8 +10,9 @@ sets. The motivation for sampling blocks, instead of placing features
 uniformly along the chromosome ("shuffling"), is to better preserve
 inter-feature distances, because genomic features tend to cluster in
 the genome, even after considering things like excluded regions. This
-technique of generating null feature sets is called *block bootstrap
-resampling*, and we will use the *nullranges* implementation of the
+technique of generating null feature sets is called 
+*block bootstrap resampling*,
+and we will use the *nullranges* implementation of the
 block bootstrapping algorithm to generate the null features, followed
 by overlap analysis with *plyranges*. The approach used in
 *nullranges* to generate bootstrap ranges closely follows the method
@@ -70,12 +71,15 @@ seqlevels(exclude, pruning.mode="coarse") <- seqlevels(x)
 
 We are mostly concerned with avoiding placing bootstrapped features in
 large regions in the exclude list, so we subset the exclude list to
-features larger than 500 bp.
+features larger than 500 bp. Why do we have `plyranges::` in front of
+`filter`? This is because there is a function in the *ensembldb* 
+package that is also called *filter*, so it's a bit safer if we are
+using both packages to use the package name.
 
 ```{r message=FALSE}
 library(plyranges)
 exclude <- exclude %>%
-  filter(width(exclude) >= 500)
+  plyranges::filter(width(exclude) >= 500)
 ```
 
 We also subset to the peaks for kidney and bladder which have q-value
@@ -88,9 +92,11 @@ for the bootstrapping, here we sort both sets.
 ```{r}
 q_thr <- 3
 s_thr <- 9
-x <- x %>% filter(qValue > q_thr & signalValue > s_thr) %>%
+x <- x %>% 
+  plyranges::filter(qValue > q_thr & signalValue > s_thr) %>%
   sort()
-y <- y %>% filter(qValue > q_thr & signalValue > s_thr) %>%
+y <- y %>% 
+  plyranges::filter(qValue > q_thr & signalValue > s_thr) %>%
   sort()
 ```
 
@@ -118,17 +124,17 @@ variable that we create, and the signal value which we rename to
 ```{r}
 pks_to_boot <- y %>%
   mutate(id = seq_along(y)) %>%
-  select(id, signal = signalValue)
+  plyranges::select(id, signal = signalValue)
 ```
 
-The `bootRanges` function returns the 100 bootstrap feature sets
+The `bootRanges` function returns the bootstrap feature sets
 combined into one *GRanges* object -- this tidy format facilitates
 downstream analysis as we will see. The bootstrap iteration is stored
 in the `iter` metadata column.
 
 ```{r bootstrap}
 library(nullranges)
-R <- 100 # number of iterations
+R <- 30 # number of iterations
 set.seed(5) # set seed for reproducibility
 boots <- bootRanges(pks_to_boot, blockLength=5e5, R=R, exclude=exclude)
 boots
@@ -142,17 +148,21 @@ to the original `y`. To do so, we first add the original features as
 `iter=0`.
 
 ```{r}
-combined <- pks_to_boot %>% mutate(iter=0) %>%
-  bind_ranges(boots) %>% select(iter)
+combined <- pks_to_boot %>% 
+  mutate(iter=0) %>%
+  bind_ranges(boots) %>% 
+  plyranges::select(iter)
 ```
 
 Then compute summaries:
 
 ```{r}
-stats <- combined %>% group_by(iter) %>%
+library(tibble)
+stats <- combined %>% 
+  group_by(iter) %>%
   summarize(n = n(),
             sum_width=sum(width)/1e6) %>%
-  as.data.frame()
+  as_tibble()
 ```
 
 Original `y` vs bootstrap:
@@ -169,9 +179,9 @@ feature set `y`.
 ```{r boot-width, message=FALSE}
 library(ggplot2)
 library(ggridges)
-combined %>% filter(iter %in% 0:5) %>%
-  select(iter) %>%
-  as.data.frame() %>%
+combined %>% plyranges::filter(iter %in% 0:5) %>%
+  plyranges::select(iter) %>%
+  as_tibble() %>%
   mutate(type = ifelse(iter == 0, "original", "boot")) %>%
   ggplot(aes(log10(width), iter, fill=type)) +
   geom_density_ridges(alpha = 0.75) +
@@ -191,14 +201,14 @@ all cases.
 
 The overlap per iteration of the bootstrap is accomplished by a series
 of *plyranges* / *dplyr* commands (we switch to *dplyr* halfway
-through, after the `as.data.frame()` call).
+through, after the `as_tibble()` call).
 
 ```{r message=FALSE}
 library(tidyr)
 null <- x %>% join_overlap_inner(boots) %>%
   group_by(iter) %>%
   summarize(n_overlaps = n()) %>%
-  as.data.frame() %>%
+  as_tibble() %>%
   complete(iter, fill=list(n_overlaps = 0))
 head(null)
 ```
@@ -254,7 +264,7 @@ of the bootstrap:
 null <- x %>% join_overlap_inner(boots) %>%
   group_by(x_id, iter) %>%
   summarize(num_overlaps = n()) %>%
-  as.data.frame() %>%
+  as_tibble() %>%
   group_by(iter) %>%
   summarize(any_hits = sum(num_overlaps > 0)) %>%
   complete(iter, fill=list(any_hits = 0))
@@ -281,12 +291,12 @@ bootstrap.
 We demonstrate one approach to obtain this rate for the bootstraps:
 
 ```{r}
-x_thin <- x %>% select(x_id)
-null <- boots %>% select(id, iter) %>%
+x_thin <- x %>% plyranges::select(x_id)
+null <- boots %>% plyranges::select(id, iter) %>%
   join_overlap_inner(x_thin) %>%
   group_by(id, iter) %>%
   summarize(num_overlaps = n()) %>%
-  as.data.frame() %>%
+  as_tibble() %>%
   group_by(iter) %>%
   summarize(any_hits = sum(num_overlaps > 0)) %>%
   complete(iter, fill=list(any_hits = 0))
@@ -295,9 +305,10 @@ null <- boots %>% select(id, iter) %>%
 Now combine with the per-iteration total count:
 
 ```{r}
-totals <- boots %>% group_by(iter) %>%
+totals <- boots %>% 
+  group_by(iter) %>%
   summarize(total=n()) %>%
-  as.data.frame()
+  as_tibble()
 null %>% dplyr::left_join(totals) %>%
   mutate(rate = any_hits/total)
 ```

@@ -5,29 +5,29 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 3 Tissue-specific promoter marks | Tidy Ranges Tutorial</title>
-  <meta name="description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 3 Tissue-specific promoter marks | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 3 Tissue-specific promoter marks | Tidy Ranges Tutorial" />
   
-  <meta name="twitter:description" content="Basic examples of computing operations on genomic ranges using the
-tidy data philosophy." />
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
   
 
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2021-12-14" />
+<meta name="date" content="2022-05-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -36,6 +36,7 @@ tidy data philosophy." />
   
 <link rel="prev" href="overlap-granges-with-plyranges.html"/>
 <link rel="next" href="bootstrap-overlap.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -58,25 +59,27 @@ tidy data philosophy." />
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -85,9 +88,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -120,6 +123,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -142,6 +167,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -160,87 +186,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="tissue-specific-promoter-marks" class="section level1">
+<div id="tissue-specific-promoter-marks" class="section level1" number="3">
 <h1><span class="header-section-number">Chapter 3</span> Tissue-specific promoter marks</h1>
 <p>Objective: determine if promoters marks (e.g. H3K27ac) are specific to
 genes that are expressed in a tissue-specific manner.</p>
-<p>We will load expression data from the GTEx project <span class="citation">(Lonsdale and others <a href="#ref-gtex">2013</a>)</span>, which gives
+<p>We will load expression data from the GTEx project <span class="citation">(<a href="#ref-gtex" role="doc-biblioref">Lonsdale et al. 2013</a>)</span>, which gives
 median expression in TPM for each tissue. We will use H3K27ac ChIP-seq
-data from the ENCODE project <span class="citation">(Dunham and others <a href="#ref-encode">2012</a>)</span>.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb45-2" title="2">file &lt;-<span class="st"> &quot;data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz&quot;</span></a>
-<a class="sourceLine" id="cb45-3" title="3">gtex &lt;-<span class="st"> </span><span class="kw">read.delim</span>(file, <span class="dt">skip=</span><span class="dv">2</span>)</a></code></pre></div>
+data from the ENCODE project <span class="citation">(<a href="#ref-encode" role="doc-biblioref">Dunham et al. 2012</a>)</span>.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="tissue-specific-promoter-marks.html#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb47-2"><a href="tissue-specific-promoter-marks.html#cb47-2" aria-hidden="true" tabindex="-1"></a>file <span class="ot">&lt;-</span> <span class="st">&quot;data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz&quot;</span></span>
+<span id="cb47-3"><a href="tissue-specific-promoter-marks.html#cb47-3" aria-hidden="true" tabindex="-1"></a>gtex <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(file, <span class="at">skip=</span><span class="dv">2</span>)</span></code></pre></div>
 <p>We select two tissues, bladder and kidney, and convert the data from a
 wide format into a tidy format.</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">tissues &lt;-<span class="st"> </span>gtex <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(Name, Bladder, Kidney...Cortex) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb46-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">rename</span>(<span class="dt">gene =</span> Name, <span class="dt">Kidney =</span> Kidney...Cortex) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb46-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">gene =</span> <span class="kw">sub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">..*&quot;</span>,<span class="st">&quot;&quot;</span>,gene)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb46-4" title="4"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="op">!</span>gene, <span class="dt">names_to=</span><span class="st">&quot;tissue&quot;</span>, <span class="dt">values_to=</span><span class="st">&quot;tpm&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="tissue-specific-promoter-marks.html#cb48-1" aria-hidden="true" tabindex="-1"></a>tissues <span class="ot">&lt;-</span> gtex <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(Name, Bladder, Kidney...Cortex) <span class="sc">%&gt;%</span></span>
+<span id="cb48-2"><a href="tissue-specific-promoter-marks.html#cb48-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">gene =</span> Name, <span class="at">Kidney =</span> Kidney...Cortex) <span class="sc">%&gt;%</span></span>
+<span id="cb48-3"><a href="tissue-specific-promoter-marks.html#cb48-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">gene =</span> <span class="fu">sub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">..*&quot;</span>,<span class="st">&quot;&quot;</span>,gene)) <span class="sc">%&gt;%</span></span>
+<span id="cb48-4"><a href="tissue-specific-promoter-marks.html#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span>gene, <span class="at">names_to=</span><span class="st">&quot;tissue&quot;</span>, <span class="at">values_to=</span><span class="st">&quot;tpm&quot;</span>)</span></code></pre></div>
 <p>Now define two vectors of genes that are specific to bladder and kidney:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">bladder_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb47-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Bladder&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb47-3" title="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
-<a class="sourceLine" id="cb47-4" title="4">kidney_expr &lt;-<span class="st"> </span>tissues <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb47-5" title="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue <span class="op">==</span><span class="st"> &quot;Kidney&quot;</span> <span class="op">&amp;</span><span class="st"> </span>tpm <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb47-6" title="6"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(gene)</a>
-<a class="sourceLine" id="cb47-7" title="7">int &lt;-<span class="st"> </span><span class="kw">intersect</span>(bladder_expr, kidney_expr)</a>
-<a class="sourceLine" id="cb47-8" title="8">bladder_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(bladder_expr, int)</a>
-<a class="sourceLine" id="cb47-9" title="9">kidney_expr &lt;-<span class="st"> </span><span class="kw">setdiff</span>(kidney_expr, int)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="tissue-specific-promoter-marks.html#cb49-1" aria-hidden="true" tabindex="-1"></a>bladder_expr <span class="ot">&lt;-</span> tissues <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="tissue-specific-promoter-marks.html#cb49-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(tissue <span class="sc">==</span> <span class="st">&quot;Bladder&quot;</span> <span class="sc">&amp;</span> tpm <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb49-3"><a href="tissue-specific-promoter-marks.html#cb49-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(gene)</span>
+<span id="cb49-4"><a href="tissue-specific-promoter-marks.html#cb49-4" aria-hidden="true" tabindex="-1"></a>kidney_expr <span class="ot">&lt;-</span> tissues <span class="sc">%&gt;%</span></span>
+<span id="cb49-5"><a href="tissue-specific-promoter-marks.html#cb49-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(tissue <span class="sc">==</span> <span class="st">&quot;Kidney&quot;</span> <span class="sc">&amp;</span> tpm <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb49-6"><a href="tissue-specific-promoter-marks.html#cb49-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(gene)</span>
+<span id="cb49-7"><a href="tissue-specific-promoter-marks.html#cb49-7" aria-hidden="true" tabindex="-1"></a>int <span class="ot">&lt;-</span> <span class="fu">intersect</span>(bladder_expr, kidney_expr)</span>
+<span id="cb49-8"><a href="tissue-specific-promoter-marks.html#cb49-8" aria-hidden="true" tabindex="-1"></a>bladder_expr <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(bladder_expr, int)</span>
+<span id="cb49-9"><a href="tissue-specific-promoter-marks.html#cb49-9" aria-hidden="true" tabindex="-1"></a>kidney_expr <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(kidney_expr, int)</span></code></pre></div>
 <p>Next, use an existing TxDb to locate these genes in the genomes. While
 we usually recommend to use GENCODE genes for human analysis, because
 the ENCODE chromatin modification peak files on AnnotationHub are in
 hg19, we use the UCSC hg19 genes here for simplicity of the code:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a>
-<a class="sourceLine" id="cb48-2" title="2"><span class="kw">library</span>(org.Hs.eg.db)</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="tissue-specific-promoter-marks.html#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
+<span id="cb50-2"><a href="tissue-specific-promoter-marks.html#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span></code></pre></div>
 <p>Add the ENSEMBL ID and pull out the two tissue-specific sets.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">g &lt;-<span class="st"> </span><span class="kw">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="tissue-specific-promoter-marks.html#cb51-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
 <pre><code>##   403 genes were dropped because they have exons located on both strands
 ##   of the same reference sequence or on more than one reference sequence,
 ##   so cannot be represented by a single genomic range.
 ##   Use &#39;single.strand.genes.only=FALSE&#39; to get all the genes in a
 ##   GRangesList object, or use suppressMessages() to suppress this message.</code></pre>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">library</span>(plyranges)</a>
-<a class="sourceLine" id="cb51-2" title="2">g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">ensembl =</span> <span class="kw">mapIds</span>(org.Hs.eg.db, gene_id, <span class="st">&quot;ENSEMBL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</a>
-<a class="sourceLine" id="cb51-3" title="3">bladder_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>bladder_expr)</a>
-<a class="sourceLine" id="cb51-4" title="4">kidney_g &lt;-<span class="st"> </span>g <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(ensembl <span class="op">%in%</span><span class="st"> </span>kidney_expr)</a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="tissue-specific-promoter-marks.html#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb53-2"><a href="tissue-specific-promoter-marks.html#cb53-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ensembl =</span> <span class="fu">mapIds</span>(org.Hs.eg.db, gene_id, <span class="st">&quot;ENSEMBL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</span>
+<span id="cb53-3"><a href="tissue-specific-promoter-marks.html#cb53-3" aria-hidden="true" tabindex="-1"></a>bladder_g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ensembl <span class="sc">%in%</span> bladder_expr)</span>
+<span id="cb53-4"><a href="tissue-specific-promoter-marks.html#cb53-4" aria-hidden="true" tabindex="-1"></a>kidney_g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ensembl <span class="sc">%in%</span> kidney_expr)</span></code></pre></div>
 <p>Finally we combine the two sets with <code>bind_ranges</code>, and we change
 the feature size from the whole gene extent (the range from the
 leftmost exon to rightmost exon), to just the TSS, using <code>anchor_5p</code>
 and <code>mutate</code>.</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">tss &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_g,</a>
-<a class="sourceLine" id="cb52-2" title="2">                   <span class="dt">kidney=</span>kidney_g,</a>
-<a class="sourceLine" id="cb52-3" title="3">                   <span class="dt">.id=</span><span class="st">&quot;gtissue&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb52-4" title="4"><span class="st">  </span><span class="kw">anchor_5p</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb52-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width=</span><span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="tissue-specific-promoter-marks.html#cb54-1" aria-hidden="true" tabindex="-1"></a>tss <span class="ot">&lt;-</span> <span class="fu">bind_ranges</span>(<span class="at">bladder=</span>bladder_g,</span>
+<span id="cb54-2"><a href="tissue-specific-promoter-marks.html#cb54-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">kidney=</span>kidney_g,</span>
+<span id="cb54-3"><a href="tissue-specific-promoter-marks.html#cb54-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">.id=</span><span class="st">&quot;gtissue&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-4"><a href="tissue-specific-promoter-marks.html#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb54-5"><a href="tissue-specific-promoter-marks.html#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>)</span></code></pre></div>
 <p>Now we will obtain the H3K27ac peak sets:</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">library</span>(AnnotationHub)</a>
-<a class="sourceLine" id="cb53-2" title="2">ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</a>
-<a class="sourceLine" id="cb53-3" title="3"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;bladder&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
-<a class="sourceLine" id="cb53-4" title="4">bladder_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH44180&quot;</span>]]</a>
-<a class="sourceLine" id="cb53-5" title="5"><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;kidney&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></a>
-<a class="sourceLine" id="cb53-6" title="6">kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="tissue-specific-promoter-marks.html#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationHub)</span>
+<span id="cb55-2"><a href="tissue-specific-promoter-marks.html#cb55-2" aria-hidden="true" tabindex="-1"></a>ah <span class="ot">&lt;-</span> <span class="fu">AnnotationHub</span>()</span>
+<span id="cb55-3"><a href="tissue-specific-promoter-marks.html#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;bladder&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></span>
+<span id="cb55-4"><a href="tissue-specific-promoter-marks.html#cb55-4" aria-hidden="true" tabindex="-1"></a>bladder_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH44180&quot;</span>]]</span>
+<span id="cb55-5"><a href="tissue-specific-promoter-marks.html#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;kidney&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></span>
+<span id="cb55-6"><a href="tissue-specific-promoter-marks.html#cb55-6" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH43443&quot;</span>]]</span></code></pre></div>
 <p>We download these and scale so they have the same 90% quantile of <code>signalValue</code>.</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1">ninety &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">quantile</span>(x, <span class="fl">.9</span>, <span class="dt">names=</span><span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb54-2" title="2">bladder_pks &lt;-<span class="st"> </span>bladder_pks <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">signal =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">ninety</span>(signalValue))</a>
-<a class="sourceLine" id="cb54-4" title="4">kidney_pks &lt;-<span class="st"> </span>kidney_pks <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">signal =</span> signalValue <span class="op">/</span><span class="st"> </span><span class="kw">ninety</span>(signalValue))</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="tissue-specific-promoter-marks.html#cb56-1" aria-hidden="true" tabindex="-1"></a>ninety <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, .<span class="dv">9</span>, <span class="at">names=</span><span class="cn">FALSE</span>)</span>
+<span id="cb56-2"><a href="tissue-specific-promoter-marks.html#cb56-2" aria-hidden="true" tabindex="-1"></a>bladder_pks <span class="ot">&lt;-</span> bladder_pks <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="tissue-specific-promoter-marks.html#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">signal =</span> signalValue <span class="sc">/</span> <span class="fu">ninety</span>(signalValue))</span>
+<span id="cb56-4"><a href="tissue-specific-promoter-marks.html#cb56-4" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> kidney_pks <span class="sc">%&gt;%</span></span>
+<span id="cb56-5"><a href="tissue-specific-promoter-marks.html#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">signal =</span> signalValue <span class="sc">/</span> <span class="fu">ninety</span>(signalValue))</span></code></pre></div>
 <p>Combine the peaks from bladder and kidney, filter to those with &lt; 0.1%
 FDR, and center the peak on the summit (the <code>peak</code> column gives the
 shift from the left side to the summit).</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">pks &lt;-<span class="st"> </span><span class="kw">bind_ranges</span>(<span class="dt">bladder=</span>bladder_pks,</a>
-<a class="sourceLine" id="cb55-2" title="2">                   <span class="dt">kidney=</span>kidney_pks,</a>
-<a class="sourceLine" id="cb55-3" title="3">                   <span class="dt">.id=</span><span class="st">&quot;ptissue&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb55-4" title="4"><span class="st">  </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span><span class="dv">3</span>, width <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb55-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> start <span class="op">+</span><span class="st"> </span>peak) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb55-6" title="6"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>peak) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb55-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width =</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="tissue-specific-promoter-marks.html#cb57-1" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> <span class="fu">bind_ranges</span>(<span class="at">bladder=</span>bladder_pks,</span>
+<span id="cb57-2"><a href="tissue-specific-promoter-marks.html#cb57-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">kidney=</span>kidney_pks,</span>
+<span id="cb57-3"><a href="tissue-specific-promoter-marks.html#cb57-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">.id=</span><span class="st">&quot;ptissue&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb57-4"><a href="tissue-specific-promoter-marks.html#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(qValue <span class="sc">&gt;</span> <span class="dv">3</span>, width <span class="sc">&lt;=</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb57-5"><a href="tissue-specific-promoter-marks.html#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">start =</span> start <span class="sc">+</span> peak) <span class="sc">%&gt;%</span></span>
+<span id="cb57-6"><a href="tissue-specific-promoter-marks.html#cb57-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>peak) <span class="sc">%&gt;%</span></span>
+<span id="cb57-7"><a href="tissue-specific-promoter-marks.html#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p>Finally, once we have two tidy range sets, the <em>plyranges</em> analysis is
 just a few lines. It appears that tissue-specific peaks are enriched
 near the tissue-specific genes for both bladder and kidney.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">tss <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_left</span>(pks, <span class="dt">maxgap=</span><span class="dv">500</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb56-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(gtissue, ptissue) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb56-3" title="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">count =</span> <span class="kw">n</span>(), <span class="dt">meanSignal =</span> <span class="kw">mean</span>(signal))</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="tissue-specific-promoter-marks.html#cb58-1" aria-hidden="true" tabindex="-1"></a>tss <span class="sc">%&gt;%</span> <span class="fu">join_overlap_left</span>(pks, <span class="at">maxgap=</span><span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb58-2"><a href="tissue-specific-promoter-marks.html#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gtissue, ptissue) <span class="sc">%&gt;%</span></span>
+<span id="cb58-3"><a href="tissue-specific-promoter-marks.html#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">meanSignal =</span> <span class="fu">mean</span>(signal))</span></code></pre></div>
 <pre><code>## DataFrame with 6 rows and 4 columns
 ##   gtissue     ptissue     count meanSignal
 ##     &lt;Rle&gt; &lt;character&gt; &lt;integer&gt;  &lt;numeric&gt;
@@ -258,12 +284,12 @@ left or rightmost isoform (for + or - strand genes, respectively).</li>
 
 </div>
 <h3>References</h3>
-<div id="refs" class="references">
-<div id="ref-encode">
-<p>Dunham, I., and others. 2012. “An integrated encyclopedia of DNA elements in the human genome.” <em>Nature</em> 489 (7414): 57–74.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-encode" class="csl-entry">
+Dunham, I. et al. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.
 </div>
-<div id="ref-gtex">
-<p>Lonsdale, J., and others. 2013. “The Genotype-Tissue Expression (GTEx) project.” <em>Nature Genetics</em> 45 (6): 580–85.</p>
+<div id="ref-gtex" class="csl-entry">
+Lonsdale, J. et al. 2013. <span>“<span class="nocase">The Genotype-Tissue Expression (GTEx) project</span>.”</span> <em>Nature Genetics</em> 45 (6): 580–85.
 </div>
 </div>
             </section>

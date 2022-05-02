@@ -80,11 +80,13 @@ Lastly, we perform some summarization: compute the number of friends
 in common with `n()` and the median birthday of shared friends. The
 `complete` call at the end fills in 0 for those classmates for
 whom we share no friends (here, the use of `factor` earlier becomes
-relevant).
+relevant). We can choose which columns to fill in, and what value to 
+add.
 
 ```{r}
 shared_friends %>%
   group_by(classmate) %>%
   summarize(in_common=n(), median_bday=median(birthday)) %>%
-  complete(classmate, fill=list(count=0))
+  complete(classmate, fill=list(in_common=0,median_bday=-1))
 ```
+
