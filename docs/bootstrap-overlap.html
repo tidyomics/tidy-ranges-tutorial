@@ -27,7 +27,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,6 +168,7 @@ div.csl-indent {
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -219,7 +220,8 @@ provided by the <em>excluderanges</em> packages and available via
 they are available for hg19, which is the genome used with the peak
 sets.</p>
 <div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="bootstrap-overlap.html#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;excluderanges&quot;,&quot;hg19&quot;))</span></span>
-<span id="cb61-2"><a href="bootstrap-overlap.html#cb61-2" aria-hidden="true" tabindex="-1"></a>exclude <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH95912&quot;</span>]]</span></code></pre></div>
+<span id="cb61-2"><a href="bootstrap-overlap.html#cb61-2" aria-hidden="true" tabindex="-1"></a>exclude <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH95912&quot;</span>]]</span>
+<span id="cb61-3"><a href="bootstrap-overlap.html#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(<span class="st">&quot;data/exclude.rda&quot;</span>)</span></code></pre></div>
 <p>To make the code more generic, we will rename the kidney peaks to <code>x</code>
 and the bladder peaks to <code>y</code>. We will be looking for overlaps with
 features in <code>x</code> as the query set: how many of the features in <code>x</code>
@@ -292,32 +294,19 @@ in the <code>iter</code> metadata column.</p>
 <span id="cb72-4"><a href="bootstrap-overlap.html#cb72-4" aria-hidden="true" tabindex="-1"></a>boots <span class="ot">&lt;-</span> <span class="fu">bootRanges</span>(pks_to_boot, <span class="at">blockLength=</span><span class="fl">5e5</span>, <span class="at">R=</span>R, <span class="at">exclude=</span>exclude)</span>
 <span id="cb72-5"><a href="bootstrap-overlap.html#cb72-5" aria-hidden="true" tabindex="-1"></a>boots</span></code></pre></div>
 <pre><code>## bootRanges object with 174764 ranges and 5 metadata columns:
-##            seqnames            ranges strand |        id    signal     block
-##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt;
-##        [1]     chr1   2011397-2011809      * |       931  14.42934         5
-##        [2]     chr1   2011973-2012399      * |       932  17.57052         5
-##        [3]     chr1   2012505-2013073      * |       933   9.64691         5
-##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6
-##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6
-##        ...      ...               ...    ... .       ...       ...       ...
-##   [174760]     chrY 57499850-57501632      * |      5141  10.09210      6202
-##   [174761]     chrY 57937341-57937960      * |      1062  15.98656      6203
-##   [174762]     chrY 58145916-58146540      * |       264  15.23097      6204
-##   [174763]     chrY 58146662-58147585      * |       265  12.26661      6204
-##   [174764]     chrY 58214091-58214746      * |       266   9.69322      6204
-##             iter blockLength
-##            &lt;Rle&gt;       &lt;Rle&gt;
-##        [1]     1      500000
-##        [2]     1      500000
-##        [3]     1      500000
-##        [4]     1      500000
-##        [5]     1      500000
-##        ...   ...         ...
-##   [174760]    30      500000
-##   [174761]    30      500000
-##   [174762]    30      500000
-##   [174763]    30      500000
-##   [174764]    30      500000
+##            seqnames            ranges strand |        id    signal     block  iter blockLength
+##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt; &lt;Rle&gt;       &lt;Rle&gt;
+##        [1]     chr1   2011397-2011809      * |       931  14.42934         5     1      500000
+##        [2]     chr1   2011973-2012399      * |       932  17.57052         5     1      500000
+##        [3]     chr1   2012505-2013073      * |       933   9.64691         5     1      500000
+##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6     1      500000
+##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6     1      500000
+##        ...      ...               ...    ... .       ...       ...       ...   ...         ...
+##   [174760]     chrY 57499850-57501632      * |      5141  10.09210      6202    30      500000
+##   [174761]     chrY 57937341-57937960      * |      1062  15.98656      6203    30      500000
+##   [174762]     chrY 58145916-58146540      * |       264  15.23097      6204    30      500000
+##   [174763]     chrY 58146662-58147585      * |       265  12.26661      6204    30      500000
+##   [174764]     chrY 58214091-58214746      * |       266   9.69322      6204    30      500000
 ##   -------
 ##   seqinfo: 24 sequences from hg19 genome</code></pre>
 <p>The default use above of the <code>exclude</code> argument is to drop bootstrapped
@@ -386,7 +375,7 @@ through, after the <code>as_tibble()</code> call).</p>
 <span id="cb81-7"><a href="bootstrap-overlap.html#cb81-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(null)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 2
 ##   iter  n_overlaps
-##   &lt;fct&gt;      &lt;dbl&gt;
+##   &lt;fct&gt;      &lt;int&gt;
 ## 1 1             60
 ## 2 2             60
 ## 3 3             76
@@ -437,7 +426,7 @@ of the bootstrap:</p>
 <span id="cb91-8"><a href="bootstrap-overlap.html#cb91-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(null)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 2
 ##   iter  any_hits
-##   &lt;fct&gt;    &lt;dbl&gt;
+##   &lt;fct&gt;    &lt;int&gt;
 ## 1 1           55
 ## 2 2           55
 ## 3 3           68
@@ -476,7 +465,7 @@ bootstrap.</p>
 <pre><code>## Joining, by = &quot;iter&quot;</code></pre>
 <pre><code>## # A tibble: 30 × 4
 ##    iter  any_hits total    rate
-##    &lt;fct&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+##    &lt;fct&gt;    &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
 ##  1 1           59  6031 0.00978
 ##  2 2           58  5710 0.0102 
 ##  3 3           73  5758 0.0127 

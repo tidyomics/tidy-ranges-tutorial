@@ -27,7 +27,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,6 +168,7 @@ div.csl-indent {
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -233,7 +234,7 @@ functions to pull out information. See <code>?GRanges</code> for details.</p>
 <span id="cb20-2"><a href="overlap-granges-with-plyranges.html#cb20-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> plyranges<span class="sc">::</span><span class="fu">select</span>(gene_name)</span>
 <span id="cb20-3"><a href="overlap-granges-with-plyranges.html#cb20-3" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">keepStandardChromosomes</span>(g, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>)</span>
 <span id="cb20-4"><a href="overlap-granges-with-plyranges.html#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">seqlevelsStyle</span>(g) <span class="ot">&lt;-</span> <span class="st">&quot;UCSC&quot;</span></span>
-<span id="cb20-5"><a href="overlap-granges-with-plyranges.html#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(g, <span class="st">&quot;data/ens_genes.rda&quot;</span>)</span></code></pre></div>
+<span id="cb20-5"><a href="overlap-granges-with-plyranges.html#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(g, <span class="at">file=</span><span class="st">&quot;data/ens_genes.rda&quot;</span>)</span></code></pre></div>
 <p>Now we are ready to test for overlaps. A left join gives us all the
 overlaps for ranges on the left side. If a range on the left has
 no overlaps it appears with <code>NA</code> for the metadata columns of the right
@@ -344,7 +345,7 @@ follows).</p>
 <span id="cb35-6"><a href="overlap-granges-with-plyranges.html#cb35-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">complete</span>(range_id, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">count=</span><span class="dv">0</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 3
 ##   range_id count mean_width
-##   &lt;fct&gt;    &lt;dbl&gt;      &lt;dbl&gt;
+##   &lt;fct&gt;    &lt;int&gt;      &lt;dbl&gt;
 ## 1 bar          4      18738
 ## 2 boo          0         NA
 ## 3 foo          2      26182</code></pre>

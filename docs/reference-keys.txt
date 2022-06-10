@@ -3,3 +3,4 @@ overlap-granges-with-plyranges
 tissue-specific-promoter-marks
 bootstrap-overlap
 snp-position-in-peaks
+tidy-gene-plots

@@ -27,7 +27,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,6 +168,7 @@ div.csl-indent {
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -274,7 +275,7 @@ add.</p>
 <span id="cb8-4"><a href="join-is-an-overlap.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(classmate, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">in_common=</span><span class="dv">0</span>,<span class="at">median_bday=</span><span class="sc">-</span><span class="dv">1</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 17 × 3
 ##    classmate             in_common median_bday
-##    &lt;fct&gt;                     &lt;dbl&gt;       &lt;dbl&gt;
+##    &lt;fct&gt;                     &lt;int&gt;       &lt;dbl&gt;
 ##  1 Aaliyah Minter                0        -1  
 ##  2 Brandon Jones                 4        14  
 ##  3 Christopher Herron            2        11  

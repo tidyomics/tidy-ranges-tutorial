@@ -82,6 +82,7 @@ ah <- AnnotationHub()
 bladder_pks <- ah[["AH44180"]]
 # query(ah, c("Homo sapiens", "kidney", "H3K27ac", "narrowPeak"))
 kidney_pks <- ah[["AH43443"]]
+save(bladder_pks, kidney_pks, file="data/peaks.rda")
 ```
 
 ```{r echo=FALSE}

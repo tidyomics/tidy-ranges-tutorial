@@ -27,7 +27,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,6 +168,7 @@ div.csl-indent {
 <li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -220,11 +221,11 @@ hg19, we use the UCSC hg19 genes here for simplicity of the code:</p>
 <span id="cb50-2"><a href="tissue-specific-promoter-marks.html#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span></code></pre></div>
 <p>Add the ENSEMBL ID and pull out the two tissue-specific sets.</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="tissue-specific-promoter-marks.html#cb51-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
-<pre><code>##   403 genes were dropped because they have exons located on both strands
-##   of the same reference sequence or on more than one reference sequence,
-##   so cannot be represented by a single genomic range.
-##   Use &#39;single.strand.genes.only=FALSE&#39; to get all the genes in a
-##   GRangesList object, or use suppressMessages() to suppress this message.</code></pre>
+<pre><code>##   403 genes were dropped because they have exons located on both strands of the same
+##   reference sequence or on more than one reference sequence, so cannot be represented by a
+##   single genomic range.
+##   Use &#39;single.strand.genes.only=FALSE&#39; to get all the genes in a GRangesList object, or use
+##   suppressMessages() to suppress this message.</code></pre>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="tissue-specific-promoter-marks.html#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
 <span id="cb53-2"><a href="tissue-specific-promoter-marks.html#cb53-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ensembl =</span> <span class="fu">mapIds</span>(org.Hs.eg.db, gene_id, <span class="st">&quot;ENSEMBL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</span>
 <span id="cb53-3"><a href="tissue-specific-promoter-marks.html#cb53-3" aria-hidden="true" tabindex="-1"></a>bladder_g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ensembl <span class="sc">%in%</span> bladder_expr)</span>
@@ -244,7 +245,8 @@ and <code>mutate</code>.</p>
 <span id="cb55-3"><a href="tissue-specific-promoter-marks.html#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;bladder&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></span>
 <span id="cb55-4"><a href="tissue-specific-promoter-marks.html#cb55-4" aria-hidden="true" tabindex="-1"></a>bladder_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH44180&quot;</span>]]</span>
 <span id="cb55-5"><a href="tissue-specific-promoter-marks.html#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;Homo sapiens&quot;, &quot;kidney&quot;, &quot;H3K27ac&quot;, &quot;narrowPeak&quot;))</span></span>
-<span id="cb55-6"><a href="tissue-specific-promoter-marks.html#cb55-6" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH43443&quot;</span>]]</span></code></pre></div>
+<span id="cb55-6"><a href="tissue-specific-promoter-marks.html#cb55-6" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH43443&quot;</span>]]</span>
+<span id="cb55-7"><a href="tissue-specific-promoter-marks.html#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bladder_pks, kidney_pks, <span class="at">file=</span><span class="st">&quot;data/peaks.rda&quot;</span>)</span></code></pre></div>
 <p>We download these and scale so they have the same 90% quantile of <code>signalValue</code>.</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="tissue-specific-promoter-marks.html#cb56-1" aria-hidden="true" tabindex="-1"></a>ninety <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, .<span class="dv">9</span>, <span class="at">names=</span><span class="cn">FALSE</span>)</span>
 <span id="cb56-2"><a href="tissue-specific-promoter-marks.html#cb56-2" aria-hidden="true" tabindex="-1"></a>bladder_pks <span class="ot">&lt;-</span> bladder_pks <span class="sc">%&gt;%</span></span>

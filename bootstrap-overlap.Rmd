@@ -44,6 +44,7 @@ sets.
 ```{r eval=FALSE}
 # query(ah, c("excluderanges","hg19"))
 exclude <- ah[["AH95912"]]
+save("data/exclude.rda")
 ```
 
 ```{r echo=FALSE}
