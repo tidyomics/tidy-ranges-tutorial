@@ -16,13 +16,17 @@ data.frame is to *dplyr* as GRanges is to *plyranges*.
 library(plyranges)
 ```
 
-Note the structure of the *GRanges* object:
+Note the structure of the *GRanges* object. We can create a *GRanges*
+from a data.frame by specifying two of: `start`, `end`, or `width`.
 
 ```{r}
-r <- GRanges("chr1", IRanges(1 + c(34e6,36e6,36.6e6),
-                             width=c(2e5,2e5,1e5)),
-             strand=c("+","-","-"),
-             range_id=factor(c("foo","bar","boo")))
+df <- data.frame(
+  seqnames="chr1",
+  start=1 + c(34e6,36e6,36.6e6),
+  width=c(2e5,2e5,1e5),
+  strand=c("+","-","-"),
+  range_id=factor(c("foo","bar","boo")))
+r <- as_granges(df)
 r
 ```
 
@@ -41,20 +45,12 @@ obtain these from AnnotationHub). The last lines use convenience
 functions to convert to, e.g. `"chr1"`, ..., `"chrY"`.
 
 ```{r message=FALSE}
-library(EnsDb.Hsapiens.v86)
-library(GenomeInfoDb)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 ```
 
-```{r eval=FALSE}
-g <- genes(EnsDb.Hsapiens.v86)
-g <- g %>% plyranges::select(gene_name)
+```{r}
+g <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 g <- keepStandardChromosomes(g, pruning.mode="coarse")
-seqlevelsStyle(g) <- "UCSC"
-save(g, file="data/ens_genes.rda")
-```
-
-```{r echo=FALSE}
-load("data/ens_genes.rda")
 ```
 
 Now we are ready to test for overlaps. A left join gives us all the

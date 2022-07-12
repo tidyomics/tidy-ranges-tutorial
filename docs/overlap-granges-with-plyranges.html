@@ -7,11 +7,10 @@
   <title>Chapter 2 Overlap GRanges with plyranges | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 2 Overlap GRanges with plyranges | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
-  
   
   <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
@@ -27,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-06-10" />
+<meta name="date" content="2022-07-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -36,7 +35,6 @@ tidy data philosophy.</p>" />
   
 <link rel="prev" href="join-is-an-overlap.html"/>
 <link rel="next" href="tissue-specific-promoter-marks.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -54,8 +52,9 @@ tidy data philosophy.</p>" />
 
 
 
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -123,6 +122,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -165,8 +186,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="overlap-granges-with-plyranges" class="section level1" number="2">
-<h1><span class="header-section-number">Chapter 2</span> Overlap GRanges with plyranges</h1>
+<div id="overlap-granges-with-plyranges" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Overlap GRanges with plyranges<a href="overlap-granges-with-plyranges.html#overlap-granges-with-plyranges" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Objective: compute overlaps and summary statistics between two sets of
 genomic ranges. In particular, suppose we want to compute the mean
 genomic extent (distance from left-most to right-most basepair) of
@@ -177,13 +198,17 @@ in the Bioconductor package <em>GenomicRanges</em> to represent the features
 and <em>plyranges</em> to compute the overlaps, similarly to how we used
 <em>dplyr</em> to compute the overlaps in the previous analysis. So
 data.frame is to <em>dplyr</em> as GRanges is to <em>plyranges</em>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="overlap-granges-with-plyranges.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span></code></pre></div>
-<p>Note the structure of the <em>GRanges</em> object:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="overlap-granges-with-plyranges.html#cb2-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">GRanges</span>(<span class="st">&quot;chr1&quot;</span>, <span class="fu">IRanges</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">c</span>(<span class="fl">34e6</span>,<span class="fl">36e6</span>,<span class="fl">36.6e6</span>),</span>
-<span id="cb2-2"><a href="overlap-granges-with-plyranges.html#cb2-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">width=</span><span class="fu">c</span>(<span class="fl">2e5</span>,<span class="fl">2e5</span>,<span class="fl">1e5</span>)),</span>
-<span id="cb2-3"><a href="overlap-granges-with-plyranges.html#cb2-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">strand=</span><span class="fu">c</span>(<span class="st">&quot;+&quot;</span>,<span class="st">&quot;-&quot;</span>,<span class="st">&quot;-&quot;</span>),</span>
-<span id="cb2-4"><a href="overlap-granges-with-plyranges.html#cb2-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">range_id=</span><span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;foo&quot;</span>,<span class="st">&quot;bar&quot;</span>,<span class="st">&quot;boo&quot;</span>)))</span>
-<span id="cb2-5"><a href="overlap-granges-with-plyranges.html#cb2-5" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="overlap-granges-with-plyranges.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span></code></pre></div>
+<p>Note the structure of the <em>GRanges</em> object. We can create a <em>GRanges</em>
+from a data.frame by specifying two of: <code>start</code>, <code>end</code>, or <code>width</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="overlap-granges-with-plyranges.html#cb11-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-2"><a href="overlap-granges-with-plyranges.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">seqnames=</span><span class="st">&quot;chr1&quot;</span>,</span>
+<span id="cb11-3"><a href="overlap-granges-with-plyranges.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">start=</span><span class="dv">1</span> <span class="sc">+</span> <span class="fu">c</span>(<span class="fl">34e6</span>,<span class="fl">36e6</span>,<span class="fl">36.6e6</span>),</span>
+<span id="cb11-4"><a href="overlap-granges-with-plyranges.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">width=</span><span class="fu">c</span>(<span class="fl">2e5</span>,<span class="fl">2e5</span>,<span class="fl">1e5</span>),</span>
+<span id="cb11-5"><a href="overlap-granges-with-plyranges.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">strand=</span><span class="fu">c</span>(<span class="st">&quot;+&quot;</span>,<span class="st">&quot;-&quot;</span>,<span class="st">&quot;-&quot;</span>),</span>
+<span id="cb11-6"><a href="overlap-granges-with-plyranges.html#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">range_id=</span><span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;foo&quot;</span>,<span class="st">&quot;bar&quot;</span>,<span class="st">&quot;boo&quot;</span>)))</span>
+<span id="cb11-7"><a href="overlap-granges-with-plyranges.html#cb11-7" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">as_granges</span>(df)</span>
+<span id="cb11-8"><a href="overlap-granges-with-plyranges.html#cb11-8" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div>
 <pre><code>## GRanges object with 3 ranges and 1 metadata column:
 ##       seqnames            ranges strand | range_id
 ##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt;
@@ -194,14 +219,14 @@ data.frame is to <em>dplyr</em> as GRanges is to <em>plyranges</em>.</p>
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>In case you haven’t seen this before, <em>GRanges</em> objects have specific
 functions to pull out information. See <code>?GRanges</code> for details.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="overlap-granges-with-plyranges.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(r)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="overlap-granges-with-plyranges.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(r)</span></code></pre></div>
 <pre><code>## [1] 3</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="overlap-granges-with-plyranges.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">seqnames</span>(r)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="overlap-granges-with-plyranges.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">seqnames</span>(r)</span></code></pre></div>
 <pre><code>## factor-Rle of length 3 with 1 run
 ##   Lengths:    3
 ##   Values : chr1
 ## Levels(1): chr1</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="overlap-granges-with-plyranges.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strand</span>(r)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="overlap-granges-with-plyranges.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strand</span>(r)</span></code></pre></div>
 <pre><code>## factor-Rle of length 3 with 2 runs
 ##   Lengths: 1 2
 ##   Values : + -
@@ -210,13 +235,14 @@ functions to pull out information. See <code>?GRanges</code> for details.</p>
 Ensembl genes, here from a Bioconductor data package (usually we would
 obtain these from AnnotationHub). The last lines use convenience
 functions to convert to, e.g. <code>"chr1"</code>, …, <code>"chrY"</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="overlap-granges-with-plyranges.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(EnsDb.Hsapiens.v86)</span>
-<span id="cb10-2"><a href="overlap-granges-with-plyranges.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GenomeInfoDb)</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="overlap-granges-with-plyranges.html#cb11-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(EnsDb.Hsapiens.v86)</span>
-<span id="cb11-2"><a href="overlap-granges-with-plyranges.html#cb11-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span> plyranges<span class="sc">::</span><span class="fu">select</span>(gene_name)</span>
-<span id="cb11-3"><a href="overlap-granges-with-plyranges.html#cb11-3" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">keepStandardChromosomes</span>(g, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>)</span>
-<span id="cb11-4"><a href="overlap-granges-with-plyranges.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">seqlevelsStyle</span>(g) <span class="ot">&lt;-</span> <span class="st">&quot;UCSC&quot;</span></span>
-<span id="cb11-5"><a href="overlap-granges-with-plyranges.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(g, <span class="at">file=</span><span class="st">&quot;data/ens_genes.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="overlap-granges-with-plyranges.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="overlap-granges-with-plyranges.html#cb20-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
+<pre><code>##   403 genes were dropped because they have exons located on both strands of the same
+##   reference sequence or on more than one reference sequence, so cannot be represented by a
+##   single genomic range.
+##   Use &#39;single.strand.genes.only=FALSE&#39; to get all the genes in a GRangesList object, or use
+##   suppressMessages() to suppress this message.</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="overlap-granges-with-plyranges.html#cb22-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">keepStandardChromosomes</span>(g, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>)</span></code></pre></div>
 <p>Now we are ready to test for overlaps. A left join gives us all the
 overlaps for ranges on the left side (here <code>r</code>). If a range on the
 left has no overlaps it appears with <code>NA</code> for the metadata columns of
@@ -224,70 +250,68 @@ the right side ranges. If a range on the left side has multiple
 overlaps with the right side, it will appear multiple times in the
 output. More below on how to deal with this, if it is desired to have
 statistics on per-range overlaps.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="overlap-granges-with-plyranges.html#cb12-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_left</span>(g)</span></code></pre></div>
-<pre><code>## GRanges object with 13 ranges and 2 metadata columns:
-##        seqnames            ranges strand | range_id   gene_name
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="overlap-granges-with-plyranges.html#cb23-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_left</span>(g)</span></code></pre></div>
+<pre><code>## GRanges object with 10 ranges and 2 metadata columns:
+##        seqnames            ranges strand | range_id     gene_id
 ##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt; &lt;character&gt;
-##    [1]     chr1 34000001-34200000      + |      foo       CSMD2
-##    [2]     chr1 34000001-34200000      + |      foo    RNA5SP42
-##    [3]     chr1 34000001-34200000      + |      foo     C1orf94
-##    [4]     chr1 36000001-36200000      - |      bar        AGO3
-##    [5]     chr1 36000001-36200000      - |      bar RP4-665N4.8
-##    ...      ...               ...    ... .      ...         ...
-##    [9]     chr1 36000001-36200000      - |      bar      COL8A2
-##   [10]     chr1 36000001-36200000      - |      bar     TRAPPC3
-##   [11]     chr1 36000001-36200000      - |      bar      MAP7D1
-##   [12]     chr1 36000001-36200000      - |      bar   RN7SL131P
-##   [13]     chr1 36600001-36700000      - |      boo      FTLP18
+##    [1]     chr1 34000001-34200000      + |      foo      114784
+##    [2]     chr1 36000001-36200000      - |      bar      127703
+##    [3]     chr1 36000001-36200000      - |      bar       23154
+##    [4]     chr1 36000001-36200000      - |      bar      339488
+##    [5]     chr1 36000001-36200000      - |      bar        5690
+##    [6]     chr1 36000001-36200000      - |      bar       63967
+##    [7]     chr1 36000001-36200000      - |      bar       79932
+##    [8]     chr1 36600001-36700000      - |      boo       27095
+##    [9]     chr1 36600001-36700000      - |      boo       55700
+##   [10]     chr1 36600001-36700000      - |      boo        9967
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>If we want to exclude the zero matches cases, we can use an inner
 join:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="overlap-granges-with-plyranges.html#cb14-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(g)</span></code></pre></div>
-<pre><code>## GRanges object with 13 ranges and 2 metadata columns:
-##        seqnames            ranges strand | range_id   gene_name
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="overlap-granges-with-plyranges.html#cb25-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(g)</span></code></pre></div>
+<pre><code>## GRanges object with 10 ranges and 2 metadata columns:
+##        seqnames            ranges strand | range_id     gene_id
 ##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt; &lt;character&gt;
-##    [1]     chr1 34000001-34200000      + |      foo       CSMD2
-##    [2]     chr1 34000001-34200000      + |      foo    RNA5SP42
-##    [3]     chr1 34000001-34200000      + |      foo     C1orf94
-##    [4]     chr1 36000001-36200000      - |      bar        AGO3
-##    [5]     chr1 36000001-36200000      - |      bar RP4-665N4.8
-##    ...      ...               ...    ... .      ...         ...
-##    [9]     chr1 36000001-36200000      - |      bar      COL8A2
-##   [10]     chr1 36000001-36200000      - |      bar     TRAPPC3
-##   [11]     chr1 36000001-36200000      - |      bar      MAP7D1
-##   [12]     chr1 36000001-36200000      - |      bar   RN7SL131P
-##   [13]     chr1 36600001-36700000      - |      boo      FTLP18
+##    [1]     chr1 34000001-34200000      + |      foo      114784
+##    [2]     chr1 36000001-36200000      - |      bar      127703
+##    [3]     chr1 36000001-36200000      - |      bar       23154
+##    [4]     chr1 36000001-36200000      - |      bar      339488
+##    [5]     chr1 36000001-36200000      - |      bar        5690
+##    [6]     chr1 36000001-36200000      - |      bar       63967
+##    [7]     chr1 36000001-36200000      - |      bar       79932
+##    [8]     chr1 36600001-36700000      - |      boo       27095
+##    [9]     chr1 36600001-36700000      - |      boo       55700
+##   [10]     chr1 36600001-36700000      - |      boo        9967
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>We can also perform summarization by columns either in the <code>r</code> or the
 <code>g</code> object:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="overlap-granges-with-plyranges.html#cb16-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(g) <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="overlap-granges-with-plyranges.html#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="overlap-granges-with-plyranges.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="overlap-granges-with-plyranges.html#cb27-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(g) <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="overlap-granges-with-plyranges.html#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="overlap-granges-with-plyranges.html#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>())</span></code></pre></div>
 <pre><code>## DataFrame with 3 rows and 2 columns
 ##   range_id     count
 ##   &lt;factor&gt; &lt;integer&gt;
-## 1      bar         9
-## 2      boo         1
-## 3      foo         3</code></pre>
+## 1      bar         6
+## 2      boo         3
+## 3      foo         1</code></pre>
 <p>This is giving us the same information as the following:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="overlap-granges-with-plyranges.html#cb18-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">count_overlaps</span>(g)</span></code></pre></div>
-<pre><code>## [1] 3 9 1</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="overlap-granges-with-plyranges.html#cb29-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">count_overlaps</span>(g)</span></code></pre></div>
+<pre><code>## [1] 1 6 3</code></pre>
 <p>Which can be added to the range data with a <code>mutate</code> call:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="overlap-granges-with-plyranges.html#cb20-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">overlaps =</span> <span class="fu">count_overlaps</span>(., g))</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="overlap-granges-with-plyranges.html#cb31-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">overlaps =</span> <span class="fu">count_overlaps</span>(., g))</span></code></pre></div>
 <pre><code>## GRanges object with 3 ranges and 2 metadata columns:
 ##       seqnames            ranges strand | range_id  overlaps
 ##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt; &lt;integer&gt;
-##   [1]     chr1 34000001-34200000      + |      foo         3
-##   [2]     chr1 36000001-36200000      - |      bar         9
-##   [3]     chr1 36600001-36700000      - |      boo         1
+##   [1]     chr1 34000001-34200000      + |      foo         1
+##   [2]     chr1 36000001-36200000      - |      bar         6
+##   [3]     chr1 36600001-36700000      - |      boo         3
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>If we don’t care about multiple overlaps, but just want a binary
 variable that records if there was one or more overlaps or not,
 we can ask if the count of overlaps is greater than 0:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="overlap-granges-with-plyranges.html#cb22-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">overlaps_any =</span> <span class="fu">count_overlaps</span>(., g) <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="overlap-granges-with-plyranges.html#cb33-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">overlaps_any =</span> <span class="fu">count_overlaps</span>(., g) <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## GRanges object with 3 ranges and 2 metadata columns:
 ##       seqnames            ranges strand | range_id overlaps_any
 ##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;factor&gt;    &lt;logical&gt;
@@ -298,90 +322,88 @@ we can ask if the count of overlaps is greater than 0:</p>
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>If we want to keep the information about the gene ranges, we swap the
 order of the ranges in the command:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="overlap-granges-with-plyranges.html#cb24-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(r)</span></code></pre></div>
-<pre><code>## GRanges object with 13 ranges and 2 metadata columns:
-##                   seqnames            ranges strand |   gene_name range_id
-##                      &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;factor&gt;
-##   ENSG00000121904     chr1 33513999-34165842      - |       CSMD2      foo
-##   ENSG00000201148     chr1 34112949-34113063      + |    RNA5SP42      foo
-##   ENSG00000142698     chr1 34166883-34219131      + |     C1orf94      foo
-##   ENSG00000126070     chr1 35930718-36072500      + |        AGO3      bar
-##   ENSG00000271554     chr1 35992109-36013630      - | RP4-665N4.8      bar
-##               ...      ...               ...    ... .         ...      ...
-##   ENSG00000171812     chr1 36095236-36125220      - |      COL8A2      bar
-##   ENSG00000054116     chr1 36136570-36156053      - |     TRAPPC3      bar
-##   ENSG00000116871     chr1 36155579-36180849      + |      MAP7D1      bar
-##   ENSG00000264592     chr1 36191915-36192170      + |   RN7SL131P      bar
-##   ENSG00000230214     chr1 36630335-36630857      + |      FTLP18      boo
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="overlap-granges-with-plyranges.html#cb35-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(r)</span></code></pre></div>
+<pre><code>## GRanges object with 10 ranges and 2 metadata columns:
+##          seqnames            ranges strand |     gene_id range_id
+##             &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;factor&gt;
+##   114784     chr1 33979609-34631443      - |      114784      foo
+##   127703     chr1 36179477-36184790      - |      127703      bar
+##    23154     chr1 36023393-36032380      + |       23154      bar
+##    27095     chr1 36602170-36621654      - |       27095      boo
+##   339488     chr1 36038971-36060927      + |      339488      bar
+##    55700     chr1 36621803-36646441      + |       55700      boo
+##     5690     chr1 36035413-36107445      - |        5690      bar
+##    63967     chr1 36197713-36235551      - |       63967      bar
+##    79932     chr1 35899091-36023551      - |       79932      bar
+##     9967     chr1 36690017-36770957      + |        9967      boo
 ##   -------
-##   seqinfo: 25 sequences from hg38 genome</code></pre>
+##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <p>If we want strand specific overlaps, we can add <code>_directed</code>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="overlap-granges-with-plyranges.html#cb26-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r)</span></code></pre></div>
-<pre><code>## GRanges object with 6 ranges and 2 metadata columns:
-##                   seqnames            ranges strand |   gene_name range_id
-##                      &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;factor&gt;
-##   ENSG00000201148     chr1 34112949-34113063      + |    RNA5SP42      foo
-##   ENSG00000142698     chr1 34166883-34219131      + |     C1orf94      foo
-##   ENSG00000271554     chr1 35992109-36013630      - | RP4-665N4.8      bar
-##   ENSG00000232862     chr1 36080066-36084026      - | RP4-665N4.4      bar
-##   ENSG00000171812     chr1 36095236-36125220      - |      COL8A2      bar
-##   ENSG00000054116     chr1 36136570-36156053      - |     TRAPPC3      bar
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="overlap-granges-with-plyranges.html#cb37-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r)</span></code></pre></div>
+<pre><code>## GRanges object with 5 ranges and 2 metadata columns:
+##          seqnames            ranges strand |     gene_id range_id
+##             &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;factor&gt;
+##   127703     chr1 36179477-36184790      - |      127703      bar
+##    27095     chr1 36602170-36621654      - |       27095      boo
+##     5690     chr1 36035413-36107445      - |        5690      bar
+##    63967     chr1 36197713-36235551      - |       63967      bar
+##    79932     chr1 35899091-36023551      - |       79932      bar
 ##   -------
-##   seqinfo: 25 sequences from hg38 genome</code></pre>
+##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <p>By turning the join around, we have access to the genomic range
 information about the genes. Now we can compute, e.g. the average
 genomic extent of the genes (first base to last base), per overlapping
 range.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="overlap-granges-with-plyranges.html#cb28-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r) <span class="sc">%&gt;%</span></span>
-<span id="cb28-2"><a href="overlap-granges-with-plyranges.html#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
-<span id="cb28-3"><a href="overlap-granges-with-plyranges.html#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">mean_width=</span><span class="fu">mean</span>(width))</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="overlap-granges-with-plyranges.html#cb39-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r) <span class="sc">%&gt;%</span></span>
+<span id="cb39-2"><a href="overlap-granges-with-plyranges.html#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
+<span id="cb39-3"><a href="overlap-granges-with-plyranges.html#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">mean_width=</span><span class="fu">mean</span>(width))</span></code></pre></div>
 <pre><code>## DataFrame with 2 rows and 3 columns
 ##   range_id     count mean_width
 ##   &lt;factor&gt; &lt;integer&gt;  &lt;numeric&gt;
-## 1      bar         4      18738
-## 2      foo         2      26182</code></pre>
+## 1      bar         4    59911.8
+## 2      boo         1    19485.0</code></pre>
 <p>What about <code>"boo"</code>? We need to add a <code>complete()</code> call to account for
 the fact that we are missing those overlaps after the join. We need to
 call the function explicitly from the <em>tidyr</em> package but by not
 loading the package we can avoid some function name conflicts with
 <em>plyranges</em>. Also we need to convert to tibble (explanation
 follows).</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="overlap-granges-with-plyranges.html#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
-<span id="cb30-2"><a href="overlap-granges-with-plyranges.html#cb30-2" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r) <span class="sc">%&gt;%</span></span>
-<span id="cb30-3"><a href="overlap-granges-with-plyranges.html#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
-<span id="cb30-4"><a href="overlap-granges-with-plyranges.html#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">mean_width=</span><span class="fu">mean</span>(width)) <span class="sc">%&gt;%</span></span>
-<span id="cb30-5"><a href="overlap-granges-with-plyranges.html#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb30-6"><a href="overlap-granges-with-plyranges.html#cb30-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">complete</span>(range_id, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">count=</span><span class="dv">0</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="overlap-granges-with-plyranges.html#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb41-2"><a href="overlap-granges-with-plyranges.html#cb41-2" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner_directed</span>(r) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="overlap-granges-with-plyranges.html#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="overlap-granges-with-plyranges.html#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">mean_width=</span><span class="fu">mean</span>(width)) <span class="sc">%&gt;%</span></span>
+<span id="cb41-5"><a href="overlap-granges-with-plyranges.html#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-6"><a href="overlap-granges-with-plyranges.html#cb41-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">complete</span>(range_id, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">count=</span><span class="dv">0</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 3
 ##   range_id count mean_width
 ##   &lt;fct&gt;    &lt;int&gt;      &lt;dbl&gt;
-## 1 bar          4      18738
-## 2 boo          0         NA
-## 3 foo          2      26182</code></pre>
+## 1 bar          4     59912.
+## 2 boo          1     19485 
+## 3 foo          0        NA</code></pre>
 <p>Why did we have to convert to tibble before running <code>complete()</code>?
 This is because metadata columns of <em>GRanges</em> objects are in a format
 called <em>DataFrame</em> which the <em>tidyr</em> / <em>dplyr</em> functions don’t know
 how to operate on. To access these metadata columns, you can use any
 of these types of calls:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="overlap-granges-with-plyranges.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="overlap-granges-with-plyranges.html#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)</span></code></pre></div>
 <pre><code>## DataFrame with 3 rows and 1 column
 ##   range_id
 ##   &lt;factor&gt;
 ## 1      foo
 ## 2      bar
 ## 3      boo</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="overlap-granges-with-plyranges.html#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)<span class="sc">$</span>range_id</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="overlap-granges-with-plyranges.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)<span class="sc">$</span>range_id</span></code></pre></div>
 <pre><code>## [1] foo bar boo
 ## Levels: bar boo foo</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="overlap-granges-with-plyranges.html#cb36-1" aria-hidden="true" tabindex="-1"></a>r<span class="sc">$</span>range_id <span class="co"># this works also</span></span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="overlap-granges-with-plyranges.html#cb47-1" aria-hidden="true" tabindex="-1"></a>r<span class="sc">$</span>range_id <span class="co"># this works also</span></span></code></pre></div>
 <pre><code>## [1] foo bar boo
 ## Levels: bar boo foo</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="overlap-granges-with-plyranges.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)[[<span class="st">&quot;range_id&quot;</span>]] <span class="co"># for programmatic access</span></span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="overlap-granges-with-plyranges.html#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r)[[<span class="st">&quot;range_id&quot;</span>]] <span class="co"># for programmatic access</span></span></code></pre></div>
 <pre><code>## [1] foo bar boo
 ## Levels: bar boo foo</code></pre>
 <p>But if you want to work on them in with <em>tidyr</em> / <em>dplyr</em>, you need to
 first convert to tibble (or data.frame):</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="overlap-granges-with-plyranges.html#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="overlap-granges-with-plyranges.html#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(r) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 1
 ##   range_id
 ##   &lt;fct&gt;   
@@ -411,8 +433,8 @@ first convert to tibble (or data.frame):</p>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
-"github": false,
-"facebook": true,
+"github": true,
+"facebook": false,
 "twitter": true,
 "linkedin": false,
 "weibo": false,

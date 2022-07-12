@@ -5,6 +5,9 @@ bookdown::gitbook:
       before: |
         <li><a href="./">Tidy Ranges Tutorial</a></li>
     download: ["pdf", "epub"]
+    sharing:
+      github: true
+      facebook: false
 bookdown::pdf_book:
   includes:
     in_header: preamble.tex
