@@ -1,7 +1,7 @@
 # Tissue-specific promoter marks
 
-Objective: determine if promoters marks (e.g. H3K27ac) are specific to
-genes that are expressed in a tissue-specific manner.
+Objective: determine if tissue-specific promoter marks (e.g. H3K27ac)
+are often near genes that are expressed in a tissue-specific manner.
 
 We will load expression data from the GTEx project [@gtex], which gives
 median expression in TPM for each tissue. We will use H3K27ac ChIP-seq
@@ -113,14 +113,20 @@ pks <- bind_ranges(bladder=bladder_pks,
   mutate(width = 1)
 ```
 
-Finally, once we have two tidy range sets, the *plyranges* analysis is
-just a few lines. It appears that tissue-specific peaks are enriched
-near the tissue-specific genes for both bladder and kidney.
+Finally, once we have two tidy range sets, we can perform the analysis
+by a join, followed by two lines that take care of multiple overlaps,
+followed by two lines that give us our tallies of interest.
+
+It appears that tissue-specific peaks are enriched near the
+tissue-specific genes for both bladder and kidney. 
 
 ```{r}
-tss %>% join_overlap_left(pks, maxgap=500) %>%
+tss %>%
+  join_overlap_left(pks, maxgap=500) %>%
+  group_by(ptissue) %>% # within peak tissue...
+  filter(!duplicated(gene_id)) %>% # ...just take the first overlap per gene
   group_by(gtissue, ptissue) %>%
-  summarize(count = n(), meanSignal = mean(signal))
+  summarize(count = n())
 ```
 
 What's wrong with this analysis?
