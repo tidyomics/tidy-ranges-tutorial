@@ -282,6 +282,35 @@ tissue-specific genes for both bladder and kidney.</p>
 ## 4  kidney     bladder       103
 ## 5  kidney      kidney       207
 ## 6  kidney          NA       243</code></pre>
+<p>The above number could also be found with four <code>countOverlaps</code> calls,
+by considering all four pairs of overlaps of the two sets of genes and
+peaks.</p>
+<p>If we want more information per gene, e.g. suppose we want to compute
+the average signal per gene of peaks nearby, we need to group twice,
+once also by gene ID, and the second time integrating over gene
+ID. While here we add a few more lines of code, performing such an
+operation with base Bioconductor functions would require adding code
+to perform the loops, adding many intermediate variables to store
+results, etc.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="tissue-specific-promoter-marks.html#cb14-1" aria-hidden="true" tabindex="-1"></a>tss <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="tissue-specific-promoter-marks.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_left</span>(pks, <span class="at">maxgap=</span><span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="tissue-specific-promoter-marks.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gtissue, ptissue, gene_id) <span class="sc">%&gt;%</span> <span class="co"># need per gene stats</span></span>
+<span id="cb14-4"><a href="tissue-specific-promoter-marks.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_overlaps =</span> <span class="fu">n</span>(), <span class="at">signal =</span> <span class="fu">mean</span>(signal)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="tissue-specific-promoter-marks.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> <span class="co"># DataFrame to tibble for further processing</span></span>
+<span id="cb14-6"><a href="tissue-specific-promoter-marks.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gtissue, ptissue) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="tissue-specific-promoter-marks.html#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">sum_any_overlaps =</span> <span class="fu">sum</span>(num_overlaps <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb14-8"><a href="tissue-specific-promoter-marks.html#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_signal=</span><span class="fu">mean</span>(signal))</span></code></pre></div>
+<pre><code>## `summarise()` has grouped output by &#39;gtissue&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code>## # A tibble: 6 × 4
+## # Groups:   gtissue [2]
+##   gtissue ptissue sum_any_overlaps mean_signal
+##   &lt;chr&gt;   &lt;chr&gt;              &lt;int&gt;       &lt;dbl&gt;
+## 1 bladder bladder             2175       1.18 
+## 2 bladder kidney              1578       0.929
+## 3 bladder &lt;NA&gt;                 862      NA    
+## 4 kidney  bladder              103       0.991
+## 5 kidney  kidney               207       0.709
+## 6 kidney  &lt;NA&gt;                 243      NA</code></pre>
 <p>What’s wrong with this analysis?</p>
 <ul>
 <li>We didn’t figure out the expressed promoter, we just looked at the

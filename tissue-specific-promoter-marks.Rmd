@@ -129,6 +129,29 @@ tss %>%
   summarize(count = n())
 ```
 
+The above number could also be found with four `countOverlaps` calls,
+by considering all four pairs of overlaps of the two sets of genes and
+peaks. 
+
+If we want more information per gene, e.g. suppose we want to compute
+the average signal per gene of peaks nearby, we need to group twice,
+once also by gene ID, and the second time integrating over gene
+ID. While here we add a few more lines of code, performing such an
+operation with base Bioconductor functions would require adding code
+to perform the loops, adding many intermediate variables to store
+results, etc.
+
+```{r}
+tss %>%
+  join_overlap_left(pks, maxgap=500) %>%
+  group_by(gtissue, ptissue, gene_id) %>% # need per gene stats
+  summarize(num_overlaps = n(), signal = mean(signal)) %>%
+  as_tibble() %>% # DataFrame to tibble for further processing
+  group_by(gtissue, ptissue) %>%
+  summarize(sum_any_overlaps = sum(num_overlaps > 0),
+            mean_signal=mean(signal))
+```
+
 What's wrong with this analysis?
 
 * We didn't figure out the expressed promoter, we just looked at the
