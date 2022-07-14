@@ -133,6 +133,16 @@ The above number could also be found with four `countOverlaps` calls,
 by considering all four pairs of overlaps of the two sets of genes and
 peaks. 
 
+Another way to avoid counting overlaps more than once per gene is to
+use the *plyranges* function, `n_distinct()`:
+
+```{r}
+tss %>%
+  join_overlap_left(pks, maxgap=500) %>%
+  group_by(gtissue, ptissue) %>%
+  summarize(count = n_distinct(gene_id))
+```
+
 If we want more information per gene, e.g. suppose we want to compute
 the average signal per gene of peaks nearby, we need to group twice,
 once also by gene ID, and the second time integrating over gene
