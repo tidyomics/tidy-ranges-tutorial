@@ -48,7 +48,7 @@ pks <- bind_ranges(bladder=bladder_pks,
   select(signal=signalValue, tissue)
 ```
 
-Finally, we perform the overlap join, locating peaks within 10kb of 
+Finally, we perform the overlap join, locating peaks within 100kb of
 the TSS of the gene.
 
 ```{r}
@@ -56,21 +56,92 @@ g_with_pks <- g %>%
   anchor_5p() %>%
   mutate(width=1) %>%
   filter_by_overlaps(region) %>%
-  join_overlap_inner(pks, maxgap=1e4)
+  join_overlap_inner(pks, maxgap=1e5)
 g_with_pks$tissue %>% table()
 ```
 
-We can construct a faceted set of boxplots:
+We can construct a faceted set of boxplots, first we make a tibble of
+data for our plot.
 
-```{r peaks-near-genes, message=FALSE}
+```{r message=FALSE}
 library(dplyr)
 library(tibble)
-library(ggplot2)
-g_with_pks %>%
+dat <- g_with_pks %>%
   select(gene_name, signal, tissue, .drop_ranges=TRUE) %>%
-  as_tibble() %>%
+  as_tibble()
+```
+
+Then pass the data to ggplot (we could have just passed the data
+directly, but we plan to re-use the data).
+
+```{r peaks-near-genes, message=FALSE}
+library(ggplot2)
+dat %>%
   ggplot(aes(tissue, signal)) +
   geom_boxplot() + 
   facet_wrap(~gene_name)
 ```
 
+Now let's try to plot these in context, using *plotgardener*.
+First we filter down to the peaks near *UMOD*.
+
+```{r}
+umod <- g %>%
+  filter(gene_name == "UMOD") %>%
+  anchor_5p() %>%
+  mutate(width=1)
+pks_to_plot <- pks %>%
+  filter_by_overlaps(umod, maxgap=1e5) %>%
+  anchor_center() %>%
+  mutate(width=1e4) # to make the ranges more visible
+```
+
+We then define a color scheme for the tissue variable, and make a
+ggplot object which will be added to our genome plots.
+
+```{r}
+cols <- function(n) palette.colors(n+2)[-c(1,3)]
+col_vec <- cols(2)
+names(col_vec) <- unique(dat$tissue)
+p <- dat %>%
+  filter(gene_name == "UMOD") %>%
+  ggplot(aes(tissue, signal, col=tissue)) +
+  geom_jitter(size=.5, width=.1) +
+  scale_color_manual(values = col_vec)
+```
+
+We then create some parameters that will be shared across a number of
+the plots in *plotgardener*.
+
+```{r message=FALSE}
+library(plotgardener)
+par <- pgParams(
+  chrom = "chr16", 
+  chromstart = round((start(umod) - 1e5)/1e5)*1e5,
+  chromend = round((start(umod) + 4e5)/1e5)*1e5,
+  assembly = "hg19", just = c("left", "bottom")
+)
+```
+
+Finally we put all the pieces together on a page (for laying out the
+plot, first use `showGuides=TRUE`).
+
+```{r garden}
+pageCreate(width = 5, height = 3, showGuides = FALSE)
+plotGenes(
+  params = par, x = 0.5, y = 2.5, width = 4, height = .75
+)
+plotRanges(
+  pks_to_plot,
+  fill = colorby("tissue", palette=cols),
+  params = par, x = 0.5, y = 1.75, width = 4, height = 1.75
+)
+plotGenomeLabel(
+  params = par, x = 0.5, y = 2.5, length = 4,
+  just = c("left", "top")
+)
+plotGG(
+  p + ggtitle("UMOD"), 
+  params = par, x = 2.25, y = 1.75, width = 2.5, height = 1.75
+)
+```

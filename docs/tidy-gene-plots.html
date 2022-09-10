@@ -122,28 +122,6 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -192,57 +170,114 @@ div.csl-indent {
 and then plot their signal strength per gene, stratifying by the tissue
 origin of the peak.</p>
 <p>We start by loading the pre-downloaded peaks ranges:</p>
-<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb133-1"><a href="tidy-gene-plots.html#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;data/peaks.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="tidy-gene-plots.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;data/peaks.rda&quot;</span>)</span></code></pre></div>
 <p>Likewise, we want to use hg19 genes again to match the hg19 peaks:</p>
-<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="tidy-gene-plots.html#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
-<span id="cb134-2"><a href="tidy-gene-plots.html#cb134-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
-<span id="cb134-3"><a href="tidy-gene-plots.html#cb134-3" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="tidy-gene-plots.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
+<span id="cb2-2"><a href="tidy-gene-plots.html#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb2-3"><a href="tidy-gene-plots.html#cb2-3" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">genes</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span></code></pre></div>
 <p>Adding gene symbols:</p>
-<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb135-1"><a href="tidy-gene-plots.html#cb135-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
-<span id="cb135-2"><a href="tidy-gene-plots.html#cb135-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
-<span id="cb135-3"><a href="tidy-gene-plots.html#cb135-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_name =</span> <span class="fu">mapIds</span>(org.Hs.eg.db, </span>
-<span id="cb135-4"><a href="tidy-gene-plots.html#cb135-4" aria-hidden="true" tabindex="-1"></a>                            gene_id, <span class="st">&quot;SYMBOL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="tidy-gene-plots.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb3-2"><a href="tidy-gene-plots.html#cb3-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="tidy-gene-plots.html#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_name =</span> <span class="fu">mapIds</span>(org.Hs.eg.db, </span>
+<span id="cb3-4"><a href="tidy-gene-plots.html#cb3-4" aria-hidden="true" tabindex="-1"></a>                            gene_id, <span class="st">&quot;SYMBOL&quot;</span>, <span class="st">&quot;ENTREZID&quot;</span>))</span></code></pre></div>
 <p>Find a region of the genome near a kidney-specific gene:</p>
-<div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="tidy-gene-plots.html#cb136-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> </span>
-<span id="cb136-2"><a href="tidy-gene-plots.html#cb136-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_name <span class="sc">==</span> <span class="st">&quot;UMOD&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="tidy-gene-plots.html#cb4-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="tidy-gene-plots.html#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_name <span class="sc">==</span> <span class="st">&quot;UMOD&quot;</span>)</span></code></pre></div>
 <pre><code>## GRanges object with 1 range and 2 metadata columns:
 ##        seqnames            ranges strand |     gene_id   gene_name
 ##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt;
 ##   7369    chr16 20344373-20364037      - |        7369        UMOD
 ##   -------
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
-<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="tidy-gene-plots.html#cb138-1" aria-hidden="true" tabindex="-1"></a>region <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb138-2"><a href="tidy-gene-plots.html#cb138-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">seqnames=</span><span class="st">&quot;chr16&quot;</span>, </span>
-<span id="cb138-3"><a href="tidy-gene-plots.html#cb138-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">start=</span><span class="fl">20e6</span>,</span>
-<span id="cb138-4"><a href="tidy-gene-plots.html#cb138-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">end=</span><span class="fl">21e6</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb138-5"><a href="tidy-gene-plots.html#cb138-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_granges</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="tidy-gene-plots.html#cb6-1" aria-hidden="true" tabindex="-1"></a>region <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-2"><a href="tidy-gene-plots.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">seqnames=</span><span class="st">&quot;chr16&quot;</span>, </span>
+<span id="cb6-3"><a href="tidy-gene-plots.html#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">start=</span><span class="fl">20e6</span>,</span>
+<span id="cb6-4"><a href="tidy-gene-plots.html#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">end=</span><span class="fl">21e6</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="tidy-gene-plots.html#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_granges</span>()</span></code></pre></div>
 <p>Combine the bladder and kidney peaks, and select certain columns:</p>
-<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="tidy-gene-plots.html#cb139-1" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> <span class="fu">bind_ranges</span>(<span class="at">bladder=</span>bladder_pks,</span>
-<span id="cb139-2"><a href="tidy-gene-plots.html#cb139-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">kidney=</span>kidney_pks,</span>
-<span id="cb139-3"><a href="tidy-gene-plots.html#cb139-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">.id=</span><span class="st">&quot;tissue&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb139-4"><a href="tidy-gene-plots.html#cb139-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">signal=</span>signalValue, tissue)</span></code></pre></div>
-<p>Finally, we perform the overlap join, locating peaks within 10kb of
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="tidy-gene-plots.html#cb7-1" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> <span class="fu">bind_ranges</span>(<span class="at">bladder=</span>bladder_pks,</span>
+<span id="cb7-2"><a href="tidy-gene-plots.html#cb7-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">kidney=</span>kidney_pks,</span>
+<span id="cb7-3"><a href="tidy-gene-plots.html#cb7-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">.id=</span><span class="st">&quot;tissue&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="tidy-gene-plots.html#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">signal=</span>signalValue, tissue)</span></code></pre></div>
+<p>Finally, we perform the overlap join, locating peaks within 100kb of
 the TSS of the gene.</p>
-<div class="sourceCode" id="cb140"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb140-1"><a href="tidy-gene-plots.html#cb140-1" aria-hidden="true" tabindex="-1"></a>g_with_pks <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
-<span id="cb140-2"><a href="tidy-gene-plots.html#cb140-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb140-3"><a href="tidy-gene-plots.html#cb140-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb140-4"><a href="tidy-gene-plots.html#cb140-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_by_overlaps</span>(region) <span class="sc">%&gt;%</span></span>
-<span id="cb140-5"><a href="tidy-gene-plots.html#cb140-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_inner</span>(pks, <span class="at">maxgap=</span><span class="fl">1e4</span>)</span>
-<span id="cb140-6"><a href="tidy-gene-plots.html#cb140-6" aria-hidden="true" tabindex="-1"></a>g_with_pks<span class="sc">$</span>tissue <span class="sc">%&gt;%</span> <span class="fu">table</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="tidy-gene-plots.html#cb8-1" aria-hidden="true" tabindex="-1"></a>g_with_pks <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="tidy-gene-plots.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="tidy-gene-plots.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="tidy-gene-plots.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_by_overlaps</span>(region) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="tidy-gene-plots.html#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_inner</span>(pks, <span class="at">maxgap=</span><span class="fl">1e5</span>)</span>
+<span id="cb8-6"><a href="tidy-gene-plots.html#cb8-6" aria-hidden="true" tabindex="-1"></a>g_with_pks<span class="sc">$</span>tissue <span class="sc">%&gt;%</span> <span class="fu">table</span>()</span></code></pre></div>
 <pre><code>## .
 ## bladder  kidney 
-##      43      62</code></pre>
-<p>We can construct a faceted set of boxplots:</p>
-<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="tidy-gene-plots.html#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb142-2"><a href="tidy-gene-plots.html#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
-<span id="cb142-3"><a href="tidy-gene-plots.html#cb142-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb142-4"><a href="tidy-gene-plots.html#cb142-4" aria-hidden="true" tabindex="-1"></a>g_with_pks <span class="sc">%&gt;%</span></span>
-<span id="cb142-5"><a href="tidy-gene-plots.html#cb142-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(gene_name, signal, tissue, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb142-6"><a href="tidy-gene-plots.html#cb142-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb142-7"><a href="tidy-gene-plots.html#cb142-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(tissue, signal)) <span class="sc">+</span></span>
-<span id="cb142-8"><a href="tidy-gene-plots.html#cb142-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
-<span id="cb142-9"><a href="tidy-gene-plots.html#cb142-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name)</span></code></pre></div>
+##     208     337</code></pre>
+<p>We can construct a faceted set of boxplots, first we make a tibble of
+data for our plot.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="tidy-gene-plots.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb10-2"><a href="tidy-gene-plots.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb10-3"><a href="tidy-gene-plots.html#cb10-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> g_with_pks <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="tidy-gene-plots.html#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(gene_name, signal, tissue, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="tidy-gene-plots.html#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span></code></pre></div>
+<p>Then pass the data to ggplot (we could have just passed the data
+directly, but we plan to re-use the data).</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="tidy-gene-plots.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb11-2"><a href="tidy-gene-plots.html#cb11-2" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="tidy-gene-plots.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(tissue, signal)) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="tidy-gene-plots.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb11-5"><a href="tidy-gene-plots.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name)</span></code></pre></div>
 <p><img src="tidy-gene-plots_files/figure-html/peaks-near-genes-1.png" width="672" /></p>
+<p>Now let’s try to plot these in context, using <em>plotgardener</em>.
+First we filter down to the peaks near <em>UMOD</em>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="tidy-gene-plots.html#cb12-1" aria-hidden="true" tabindex="-1"></a>umod <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="tidy-gene-plots.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_name <span class="sc">==</span> <span class="st">&quot;UMOD&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="tidy-gene-plots.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="tidy-gene-plots.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>)</span>
+<span id="cb12-5"><a href="tidy-gene-plots.html#cb12-5" aria-hidden="true" tabindex="-1"></a>pks_to_plot <span class="ot">&lt;-</span> pks <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="tidy-gene-plots.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_by_overlaps</span>(umod, <span class="at">maxgap=</span><span class="fl">1e5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="tidy-gene-plots.html#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_center</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="tidy-gene-plots.html#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="fl">1e4</span>) <span class="co"># to make the ranges more visible</span></span></code></pre></div>
+<p>We then define a color scheme for the tissue variable, and make a
+ggplot object which will be added to our genome plots.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="tidy-gene-plots.html#cb13-1" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="cf">function</span>(n) <span class="fu">palette.colors</span>(n<span class="sc">+</span><span class="dv">2</span>)[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)]</span>
+<span id="cb13-2"><a href="tidy-gene-plots.html#cb13-2" aria-hidden="true" tabindex="-1"></a>col_vec <span class="ot">&lt;-</span> <span class="fu">cols</span>(<span class="dv">2</span>)</span>
+<span id="cb13-3"><a href="tidy-gene-plots.html#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(col_vec) <span class="ot">&lt;-</span> <span class="fu">unique</span>(dat<span class="sc">$</span>tissue)</span>
+<span id="cb13-4"><a href="tidy-gene-plots.html#cb13-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="tidy-gene-plots.html#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_name <span class="sc">==</span> <span class="st">&quot;UMOD&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="tidy-gene-plots.html#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(tissue, signal, <span class="at">col=</span>tissue)) <span class="sc">+</span></span>
+<span id="cb13-7"><a href="tidy-gene-plots.html#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">size=</span>.<span class="dv">5</span>, <span class="at">width=</span>.<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="tidy-gene-plots.html#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> col_vec)</span></code></pre></div>
+<p>We then create some parameters that will be shared across a number of
+the plots in <em>plotgardener</em>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="tidy-gene-plots.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotgardener)</span>
+<span id="cb14-2"><a href="tidy-gene-plots.html#cb14-2" aria-hidden="true" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">pgParams</span>(</span>
+<span id="cb14-3"><a href="tidy-gene-plots.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">chrom =</span> <span class="st">&quot;chr16&quot;</span>, </span>
+<span id="cb14-4"><a href="tidy-gene-plots.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromstart =</span> <span class="fu">round</span>((<span class="fu">start</span>(umod) <span class="sc">-</span> <span class="fl">1e5</span>)<span class="sc">/</span><span class="fl">1e5</span>)<span class="sc">*</span><span class="fl">1e5</span>,</span>
+<span id="cb14-5"><a href="tidy-gene-plots.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromend =</span> <span class="fu">round</span>((<span class="fu">start</span>(umod) <span class="sc">+</span> <span class="fl">4e5</span>)<span class="sc">/</span><span class="fl">1e5</span>)<span class="sc">*</span><span class="fl">1e5</span>,</span>
+<span id="cb14-6"><a href="tidy-gene-plots.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> <span class="st">&quot;hg19&quot;</span>, <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb14-7"><a href="tidy-gene-plots.html#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Finally we put all the pieces together on a page (for laying out the
+plot, first use <code>showGuides=TRUE</code>).</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="tidy-gene-plots.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="dv">3</span>, <span class="at">showGuides =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-2"><a href="tidy-gene-plots.html#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenes</span>(</span>
+<span id="cb15-3"><a href="tidy-gene-plots.html#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> .<span class="dv">75</span></span>
+<span id="cb15-4"><a href="tidy-gene-plots.html#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## genes[genes1]</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="tidy-gene-plots.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRanges</span>(</span>
+<span id="cb17-2"><a href="tidy-gene-plots.html#cb17-2" aria-hidden="true" tabindex="-1"></a>  pks_to_plot,</span>
+<span id="cb17-3"><a href="tidy-gene-plots.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fill =</span> <span class="fu">colorby</span>(<span class="st">&quot;tissue&quot;</span>, <span class="at">palette=</span>cols),</span>
+<span id="cb17-4"><a href="tidy-gene-plots.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.75</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">1.75</span></span>
+<span id="cb17-5"><a href="tidy-gene-plots.html#cb17-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ranges[ranges1]</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="tidy-gene-plots.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenomeLabel</span>(</span>
+<span id="cb19-2"><a href="tidy-gene-plots.html#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">length =</span> <span class="dv">4</span>,</span>
+<span id="cb19-3"><a href="tidy-gene-plots.html#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;top&quot;</span>)</span>
+<span id="cb19-4"><a href="tidy-gene-plots.html#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## genomeLabel[genomeLabel1]</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="tidy-gene-plots.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGG</span>(</span>
+<span id="cb21-2"><a href="tidy-gene-plots.html#cb21-2" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;UMOD&quot;</span>), </span>
+<span id="cb21-3"><a href="tidy-gene-plots.html#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">2.25</span>, <span class="at">y =</span> <span class="fl">1.75</span>, <span class="at">width =</span> <span class="fl">2.5</span>, <span class="at">height =</span> <span class="fl">1.75</span></span>
+<span id="cb21-4"><a href="tidy-gene-plots.html#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## gg[gg1]</code></pre>
+<p><img src="tidy-gene-plots_files/figure-html/garden-1.png" width="672" /></p>
 
 </div>
             </section>
