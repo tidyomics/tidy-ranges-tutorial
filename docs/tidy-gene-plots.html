@@ -122,6 +122,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -225,7 +247,8 @@ directly, but we plan to re-use the data).</p>
 <span id="cb11-4"><a href="tidy-gene-plots.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
 <span id="cb11-5"><a href="tidy-gene-plots.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name)</span></code></pre></div>
 <p><img src="tidy-gene-plots_files/figure-html/peaks-near-genes-1.png" width="672" /></p>
-<p>Now let’s try to plot these in context, using <em>plotgardener</em>.
+<p>Now let’s try to plot these in context, using <em>plotgardener</em>
+<span class="citation">(<a href="#ref-plotgardener" role="doc-biblioref">Kramer et al. 2022</a>)</span>.
 First we filter down to the peaks near <em>UMOD</em>.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="tidy-gene-plots.html#cb12-1" aria-hidden="true" tabindex="-1"></a>umod <span class="ot">&lt;-</span> g <span class="sc">%&gt;%</span></span>
 <span id="cb12-2"><a href="tidy-gene-plots.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_name <span class="sc">==</span> <span class="st">&quot;UMOD&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -279,6 +302,12 @@ plot, first use <code>showGuides=TRUE</code>).</p>
 <pre><code>## gg[gg1]</code></pre>
 <p><img src="tidy-gene-plots_files/figure-html/garden-1.png" width="672" /></p>
 
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-plotgardener" class="csl-entry">
+Kramer, Nicole E, Eric S Davis, Craig D Wenger, Erika M Deoudes, Sarah M Parker, Michael I Love, and Douglas H Phanstiel. 2022. <span>“<span class="nocase">Plotgardener: cultivating precise multi-panel figures in R</span>.”</span> <em>Bioinformatics</em> 38 (7): 2042–45. <a href="https://doi.org/10.1093/bioinformatics/btac057">https://doi.org/10.1093/bioinformatics/btac057</a>.
+</div>
 </div>
             </section>
 

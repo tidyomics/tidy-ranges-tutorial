@@ -82,7 +82,8 @@ dat %>%
   facet_wrap(~gene_name)
 ```
 
-Now let's try to plot these in context, using *plotgardener*.
+Now let's try to plot these in context, using *plotgardener*
+[@plotgardener].
 First we filter down to the peaks near *UMOD*.
 
 ```{r}
