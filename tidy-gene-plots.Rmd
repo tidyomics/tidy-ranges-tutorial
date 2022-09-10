@@ -107,7 +107,8 @@ names(col_vec) <- unique(dat$tissue)
 p <- dat %>%
   filter(gene_name == "UMOD") %>%
   ggplot(aes(tissue, signal, col=tissue)) +
-  geom_jitter(size=.5, width=.1) +
+  # here we set a seed for jitter
+  geom_point(size=.5, position=position_jitter(width=.1, seed=5)) +
   scale_color_manual(values = col_vec)
 ```
 
