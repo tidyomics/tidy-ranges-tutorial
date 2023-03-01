@@ -42,7 +42,7 @@ oct4 <- gse %>%
 ```{r}
 oct4 <- oct4 %>%
   keep_abundant(factor_of_interest = condition) %>%
-  scale_abundance()
+  scale_abundance(method="RLE") # DESeq2 scaling
 ```
 
 ```{r}
