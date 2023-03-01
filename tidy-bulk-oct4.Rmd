@@ -1,0 +1,23 @@
+# Tidy bulk RNA-seq analysis of Oct4 dataset
+
+Objective: learn how to perform EDA of RNA-seq data using *tidybulk*.
+
+```{r}
+library(oct4)
+dir <- system.file("extdata", package="oct4")
+coldata <- read.csv(file.path(dir,"coldata.csv"))
+coldata
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+```
+
+```{r eval=FALSE}
+library(tximeta)
+se <- tximeta(coldata)
+gse <- summarizeToGene(se)
+save(se, gse, file="data/oct4_obj.rda")
+```
+
+```{r}
+library(SummarizedExperiment)
+load("data/oct4_obj.rda")
+```
