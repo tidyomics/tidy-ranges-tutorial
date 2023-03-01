@@ -21,3 +21,33 @@ save(se, gse, file="data/oct4_obj.rda")
 library(SummarizedExperiment)
 load("data/oct4_obj.rda")
 ```
+
+```{r}
+assayNames(gse)
+assays(gse) <- assays(gse)[1:3]
+gse$rep <- rep(1:3, 4)
+colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
+```
+
+```{r}
+library(tidybulk)
+library(dplyr)
+library(stringr)
+oct4 <- gse %>%
+  tidybulk() %>%
+  filter(line == "OCT4") %>%
+  mutate(.sample = str_remove(.sample, "OCT4-"))
+```
+
+```{r}
+oct4 <- oct4 %>%
+  keep_abundant(factor_of_interest = condition) %>%
+  scale_abundance()
+```
+
+```{r}
+library(ggplot2)
+oct4 %>%
+  ggplot(aes(.sample, log10(abundance + 1))) +
+  geom_boxplot()
+```
