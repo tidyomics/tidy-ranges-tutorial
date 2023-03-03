@@ -14,6 +14,8 @@ coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 library(tximeta)
 se <- tximeta(coldata)
 gse <- summarizeToGene(se)
+library(org.Mm.eg.db)
+gse <- addIds(gse, "SYMBOL")
 save(se, gse, file="data/oct4_obj.rda")
 ```
 
@@ -30,13 +32,23 @@ colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
 ```
 
 ```{r}
+library(org.Mm.eg.db)
+# pluripotency
+tab <- select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
+tab <- tab[!duplicated(tab$SYMBOL),]
+pluri <- tab$SYMBOL
+```
+
+```{r}
 library(tidybulk)
 library(dplyr)
 library(stringr)
 oct4 <- gse %>%
   tidybulk() %>%
   filter(line == "OCT4") %>%
-  mutate(.sample = str_remove(.sample, "OCT4-"))
+  mutate(.sample = str_remove(.sample, "OCT4-")) %>%
+  mutate(.sample = factor(.sample, levels=unique(.sample)),
+         condition = factor(condition, c("untrt","trt")))
 ```
 
 ```{r}
@@ -48,6 +60,30 @@ oct4 <- oct4 %>%
 ```{r}
 library(ggplot2)
 oct4 %>%
-  ggplot(aes(.sample, log10(abundance + 1))) +
+  ggplot(aes(.sample, log10(counts_scaled + 1))) +
   geom_boxplot()
+```
+
+```{r}
+library(DESeq2)
+gse_sub <- gse[ , gse$line == "OCT4" ]
+gse_sub$condition <- factor(gse_sub$condition)
+dds <- gse_sub %>%
+  DESeqDataSet(~condition) %>%
+  estimateSizeFactors()
+boxplot(log10(counts(dds, normalized=TRUE) + 1))
+```
+
+```{r}
+oct4 %>%
+  filter(SYMBOL %in% pluri) %>%
+  mutate(logcounts = log10(counts_scaled + 1)) %>%
+  mutate(Oct4 = ifelse(SYMBOL == "Pou5f1", "red", "black")) %>%
+  group_by(.feature) %>%
+  mutate(logcounts = logcounts - mean(logcounts)) %>%
+  ungroup() %>%
+  ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
+  geom_point() +
+  geom_line() +
+  scale_color_identity()
 ```
