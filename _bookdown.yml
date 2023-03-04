@@ -8,6 +8,7 @@ rmd_files:
   "bootstrap-overlap.Rmd",
   "snp-position-in-peaks.Rmd",
   "tidy-gene-plots.Rmd",
+  "tidy-rna-seq-eda.Rmd",
   "references.Rmd"]
 bibliography: references.bib
 language:

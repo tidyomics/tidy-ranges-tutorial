@@ -1,4 +1,4 @@
-# Tidy bulk RNA-seq exploratory analysis
+# Tidy RNA-seq EDA
 
 Objective: learn how to perform EDA of RNA-seq data using *tidybulk*.
 
@@ -62,14 +62,14 @@ oct4 <- oct4 %>%
   scale_abundance(method="RLE") # DESeq2 scaling
 ```
 
-```{r}
+```{r tidy-boxplot}
 library(ggplot2)
 oct4 %>%
   ggplot(aes(.sample, log10(counts_scaled + 1))) +
   geom_boxplot()
 ```
 
-```{r}
+```{r deseq-boxplot}
 library(DESeq2)
 gse_sub <- gse[ , gse$line == "OCT4" ]
 gse_sub$condition <- factor(gse_sub$condition)
@@ -79,7 +79,7 @@ dds <- gse_sub %>%
 boxplot(log10(counts(dds, normalized=TRUE) + 1))
 ```
 
-```{r}
+```{r tidy-lines}
 oct4 %>%
   filter(SYMBOL %in% pluri) %>%
   mutate(logcounts = log10(counts_scaled + 1)) %>%
@@ -93,7 +93,7 @@ oct4 %>%
   scale_color_identity()
 ```
 
-```{r}
+```{r deseq-lines}
 gene_idx <- mcols(dds)$SYMBOL %in% pluri
 mat <- log10(counts(dds, normalized=TRUE)[gene_idx,] + 1)
 mat <- mat - rowMeans(mat)
@@ -137,6 +137,9 @@ plot_data <- oct4 %>%
            padj < .1 & log2FoldChange > 0 ~ "up",
            padj < .1 & log2FoldChange < 0 ~ "down",
            TRUE ~ "null"))
+```
+
+```{r tidy-lines-faceted}
 library(ggrepel)
 plot_data %>%
   ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +

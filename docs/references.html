@@ -7,7 +7,7 @@
   <title>References | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
 
   <meta property="og:title" content="References | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -26,14 +26,14 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2022-09-10" />
+<meta name="date" content="2023-03-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="tidy-gene-plots.html"/>
+<link rel="prev" href="tidy-rna-seq-eda.html"/>
 
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -52,6 +52,7 @@ tidy data philosophy.</p>" />
 
 
 
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
@@ -61,7 +62,6 @@ tidy data philosophy.</p>" />
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
@@ -122,28 +122,6 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -168,6 +146,7 @@ div.csl-indent {
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
 <li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
+<li class="chapter" data-level="7" data-path="tidy-rna-seq-eda.html"><a href="tidy-rna-seq-eda.html"><i class="fa fa-check"></i><b>7</b> Tidy RNA-seq EDA</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 </ul>
 
@@ -186,21 +165,21 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="references" class="section level1 unnumbered hasAnchor">
+<div id="references" class="section level1 unnumbered hasAnchor" number="">
 <h1>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div class="csl-entry">
-Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. <span>“Subsampling Methods for Genomic Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-{AOAS363}">https://doi.org/10.1214/10-{AOAS363}</a>.
+<div id="refs" class="references hanging-indent">
+<div>
+<p>Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. “Subsampling Methods for Genomic Inference.” <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-%7BAOAS363%7D">https://doi.org/10.1214/10-{AOAS363}</a>.</p>
 </div>
-<div class="csl-entry">
-Dunham, I., and others. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.
+<div>
+<p>Dunham, I., and others. 2012. “An integrated encyclopedia of DNA elements in the human genome.” <em>Nature</em> 489 (7414): 57–74.</p>
 </div>
-<div class="csl-entry">
-Kramer, Nicole E, Eric S Davis, Craig D Wenger, Erika M Deoudes, Sarah M Parker, Michael I Love, and Douglas H Phanstiel. 2022. <span>“<span class="nocase">Plotgardener: cultivating precise multi-panel figures in R</span>.”</span> <em>Bioinformatics</em> 38 (7): 2042–45. <a href="https://doi.org/10.1093/bioinformatics/btac057">https://doi.org/10.1093/bioinformatics/btac057</a>.
+<div>
+<p>Kramer, Nicole E, Eric S Davis, Craig D Wenger, Erika M Deoudes, Sarah M Parker, Michael I Love, and Douglas H Phanstiel. 2022. “Plotgardener: cultivating precise multi-panel figures in R.” <em>Bioinformatics</em> 38 (7): 2042–5. <a href="https://doi.org/10.1093/bioinformatics/btac057">https://doi.org/10.1093/bioinformatics/btac057</a>.</p>
 </div>
-<div class="csl-entry">
-Lonsdale, J., and others. 2013. <span>“<span class="nocase">The Genotype-Tissue Expression (GTEx) project</span>.”</span> <em>Nature Genetics</em> 45 (6): 580–85.
+<div>
+<p>Lonsdale, J., and others. 2013. “The Genotype-Tissue Expression (GTEx) project.” <em>Nature Genetics</em> 45 (6): 580–85.</p>
 </div>
 </div>
 </div>
@@ -209,7 +188,7 @@ Lonsdale, J., and others. 2013. <span>“<span class="nocase">The Genotype-Tissu
           </div>
         </div>
       </div>
-<a href="tidy-gene-plots.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="tidy-rna-seq-eda.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

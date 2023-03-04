@@ -4,3 +4,4 @@ tissue-specific-promoter-marks
 bootstrap-overlap
 snp-position-in-peaks
 tidy-gene-plots
+tidy-rna-seq-eda

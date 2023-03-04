@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 Tidy RNA-seq EDA | Tidy Ranges Tutorial</title>
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 Tidy RNA-seq EDA | Tidy Ranges Tutorial" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 Tidy RNA-seq EDA | Tidy Ranges Tutorial" />
+  
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  
+
+<meta name="author" content="nullranges devel team" />
+
+
+<meta name="date" content="2023-03-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="tidy-gene-plots.html"/>
+<link rel="next" href="references.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy Ranges Tutorial</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
+<li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
+<li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="tidy-gene-plots.html"><a href="tidy-gene-plots.html"><i class="fa fa-check"></i><b>6</b> Tidy gene plots</a></li>
+<li class="chapter" data-level="7" data-path="tidy-rna-seq-eda.html"><a href="tidy-rna-seq-eda.html"><i class="fa fa-check"></i><b>7</b> Tidy RNA-seq EDA</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Tidy Ranges Tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="tidy-rna-seq-eda" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">Chapter 7</span> Tidy RNA-seq EDA<a href="tidy-rna-seq-eda.html#tidy-rna-seq-eda" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Objective: learn how to perform EDA of RNA-seq data using <em>tidybulk</em>.</p>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="tidy-rna-seq-eda.html#cb155-1" aria-hidden="true"></a><span class="kw">library</span>(oct4)</span>
+<span id="cb155-2"><a href="tidy-rna-seq-eda.html#cb155-2" aria-hidden="true"></a>dir &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="dt">package=</span><span class="st">&quot;oct4&quot;</span>)</span>
+<span id="cb155-3"><a href="tidy-rna-seq-eda.html#cb155-3" aria-hidden="true"></a>coldata &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="kw">file.path</span>(dir,<span class="st">&quot;coldata.csv&quot;</span>))</span>
+<span id="cb155-4"><a href="tidy-rna-seq-eda.html#cb155-4" aria-hidden="true"></a>coldata</span></code></pre></div>
+<pre><code>##         names line condition
+## 1  SRX2236945 OCT4     untrt
+## 2  SRX2236946 OCT4     untrt
+## 3  SRX2236947 OCT4     untrt
+## 4  SRX2236948 OCT4       trt
+## 5  SRX2236949 OCT4       trt
+## 6  SRX2236950 OCT4       trt
+## 7  SRX2236951 BRG1     untrt
+## 8  SRX2236952 BRG1     untrt
+## 9  SRX2236953 BRG1     untrt
+## 10 SRX2236954 BRG1       trt
+## 11 SRX2236955 BRG1       trt
+## 12 SRX2236956 BRG1       trt</code></pre>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="tidy-rna-seq-eda.html#cb157-1" aria-hidden="true"></a>coldata<span class="op">$</span>files &lt;-<span class="st"> </span><span class="kw">file.path</span>(dir, <span class="st">&quot;quants&quot;</span>, coldata<span class="op">$</span>names, <span class="st">&quot;quant.sf.gz&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="tidy-rna-seq-eda.html#cb158-1" aria-hidden="true"></a><span class="kw">library</span>(tximeta)</span>
+<span id="cb158-2"><a href="tidy-rna-seq-eda.html#cb158-2" aria-hidden="true"></a>se &lt;-<span class="st"> </span><span class="kw">tximeta</span>(coldata)</span>
+<span id="cb158-3"><a href="tidy-rna-seq-eda.html#cb158-3" aria-hidden="true"></a>gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</span>
+<span id="cb158-4"><a href="tidy-rna-seq-eda.html#cb158-4" aria-hidden="true"></a><span class="kw">library</span>(org.Mm.eg.db)</span>
+<span id="cb158-5"><a href="tidy-rna-seq-eda.html#cb158-5" aria-hidden="true"></a>gse &lt;-<span class="st"> </span><span class="kw">addIds</span>(gse, <span class="st">&quot;SYMBOL&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="tidy-rna-seq-eda.html#cb159-1" aria-hidden="true"></a><span class="kw">library</span>(SummarizedExperiment)</span>
+<span id="cb159-2"><a href="tidy-rna-seq-eda.html#cb159-2" aria-hidden="true"></a><span class="kw">assayNames</span>(gse)</span>
+<span id="cb159-3"><a href="tidy-rna-seq-eda.html#cb159-3" aria-hidden="true"></a><span class="kw">assays</span>(gse) &lt;-<span class="st"> </span><span class="kw">assays</span>(gse)[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</span>
+<span id="cb159-4"><a href="tidy-rna-seq-eda.html#cb159-4" aria-hidden="true"></a><span class="kw">save</span>(gse, <span class="dt">file=</span><span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="tidy-rna-seq-eda.html#cb160-1" aria-hidden="true"></a><span class="kw">library</span>(SummarizedExperiment)</span></code></pre></div>
+<pre><code>## Loading required package: MatrixGenerics</code></pre>
+<pre><code>## Loading required package: matrixStats</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MatrixGenerics&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:matrixStats&#39;:
+## 
+##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+##     colWeightedMeans, colWeightedMedians, colWeightedSds,
+##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+##     rowWeightedSds, rowWeightedVars</code></pre>
+<pre><code>## Loading required package: GenomicRanges</code></pre>
+<pre><code>## Loading required package: stats4</code></pre>
+<pre><code>## Loading required package: BiocGenerics</code></pre>
+<pre><code>## 
+## Attaching package: &#39;BiocGenerics&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     IQR, mad, sd, var, xtabs</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+##     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+##     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+##     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+##     Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort,
+##     table, tapply, union, unique, unsplit, which.max, which.min</code></pre>
+<pre><code>## Loading required package: S4Vectors</code></pre>
+<pre><code>## 
+## Attaching package: &#39;S4Vectors&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     expand.grid, I, unname</code></pre>
+<pre><code>## Loading required package: IRanges</code></pre>
+<pre><code>## Loading required package: GenomeInfoDb</code></pre>
+<pre><code>## Loading required package: Biobase</code></pre>
+<pre><code>## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     &#39;browseVignettes()&#39;. To cite Bioconductor, see
+##     &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Biobase&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:MatrixGenerics&#39;:
+## 
+##     rowMedians</code></pre>
+<pre><code>## The following objects are masked from &#39;package:matrixStats&#39;:
+## 
+##     anyMissing, rowMedians</code></pre>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="tidy-rna-seq-eda.html#cb181-1" aria-hidden="true"></a><span class="kw">load</span>(<span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="tidy-rna-seq-eda.html#cb182-1" aria-hidden="true"></a>gse<span class="op">$</span>rep &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb182-2"><a href="tidy-rna-seq-eda.html#cb182-2" aria-hidden="true"></a><span class="kw">colnames</span>(gse) &lt;-<span class="st"> </span><span class="kw">paste</span>(gse<span class="op">$</span>line,gse<span class="op">$</span>condition,gse<span class="op">$</span>rep,<span class="dt">sep=</span><span class="st">&quot;-&quot;</span>)</span>
+<span id="cb182-3"><a href="tidy-rna-seq-eda.html#cb182-3" aria-hidden="true"></a><span class="kw">assay</span>(gse, <span class="st">&quot;counts&quot;</span>) &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">assay</span>(gse, <span class="st">&quot;counts&quot;</span>)) <span class="co"># for consistency</span></span></code></pre></div>
+<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="tidy-rna-seq-eda.html#cb183-1" aria-hidden="true"></a><span class="kw">library</span>(org.Mm.eg.db)</span></code></pre></div>
+<pre><code>## Loading required package: AnnotationDbi</code></pre>
+<pre><code>## </code></pre>
+<div class="sourceCode" id="cb186"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb186-1"><a href="tidy-rna-seq-eda.html#cb186-1" aria-hidden="true"></a><span class="co"># pluripotency</span></span>
+<span id="cb186-2"><a href="tidy-rna-seq-eda.html#cb186-2" aria-hidden="true"></a>tab &lt;-<span class="st"> </span><span class="kw">select</span>(org.Mm.eg.db, <span class="st">&quot;GO:0019827&quot;</span>, <span class="st">&quot;SYMBOL&quot;</span>, <span class="st">&quot;GO&quot;</span>)</span></code></pre></div>
+<pre><code>## &#39;select()&#39; returned 1:many mapping between keys and columns</code></pre>
+<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb188-1"><a href="tidy-rna-seq-eda.html#cb188-1" aria-hidden="true"></a>tab &lt;-<span class="st"> </span>tab[<span class="op">!</span><span class="kw">duplicated</span>(tab<span class="op">$</span>SYMBOL),]</span>
+<span id="cb188-2"><a href="tidy-rna-seq-eda.html#cb188-2" aria-hidden="true"></a>pluri &lt;-<span class="st"> </span>tab<span class="op">$</span>SYMBOL</span></code></pre></div>
+<div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="tidy-rna-seq-eda.html#cb189-1" aria-hidden="true"></a><span class="kw">library</span>(tidybulk)</span></code></pre></div>
+<pre><code>## ========================================
+## tidybulk version 1.11.2
+## If you use TIDYBULK in published research, please cite:
+## 
+## Mangiola et al. tidybulk: an R tidy framework for modular 
+## transcriptomic data analysis. Genome Biology 2021.
+## 
+## This message can be suppressed by:
+##   suppressPackageStartupMessages(library(tidybulk))
+## ========================================</code></pre>
+<pre><code>## 
+## Attaching package: &#39;tidybulk&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:S4Vectors&#39;:
+## 
+##     rename</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<div class="sourceCode" id="cb194"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb194-1"><a href="tidy-rna-seq-eda.html#cb194-1" aria-hidden="true"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:tidybulk&#39;:
+## 
+##     bind_cols, bind_rows</code></pre>
+<pre><code>## The following object is masked from &#39;package:AnnotationDbi&#39;:
+## 
+##     select</code></pre>
+<pre><code>## The following object is masked from &#39;package:Biobase&#39;:
+## 
+##     combine</code></pre>
+<pre><code>## The following objects are masked from &#39;package:GenomicRanges&#39;:
+## 
+##     intersect, setdiff, union</code></pre>
+<pre><code>## The following object is masked from &#39;package:GenomeInfoDb&#39;:
+## 
+##     intersect</code></pre>
+<pre><code>## The following objects are masked from &#39;package:IRanges&#39;:
+## 
+##     collapse, desc, intersect, setdiff, slice, union</code></pre>
+<pre><code>## The following objects are masked from &#39;package:S4Vectors&#39;:
+## 
+##     first, intersect, rename, setdiff, setequal, union</code></pre>
+<pre><code>## The following objects are masked from &#39;package:BiocGenerics&#39;:
+## 
+##     combine, intersect, setdiff, union</code></pre>
+<pre><code>## The following object is masked from &#39;package:matrixStats&#39;:
+## 
+##     count</code></pre>
+<pre><code>## The following object is masked from &#39;package:testthat&#39;:
+## 
+##     matches</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="tidy-rna-seq-eda.html#cb208-1" aria-hidden="true"></a><span class="kw">library</span>(stringr)</span>
+<span id="cb208-2"><a href="tidy-rna-seq-eda.html#cb208-2" aria-hidden="true"></a>oct4 &lt;-<span class="st"> </span>gse <span class="op">%&gt;%</span></span>
+<span id="cb208-3"><a href="tidy-rna-seq-eda.html#cb208-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">tidybulk</span>() <span class="op">%&gt;%</span></span>
+<span id="cb208-4"><a href="tidy-rna-seq-eda.html#cb208-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">filter</span>(line <span class="op">==</span><span class="st"> &quot;OCT4&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb208-5"><a href="tidy-rna-seq-eda.html#cb208-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">.sample =</span> <span class="kw">str_remove</span>(.sample, <span class="st">&quot;OCT4-&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb208-6"><a href="tidy-rna-seq-eda.html#cb208-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">.sample =</span> <span class="kw">factor</span>(.sample, <span class="dt">levels=</span><span class="kw">unique</span>(.sample)),</span>
+<span id="cb208-7"><a href="tidy-rna-seq-eda.html#cb208-7" aria-hidden="true"></a>         <span class="dt">condition =</span> <span class="kw">factor</span>(condition, <span class="kw">c</span>(<span class="st">&quot;untrt&quot;</span>,<span class="st">&quot;trt&quot;</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb209"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb209-1"><a href="tidy-rna-seq-eda.html#cb209-1" aria-hidden="true"></a>oct4 &lt;-<span class="st"> </span>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb209-2"><a href="tidy-rna-seq-eda.html#cb209-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">keep_abundant</span>(<span class="dt">factor_of_interest =</span> condition) <span class="op">%&gt;%</span></span>
+<span id="cb209-3"><a href="tidy-rna-seq-eda.html#cb209-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">scale_abundance</span>(<span class="dt">method=</span><span class="st">&quot;RLE&quot;</span>) <span class="co"># DESeq2 scaling</span></span></code></pre></div>
+<pre><code>## tidybulk says: the sample with largest library size untrt-1 was chosen as reference for scaling</code></pre>
+<div class="sourceCode" id="cb211"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb211-1"><a href="tidy-rna-seq-eda.html#cb211-1" aria-hidden="true"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb211-2"><a href="tidy-rna-seq-eda.html#cb211-2" aria-hidden="true"></a>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb211-3"><a href="tidy-rna-seq-eda.html#cb211-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(.sample, <span class="kw">log10</span>(counts_scaled <span class="op">+</span><span class="st"> </span><span class="dv">1</span>))) <span class="op">+</span></span>
+<span id="cb211-4"><a href="tidy-rna-seq-eda.html#cb211-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_boxplot</span>()</span></code></pre></div>
+<p><img src="tidy-rna-seq-eda_files/figure-html/tidy-boxplot-1.png" width="672" /></p>
+<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="tidy-rna-seq-eda.html#cb212-1" aria-hidden="true"></a><span class="kw">library</span>(DESeq2)</span>
+<span id="cb212-2"><a href="tidy-rna-seq-eda.html#cb212-2" aria-hidden="true"></a>gse_sub &lt;-<span class="st"> </span>gse[ , gse<span class="op">$</span>line <span class="op">==</span><span class="st"> &quot;OCT4&quot;</span> ]</span>
+<span id="cb212-3"><a href="tidy-rna-seq-eda.html#cb212-3" aria-hidden="true"></a>gse_sub<span class="op">$</span>condition &lt;-<span class="st"> </span><span class="kw">factor</span>(gse_sub<span class="op">$</span>condition)</span>
+<span id="cb212-4"><a href="tidy-rna-seq-eda.html#cb212-4" aria-hidden="true"></a>dds &lt;-<span class="st"> </span>gse_sub <span class="op">%&gt;%</span></span>
+<span id="cb212-5"><a href="tidy-rna-seq-eda.html#cb212-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">DESeqDataSet</span>(<span class="op">~</span>condition) <span class="op">%&gt;%</span></span>
+<span id="cb212-6"><a href="tidy-rna-seq-eda.html#cb212-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">estimateSizeFactors</span>()</span></code></pre></div>
+<pre><code>## using counts and average transcript lengths from tximeta</code></pre>
+<pre><code>## using &#39;avgTxLength&#39; from assays(dds), correcting for library size</code></pre>
+<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="tidy-rna-seq-eda.html#cb215-1" aria-hidden="true"></a><span class="kw">boxplot</span>(<span class="kw">log10</span>(<span class="kw">counts</span>(dds, <span class="dt">normalized=</span><span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>))</span></code></pre></div>
+<p><img src="tidy-rna-seq-eda_files/figure-html/deseq-boxplot-1.png" width="672" /></p>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="tidy-rna-seq-eda.html#cb216-1" aria-hidden="true"></a>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb216-2"><a href="tidy-rna-seq-eda.html#cb216-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">filter</span>(SYMBOL <span class="op">%in%</span><span class="st"> </span>pluri) <span class="op">%&gt;%</span></span>
+<span id="cb216-3"><a href="tidy-rna-seq-eda.html#cb216-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">logcounts =</span> <span class="kw">log10</span>(counts_scaled <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb216-4"><a href="tidy-rna-seq-eda.html#cb216-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Oct4 =</span> <span class="kw">ifelse</span>(SYMBOL <span class="op">==</span><span class="st"> &quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb216-5"><a href="tidy-rna-seq-eda.html#cb216-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(.feature) <span class="op">%&gt;%</span></span>
+<span id="cb216-6"><a href="tidy-rna-seq-eda.html#cb216-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">logcounts =</span> logcounts <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(logcounts)) <span class="op">%&gt;%</span></span>
+<span id="cb216-7"><a href="tidy-rna-seq-eda.html#cb216-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></span>
+<span id="cb216-8"><a href="tidy-rna-seq-eda.html#cb216-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(.sample, logcounts, <span class="dt">group=</span>.feature, <span class="dt">color=</span>Oct4)) <span class="op">+</span></span>
+<span id="cb216-9"><a href="tidy-rna-seq-eda.html#cb216-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb216-10"><a href="tidy-rna-seq-eda.html#cb216-10" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb216-11"><a href="tidy-rna-seq-eda.html#cb216-11" aria-hidden="true"></a><span class="st">  </span><span class="kw">scale_color_identity</span>()</span></code></pre></div>
+<p><img src="tidy-rna-seq-eda_files/figure-html/tidy-lines-1.png" width="672" /></p>
+<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="tidy-rna-seq-eda.html#cb217-1" aria-hidden="true"></a>gene_idx &lt;-<span class="st"> </span><span class="kw">mcols</span>(dds)<span class="op">$</span>SYMBOL <span class="op">%in%</span><span class="st"> </span>pluri</span>
+<span id="cb217-2"><a href="tidy-rna-seq-eda.html#cb217-2" aria-hidden="true"></a>mat &lt;-<span class="st"> </span><span class="kw">log10</span>(<span class="kw">counts</span>(dds, <span class="dt">normalized=</span><span class="ot">TRUE</span>)[gene_idx,] <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)</span>
+<span id="cb217-3"><a href="tidy-rna-seq-eda.html#cb217-3" aria-hidden="true"></a>mat &lt;-<span class="st"> </span>mat <span class="op">-</span><span class="st"> </span><span class="kw">rowMeans</span>(mat)</span>
+<span id="cb217-4"><a href="tidy-rna-seq-eda.html#cb217-4" aria-hidden="true"></a>hilite &lt;-<span class="st"> </span><span class="kw">rownames</span>(dds)[<span class="kw">which</span>(<span class="kw">mcols</span>(dds)<span class="op">$</span>SYMBOL <span class="op">==</span><span class="st"> &quot;Pou5f1&quot;</span>)]</span>
+<span id="cb217-5"><a href="tidy-rna-seq-eda.html#cb217-5" aria-hidden="true"></a><span class="kw">plot</span>(mat[<span class="dv">1</span>,], <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">xlab=</span><span class="st">&quot;samples&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;logcounts&quot;</span>)</span>
+<span id="cb217-6"><a href="tidy-rna-seq-eda.html#cb217-6" aria-hidden="true"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mat)) {</span>
+<span id="cb217-7"><a href="tidy-rna-seq-eda.html#cb217-7" aria-hidden="true"></a>  col &lt;-<span class="st"> </span><span class="kw">ifelse</span>(<span class="kw">rownames</span>(mat)[i] <span class="op">==</span><span class="st"> </span>hilite, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)</span>
+<span id="cb217-8"><a href="tidy-rna-seq-eda.html#cb217-8" aria-hidden="true"></a>  <span class="kw">points</span>(mat[i,], <span class="dt">type=</span><span class="st">&quot;b&quot;</span>, <span class="dt">col=</span>col)</span>
+<span id="cb217-9"><a href="tidy-rna-seq-eda.html#cb217-9" aria-hidden="true"></a>}</span></code></pre></div>
+<p><img src="tidy-rna-seq-eda_files/figure-html/deseq-lines-1.png" width="672" /></p>
+<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="tidy-rna-seq-eda.html#cb218-1" aria-hidden="true"></a>gene_idx &lt;-<span class="st"> </span>oct4 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_transcript</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(.feature)</span>
+<span id="cb218-2"><a href="tidy-rna-seq-eda.html#cb218-2" aria-hidden="true"></a><span class="kw">assays</span>(dds) &lt;-<span class="st"> </span><span class="kw">assays</span>(dds)[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] <span class="co"># compatiblity with tidybulk</span></span>
+<span id="cb218-3"><a href="tidy-rna-seq-eda.html#cb218-3" aria-hidden="true"></a>res &lt;-<span class="st"> </span>dds[gene_idx,] <span class="op">%&gt;%</span></span>
+<span id="cb218-4"><a href="tidy-rna-seq-eda.html#cb218-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">DESeq</span>() <span class="op">%&gt;%</span></span>
+<span id="cb218-5"><a href="tidy-rna-seq-eda.html#cb218-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">results</span>()</span></code></pre></div>
+<pre><code>## estimating size factors</code></pre>
+<pre><code>## estimating dispersions</code></pre>
+<pre><code>## gene-wise dispersion estimates</code></pre>
+<pre><code>## mean-dispersion relationship</code></pre>
+<pre><code>## final dispersion estimates</code></pre>
+<pre><code>## fitting model and testing</code></pre>
+<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="tidy-rna-seq-eda.html#cb225-1" aria-hidden="true"></a>oct4 &lt;-<span class="st"> </span>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb225-2"><a href="tidy-rna-seq-eda.html#cb225-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">test_differential_abundance</span>(<span class="op">~</span>condition, <span class="dt">method=</span><span class="st">&quot;deseq2&quot;</span>)</span></code></pre></div>
+<pre><code>## =====================================
+## tidybulk says: All testing methods use raw counts, irrespective of if scale_abundance
+## or adjust_abundance have been calculated. Therefore, it is essential to add covariates
+## such as batch effects (if applicable) in the formula.
+## =====================================
+## estimating size factors
+## 
+## estimating dispersions
+## 
+## gene-wise dispersion estimates
+## 
+## mean-dispersion relationship
+## 
+## final dispersion estimates
+## 
+## fitting model and testing
+## 
+## tidybulk says: to access the raw results (fitted GLM) do `attr(..., &quot;internals&quot;)$DESeq2`
+## This message is displayed once per session.</code></pre>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="tidy-rna-seq-eda.html#cb227-1" aria-hidden="true"></a>tidy_res &lt;-<span class="st"> </span>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb227-2"><a href="tidy-rna-seq-eda.html#cb227-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">pivot_transcript</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="tidy-rna-seq-eda.html#cb228-1" aria-hidden="true"></a><span class="kw">all.equal</span>(<span class="kw">rownames</span>(res), tidy_res<span class="op">$</span>.feature)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="tidy-rna-seq-eda.html#cb230-1" aria-hidden="true"></a><span class="kw">table</span>(<span class="dt">base_sig =</span> res<span class="op">$</span>padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">.1</span>, <span class="dt">tidy_sig =</span> tidy_res<span class="op">$</span>padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">.1</span>)</span></code></pre></div>
+<pre><code>##         tidy_sig
+## base_sig FALSE  TRUE
+##    FALSE 17743     0
+##    TRUE      0  3734</code></pre>
+<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="tidy-rna-seq-eda.html#cb232-1" aria-hidden="true"></a>plot_data &lt;-<span class="st"> </span>oct4 <span class="op">%&gt;%</span></span>
+<span id="cb232-2"><a href="tidy-rna-seq-eda.html#cb232-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">filter</span>(SYMBOL <span class="op">%in%</span><span class="st"> </span>pluri) <span class="op">%&gt;%</span></span>
+<span id="cb232-3"><a href="tidy-rna-seq-eda.html#cb232-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">logcounts =</span> <span class="kw">log10</span>(counts_scaled <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb232-4"><a href="tidy-rna-seq-eda.html#cb232-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Oct4 =</span> <span class="kw">ifelse</span>(SYMBOL <span class="op">==</span><span class="st"> &quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb232-5"><a href="tidy-rna-seq-eda.html#cb232-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(.feature) <span class="op">%&gt;%</span></span>
+<span id="cb232-6"><a href="tidy-rna-seq-eda.html#cb232-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">logcounts =</span> logcounts <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(logcounts)) <span class="op">%&gt;%</span></span>
+<span id="cb232-7"><a href="tidy-rna-seq-eda.html#cb232-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></span>
+<span id="cb232-8"><a href="tidy-rna-seq-eda.html#cb232-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gene_type =</span> <span class="kw">case_when</span>(</span>
+<span id="cb232-9"><a href="tidy-rna-seq-eda.html#cb232-9" aria-hidden="true"></a>           padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">.1</span> <span class="op">&amp;</span><span class="st"> </span>log2FoldChange <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">~</span><span class="st"> &quot;up&quot;</span>,</span>
+<span id="cb232-10"><a href="tidy-rna-seq-eda.html#cb232-10" aria-hidden="true"></a>           padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">.1</span> <span class="op">&amp;</span><span class="st"> </span>log2FoldChange <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">~</span><span class="st"> &quot;down&quot;</span>,</span>
+<span id="cb232-11"><a href="tidy-rna-seq-eda.html#cb232-11" aria-hidden="true"></a>           <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;null&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="tidy-rna-seq-eda.html#cb233-1" aria-hidden="true"></a><span class="kw">library</span>(ggrepel)</span>
+<span id="cb233-2"><a href="tidy-rna-seq-eda.html#cb233-2" aria-hidden="true"></a>plot_data <span class="op">%&gt;%</span></span>
+<span id="cb233-3"><a href="tidy-rna-seq-eda.html#cb233-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(.sample, logcounts, <span class="dt">group=</span>.feature, <span class="dt">color=</span>Oct4)) <span class="op">+</span></span>
+<span id="cb233-4"><a href="tidy-rna-seq-eda.html#cb233-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb233-5"><a href="tidy-rna-seq-eda.html#cb233-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb233-6"><a href="tidy-rna-seq-eda.html#cb233-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_text_repel</span>(<span class="dt">data=</span>plot_data <span class="op">%&gt;%</span></span>
+<span id="cb233-7"><a href="tidy-rna-seq-eda.html#cb233-7" aria-hidden="true"></a><span class="st">                    </span><span class="kw">filter</span>(.sample <span class="op">==</span><span class="st"> &quot;trt-3&quot;</span>, gene_type <span class="op">!=</span><span class="st"> &quot;null&quot;</span>),</span>
+<span id="cb233-8"><a href="tidy-rna-seq-eda.html#cb233-8" aria-hidden="true"></a>            <span class="kw">aes</span>(.sample, logcounts, <span class="dt">label=</span>SYMBOL)) <span class="op">+</span></span>
+<span id="cb233-9"><a href="tidy-rna-seq-eda.html#cb233-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">scale_color_identity</span>() <span class="op">+</span></span>
+<span id="cb233-10"><a href="tidy-rna-seq-eda.html#cb233-10" aria-hidden="true"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>gene_type) <span class="op">+</span></span>
+<span id="cb233-11"><a href="tidy-rna-seq-eda.html#cb233-11" aria-hidden="true"></a><span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="dt">expand =</span> <span class="kw">expansion</span>(<span class="dt">add =</span> <span class="dv">2</span>)) <span class="op">+</span></span>
+<span id="cb233-12"><a href="tidy-rna-seq-eda.html#cb233-12" aria-hidden="true"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;sample&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning: ggrepel: 8 unlabeled data points (too many overlaps). Consider
+## increasing max.overlaps</code></pre>
+<p><img src="tidy-rna-seq-eda_files/figure-html/tidy-lines-faceted-1.png" width="672" /></p>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="tidy-gene-plots.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["tidy-ranges-tutorial.pdf", "tidy-ranges-tutorial.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
