@@ -1,0 +1,152 @@
+# Tidy bulk RNA-seq exploratory analysis
+
+Objective: learn how to perform EDA of RNA-seq data using *tidybulk*.
+
+```{r}
+library(oct4)
+dir <- system.file("extdata", package="oct4")
+coldata <- read.csv(file.path(dir,"coldata.csv"))
+coldata
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+```
+
+```{r eval=FALSE}
+library(tximeta)
+se <- tximeta(coldata)
+gse <- summarizeToGene(se)
+library(org.Mm.eg.db)
+gse <- addIds(gse, "SYMBOL")
+```
+
+```{r eval=FALSE}
+library(SummarizedExperiment)
+assayNames(gse)
+assays(gse) <- assays(gse)[1:3]
+save(gse, file="data/oct4_obj.rda")
+```
+
+```{r}
+library(SummarizedExperiment)
+load("data/oct4_obj.rda")
+```
+
+```{r}
+gse$rep <- rep(1:3, 4)
+colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
+assay(gse, "counts") <- round(assay(gse, "counts")) # for consistency
+```
+
+```{r}
+library(org.Mm.eg.db)
+# pluripotency
+tab <- select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
+tab <- tab[!duplicated(tab$SYMBOL),]
+pluri <- tab$SYMBOL
+```
+
+```{r}
+library(tidybulk)
+library(dplyr)
+library(stringr)
+oct4 <- gse %>%
+  tidybulk() %>%
+  filter(line == "OCT4") %>%
+  mutate(.sample = str_remove(.sample, "OCT4-")) %>%
+  mutate(.sample = factor(.sample, levels=unique(.sample)),
+         condition = factor(condition, c("untrt","trt")))
+```
+
+```{r}
+oct4 <- oct4 %>%
+  keep_abundant(factor_of_interest = condition) %>%
+  scale_abundance(method="RLE") # DESeq2 scaling
+```
+
+```{r}
+library(ggplot2)
+oct4 %>%
+  ggplot(aes(.sample, log10(counts_scaled + 1))) +
+  geom_boxplot()
+```
+
+```{r}
+library(DESeq2)
+gse_sub <- gse[ , gse$line == "OCT4" ]
+gse_sub$condition <- factor(gse_sub$condition)
+dds <- gse_sub %>%
+  DESeqDataSet(~condition) %>%
+  estimateSizeFactors()
+boxplot(log10(counts(dds, normalized=TRUE) + 1))
+```
+
+```{r}
+oct4 %>%
+  filter(SYMBOL %in% pluri) %>%
+  mutate(logcounts = log10(counts_scaled + 1)) %>%
+  mutate(Oct4 = ifelse(SYMBOL == "Pou5f1", "red", "black")) %>%
+  group_by(.feature) %>%
+  mutate(logcounts = logcounts - mean(logcounts)) %>%
+  ungroup() %>%
+  ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
+  geom_point() +
+  geom_line() +
+  scale_color_identity()
+```
+
+```{r}
+gene_idx <- mcols(dds)$SYMBOL %in% pluri
+mat <- log10(counts(dds, normalized=TRUE)[gene_idx,] + 1)
+mat <- mat - rowMeans(mat)
+hilite <- rownames(dds)[which(mcols(dds)$SYMBOL == "Pou5f1")]
+plot(mat[1,], type="n", ylim=c(-1,1), xlab="samples", ylab="logcounts")
+for (i in 1:nrow(mat)) {
+  col <- ifelse(rownames(mat)[i] == hilite, "red", "black")
+  points(mat[i,], type="b", col=col)
+}
+```
+
+```{r}
+gene_idx <- oct4 %>% pivot_transcript() %>% pull(.feature)
+assays(dds) <- assays(dds)[1:2] # compatiblity with tidybulk
+res <- dds[gene_idx,] %>%
+  DESeq() %>%
+  results()
+```
+
+```{r}
+oct4 <- oct4 %>%
+  test_differential_abundance(~condition, method="deseq2")
+tidy_res <- oct4 %>%
+  pivot_transcript()
+```
+
+```{r}
+all.equal(rownames(res), tidy_res$.feature)
+table(base_sig = res$padj < .1, tidy_sig = tidy_res$padj < .1)
+```
+
+```{r}
+plot_data <- oct4 %>%
+  filter(SYMBOL %in% pluri) %>%
+  mutate(logcounts = log10(counts_scaled + 1)) %>%
+  mutate(Oct4 = ifelse(SYMBOL == "Pou5f1", "red", "black")) %>%
+  group_by(.feature) %>%
+  mutate(logcounts = logcounts - mean(logcounts)) %>%
+  ungroup() %>%
+  mutate(gene_type = case_when(
+           padj < .1 & log2FoldChange > 0 ~ "up",
+           padj < .1 & log2FoldChange < 0 ~ "down",
+           TRUE ~ "null"))
+library(ggrepel)
+plot_data %>%
+  ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
+  geom_point() +
+  geom_line() +
+  geom_text_repel(data=plot_data %>%
+                    filter(.sample == "trt-3", gene_type != "null"),
+            aes(.sample, logcounts, label=SYMBOL)) +
+  scale_color_identity() +
+  facet_wrap(~gene_type) +
+  scale_x_discrete(expand = expansion(add = 2)) +
+  xlab("sample")
+```
