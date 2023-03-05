@@ -1,6 +1,35 @@
 # Tidy RNA-seq EDA
 
-Objective: learn how to perform EDA of RNA-seq data using *tidybulk*.
+Objective: learn how to make basic EDA plots (plotting scaled counts)
+of RNA-seq data using tidy-style verbs.
+
+The *tidybulk* Bioconductor package and associated
+[tidy transcriptomics](https://stemangiola.github.io/tidytranscriptomics/post/tidy-transcriptomics-manifesto/) 
+ecosystem (tidySummarizedExperiment, tidySingleCell, tidyseurat, etc.)
+provide a bridge between the *SummarizedExperiment*-style
+representation of matrix data with attached metadata, to the
+tidy-style representation of data (one row per observation).
+For more details on the package, check out the 
+[tidybulk](https://stemangiola.github.io/tidybulk/) 
+website, and the publication: @tidybulk. 
+
+Here we will briefly examine the difference between tidy manipulation
+of these matrix-style objects compared to how these objects would be
+manipulated in other Bioconductor workflows (e.g. DESeq2, edgeR, or
+limma workflows). As you will see, there are multiple ways to generate
+the same or similar exploratory plots and analyses.  we recommend to
+consider which is more appropriate to your purpose. For package code,
+you may prefer to have fewer dependencies, going with core
+Bioconductor objects and packages. For scripting, the "fluent" and
+piped style of *tidybulk* may be preferable, and easier for others to
+read and modify your code at a future date.
+
+Here we just compare code for some basic tasks, scaling counts and
+performing DE with DESeq2. However, note that *tidybulk* has
+many functionalities implemented, including dimension reduction and
+visualization (PCA, MDS, tSNE, UMAP), clustering, gene set testing,
+cell type composition analysis and cell abundance testing, unwanted
+variation modeling, imputation, etc.
 
 ```{r}
 library(oct4)
@@ -22,10 +51,11 @@ gse <- addIds(gse, "SYMBOL")
 library(SummarizedExperiment)
 assayNames(gse)
 assays(gse) <- assays(gse)[1:3]
+# save for easy loading later
 save(gse, file="data/oct4_obj.rda")
 ```
 
-```{r}
+```{r message=FALSE}
 library(SummarizedExperiment)
 load("data/oct4_obj.rda")
 ```
@@ -37,6 +67,7 @@ assay(gse, "counts") <- round(assay(gse, "counts")) # for consistency
 ```
 
 ```{r}
+library(AnnotationDbi)
 library(org.Mm.eg.db)
 # pluripotency
 tab <- select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
@@ -44,7 +75,7 @@ tab <- tab[!duplicated(tab$SYMBOL),]
 pluri <- tab$SYMBOL
 ```
 
-```{r}
+```{r message=FALSE}
 library(tidybulk)
 library(dplyr)
 library(stringr)
@@ -109,13 +140,13 @@ for (i in 1:nrow(mat)) {
 gene_idx <- oct4 %>% pivot_transcript() %>% pull(.feature)
 assays(dds) <- assays(dds)[1:2] # compatiblity with tidybulk
 res <- dds[gene_idx,] %>%
-  DESeq() %>%
+  DESeq(quiet=TRUE) %>%
   results()
 ```
 
 ```{r}
 oct4 <- oct4 %>%
-  test_differential_abundance(~condition, method="deseq2")
+  test_differential_abundance(~condition, method="deseq2", quiet=TRUE)
 tidy_res <- oct4 %>%
   pivot_transcript()
 ```
@@ -142,12 +173,13 @@ plot_data <- oct4 %>%
 ```{r tidy-lines-faceted}
 library(ggrepel)
 plot_data %>%
+  filter(gene_type != "null") %>%
   ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
   geom_point() +
   geom_line() +
   geom_text_repel(data=plot_data %>%
                     filter(.sample == "trt-3", gene_type != "null"),
-            aes(.sample, logcounts, label=SYMBOL)) +
+            aes(.sample, logcounts, label=SYMBOL), nudge_x=.5) +
   scale_color_identity() +
   facet_wrap(~gene_type) +
   scale_x_discrete(expand = expansion(add = 2)) +
