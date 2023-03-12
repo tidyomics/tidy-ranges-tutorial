@@ -31,6 +31,23 @@ visualization (PCA, MDS, tSNE, UMAP), clustering, gene set testing,
 cell type composition analysis and cell abundance testing, unwanted
 variation modeling, imputation, etc.
 
+Start by loading this RNA-seq dataset from the following paper: 
+@king_klose "The pioneer factor OCT4 requires the chromatin
+remodeller BRG1 to support gene regulatory element function in mouse
+embryonic stem cells" <https://doi.org/10.7554/eLife.22631>. The
+experiment focused on OCT4 as it is a "core pluripotency transcription
+factor" which "occupies sites that would otherwise be inaccessible and
+is required to shape the occupancy of additional pluripotency
+transcription factors".
+
+In this experiment, transcription in mouse embryonic stem cells (ESC)
+was compared with and without OCT4. This was done using a conditional
+mouse ESC line where treatment with a compound leads to loss of OCT4
+expression. The experiment also involved the same approach to another
+transcription factor BRG1, but we focus here on the OCT4 samples.
+
+First we load the metadata about the samples:
+
 ```{r}
 library(oct4)
 dir <- system.file("extdata", package="oct4")
@@ -39,6 +56,11 @@ coldata
 coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 ```
 
+Read in the count data with *tximeta*, which automatically imports the
+information about the gene provenance (which transcripts were used to
+quantify the gene and isoform abundance). We then summarize the
+quantification to the gene-level, and add the gene `SYMBOL`.
+
 ```{r eval=FALSE}
 library(tximeta)
 se <- tximeta(coldata)
@@ -46,6 +68,10 @@ gse <- summarizeToGene(se)
 library(org.Mm.eg.db)
 gse <- addIds(gse, "SYMBOL")
 ```
+
+For this workflow, we don't need the inferential replicates (about
+uncertainty regarding the quantification), so we keep just the counts,
+abundances (TPM), and gene lengths:
 
 ```{r eval=FALSE}
 library(SummarizedExperiment)
@@ -60,11 +86,19 @@ library(SummarizedExperiment)
 load("data/oct4_obj.rda")
 ```
 
+We manipulate the metadata a little bit, mostly for consistency across
+the different pipelines below.
+
 ```{r}
 gse$rep <- rep(1:3, 4)
 colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
 assay(gse, "counts") <- round(assay(gse, "counts")) # for consistency
 ```
+
+We will be interested in the gene set from the Gene Ontology project,
+which describes maintenance of pluripotency. We can extra this from
+the mouse organism data package with the following three lines of
+code: 
 
 ```{r}
 library(AnnotationDbi)
