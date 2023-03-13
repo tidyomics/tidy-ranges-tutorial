@@ -196,8 +196,8 @@ variables and control flow code (the `for` loop). While there's
 nothing particularly right or wrong about the two choices, the above
 prioritizes the operations in a way that is human readable. In some
 cases, e.g. performing linear algebra operations on matrices, base R
-code may prove to be more efficient, which is way you would be more
-likely to find it in package source code.
+code may prove to be more efficient, which is a consideration for what
+to use in package source code.
 
 ```{r deseq-lines}
 pluri_idx <- mcols(dds)$SYMBOL %in% pluri

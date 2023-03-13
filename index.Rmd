@@ -3,12 +3,18 @@ title: "Tidy Ranges Tutorial"
 author: "nullranges devel team"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
-output: bookdown::gitbook
+output: 
+  bookdown::gitbook:
+    config:
+      download: null
+      sharing:
+        twitter: false
 documentclass: book
 bibliography: references.bib
 biblio-style: apalike
 link-citations: yes
-github-repo: rstudio/bookdown-demo
+url: https\://nullranges.github.io/tidy-ranges-tutorial
+github-repo: nullranges/tidy-ranges-tutorial
 description: |
     Basic examples of computing operations on genomic ranges using the
     tidy data philosophy.

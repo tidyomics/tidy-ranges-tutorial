@@ -14,7 +14,7 @@ tidy data philosophy.</p>" />
   
   <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="github-repo" content="rstudio/bookdown-demo" />
+  <meta name="github-repo" content="nullranges/tidy-ranges-tutorial" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 4 Bootstrap overlap | Tidy Ranges Tutorial" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-03-04" />
+<meta name="date" content="2023-03-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,7 +52,6 @@ tidy data philosophy.</p>" />
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
@@ -62,6 +61,7 @@ tidy data philosophy.</p>" />
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
@@ -122,6 +122,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -182,13 +204,13 @@ and we will use the <em>nullranges</em> implementation of the
 block bootstrapping algorithm to generate the null features, followed
 by overlap analysis with <em>plyranges</em>. The approach used in
 <em>nullranges</em> to generate bootstrap ranges closely follows the method
-described by <span class="citation">Bickel et al. (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
+described by <span class="citation"><a href="#ref-bickel2010" role="doc-biblioref">Bickel et al.</a> (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
 <p>We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
-peaks used in the previous analysis <span class="citation">(Dunham and others <a href="#ref-encode" role="doc-biblioref">2012</a>)</span>.</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="bootstrap-overlap.html#cb71-1" aria-hidden="true"></a><span class="kw">library</span>(AnnotationHub)</span>
-<span id="cb71-2"><a href="bootstrap-overlap.html#cb71-2" aria-hidden="true"></a>ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</span>
-<span id="cb71-3"><a href="bootstrap-overlap.html#cb71-3" aria-hidden="true"></a>kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</span>
-<span id="cb71-4"><a href="bootstrap-overlap.html#cb71-4" aria-hidden="true"></a>bladder_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH44180&quot;</span>]]</span></code></pre></div>
+peaks used in the previous analysis <span class="citation">(<a href="#ref-encode" role="doc-biblioref">Dunham and others 2012</a>)</span>.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="bootstrap-overlap.html#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationHub)</span>
+<span id="cb73-2"><a href="bootstrap-overlap.html#cb73-2" aria-hidden="true" tabindex="-1"></a>ah <span class="ot">&lt;-</span> <span class="fu">AnnotationHub</span>()</span>
+<span id="cb73-3"><a href="bootstrap-overlap.html#cb73-3" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH43443&quot;</span>]]</span>
+<span id="cb73-4"><a href="bootstrap-overlap.html#cb73-4" aria-hidden="true" tabindex="-1"></a>bladder_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH44180&quot;</span>]]</span></code></pre></div>
 <p>We will additionally obtain an excluded region set, so that we avoid
 placing bootstrap features into regions of the genome that don’t
 typically have features. A variety of possible exclude lists are
@@ -197,9 +219,9 @@ provided by the <em>excluderanges</em> packages and available via
 <code>hg19.Crawford.wgEncodeDukeMapabilityRegionsExcludable</code> regions, as
 they are available for hg19, which is the genome used with the peak
 sets.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="bootstrap-overlap.html#cb72-1" aria-hidden="true"></a><span class="co"># query(ah, c(&quot;excluderanges&quot;,&quot;hg19&quot;))</span></span>
-<span id="cb72-2"><a href="bootstrap-overlap.html#cb72-2" aria-hidden="true"></a>exclude &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH95912&quot;</span>]]</span>
-<span id="cb72-3"><a href="bootstrap-overlap.html#cb72-3" aria-hidden="true"></a><span class="kw">save</span>(<span class="st">&quot;data/exclude.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="bootstrap-overlap.html#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># query(ah, c(&quot;excluderanges&quot;,&quot;hg19&quot;))</span></span>
+<span id="cb74-2"><a href="bootstrap-overlap.html#cb74-2" aria-hidden="true" tabindex="-1"></a>exclude <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH95912&quot;</span>]]</span>
+<span id="cb74-3"><a href="bootstrap-overlap.html#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(<span class="st">&quot;data/exclude.rda&quot;</span>)</span></code></pre></div>
 <p>To make the code more generic, we will rename the kidney peaks to <code>x</code>
 and the bladder peaks to <code>y</code>. We will be looking for overlaps with
 features in <code>x</code> as the query set: how many of the features in <code>x</code>
@@ -207,50 +229,50 @@ overlap features in <code>y</code>?</p>
 <p>The following code reduces our analysis to looking only at standard
 chromosomes, excluding the mitochondrial genome (too small for
 including in the block bootstrap).</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="bootstrap-overlap.html#cb73-1" aria-hidden="true"></a><span class="kw">library</span>(GenomeInfoDb)</span>
-<span id="cb73-2"><a href="bootstrap-overlap.html#cb73-2" aria-hidden="true"></a>x &lt;-<span class="st"> </span>kidney_pks</span>
-<span id="cb73-3"><a href="bootstrap-overlap.html#cb73-3" aria-hidden="true"></a>y &lt;-<span class="st"> </span>bladder_pks</span>
-<span id="cb73-4"><a href="bootstrap-overlap.html#cb73-4" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">keepStandardChromosomes</span>(x)</span>
-<span id="cb73-5"><a href="bootstrap-overlap.html#cb73-5" aria-hidden="true"></a><span class="kw">seqlevels</span>(x, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">seqlevels</span>(x), <span class="st">&quot;chrM&quot;</span>)</span>
-<span id="cb73-6"><a href="bootstrap-overlap.html#cb73-6" aria-hidden="true"></a><span class="kw">seqlevels</span>(y, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</span>
-<span id="cb73-7"><a href="bootstrap-overlap.html#cb73-7" aria-hidden="true"></a><span class="kw">seqlevels</span>(exclude, <span class="dt">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) &lt;-<span class="st"> </span><span class="kw">seqlevels</span>(x)</span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="bootstrap-overlap.html#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GenomeInfoDb)</span>
+<span id="cb75-2"><a href="bootstrap-overlap.html#cb75-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> kidney_pks</span>
+<span id="cb75-3"><a href="bootstrap-overlap.html#cb75-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> bladder_pks</span>
+<span id="cb75-4"><a href="bootstrap-overlap.html#cb75-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">keepStandardChromosomes</span>(x)</span>
+<span id="cb75-5"><a href="bootstrap-overlap.html#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="fu">seqlevels</span>(x, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">seqlevels</span>(x), <span class="st">&quot;chrM&quot;</span>)</span>
+<span id="cb75-6"><a href="bootstrap-overlap.html#cb75-6" aria-hidden="true" tabindex="-1"></a><span class="fu">seqlevels</span>(y, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">seqlevels</span>(x)</span>
+<span id="cb75-7"><a href="bootstrap-overlap.html#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="fu">seqlevels</span>(exclude, <span class="at">pruning.mode=</span><span class="st">&quot;coarse&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">seqlevels</span>(x)</span></code></pre></div>
 <p>We are mostly concerned with avoiding placing bootstrapped features in
 large regions in the exclude list, so we subset the exclude list to
 features larger than 500 bp. Why do we have <code>plyranges::</code> in front of
 <code>filter</code>? This is because there is a function in the <em>ensembldb</em>
 package that is also called <em>filter</em>, so it’s a bit safer if we are
 using both packages to use the package name.</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="bootstrap-overlap.html#cb74-1" aria-hidden="true"></a><span class="kw">library</span>(plyranges)</span>
-<span id="cb74-2"><a href="bootstrap-overlap.html#cb74-2" aria-hidden="true"></a>exclude &lt;-<span class="st"> </span>exclude <span class="op">%&gt;%</span></span>
-<span id="cb74-3"><a href="bootstrap-overlap.html#cb74-3" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">filter</span>(<span class="kw">width</span>(exclude) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">500</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="bootstrap-overlap.html#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb76-2"><a href="bootstrap-overlap.html#cb76-2" aria-hidden="true" tabindex="-1"></a>exclude <span class="ot">&lt;-</span> exclude <span class="sc">%&gt;%</span></span>
+<span id="cb76-3"><a href="bootstrap-overlap.html#cb76-3" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">filter</span>(<span class="fu">width</span>(exclude) <span class="sc">&gt;=</span> <span class="dv">500</span>)</span></code></pre></div>
 <p>We also subset to the peaks for kidney and bladder which have q-value
 less than 0.001 and signal value greater than 9 (these are arbitrary
 filter values, just for demonstration).</p>
 <p>For further analysis, we will need the features in <code>y</code> to be sorted,
 for the bootstrapping, here we sort both sets.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="bootstrap-overlap.html#cb75-1" aria-hidden="true"></a>q_thr &lt;-<span class="st"> </span><span class="dv">3</span></span>
-<span id="cb75-2"><a href="bootstrap-overlap.html#cb75-2" aria-hidden="true"></a>s_thr &lt;-<span class="st"> </span><span class="dv">9</span></span>
-<span id="cb75-3"><a href="bootstrap-overlap.html#cb75-3" aria-hidden="true"></a>x &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb75-4"><a href="bootstrap-overlap.html#cb75-4" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></span>
-<span id="cb75-5"><a href="bootstrap-overlap.html#cb75-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">sort</span>()</span>
-<span id="cb75-6"><a href="bootstrap-overlap.html#cb75-6" aria-hidden="true"></a>y &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb75-7"><a href="bootstrap-overlap.html#cb75-7" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></span>
-<span id="cb75-8"><a href="bootstrap-overlap.html#cb75-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">sort</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="bootstrap-overlap.html#cb77-1" aria-hidden="true" tabindex="-1"></a>q_thr <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb77-2"><a href="bootstrap-overlap.html#cb77-2" aria-hidden="true" tabindex="-1"></a>s_thr <span class="ot">&lt;-</span> <span class="dv">9</span></span>
+<span id="cb77-3"><a href="bootstrap-overlap.html#cb77-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> </span>
+<span id="cb77-4"><a href="bootstrap-overlap.html#cb77-4" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">filter</span>(qValue <span class="sc">&gt;</span> q_thr <span class="sc">&amp;</span> signalValue <span class="sc">&gt;</span> s_thr) <span class="sc">%&gt;%</span></span>
+<span id="cb77-5"><a href="bootstrap-overlap.html#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sort</span>()</span>
+<span id="cb77-6"><a href="bootstrap-overlap.html#cb77-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> y <span class="sc">%&gt;%</span> </span>
+<span id="cb77-7"><a href="bootstrap-overlap.html#cb77-7" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">filter</span>(qValue <span class="sc">&gt;</span> q_thr <span class="sc">&amp;</span> signalValue <span class="sc">&gt;</span> s_thr) <span class="sc">%&gt;%</span></span>
+<span id="cb77-8"><a href="bootstrap-overlap.html#cb77-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sort</span>()</span></code></pre></div>
 <p>Now we can assess how many overlaps we observed between <code>x</code> and <code>y</code>:</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="bootstrap-overlap.html#cb76-1" aria-hidden="true"></a>obs &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., y))</span>
-<span id="cb76-2"><a href="bootstrap-overlap.html#cb76-2" aria-hidden="true"></a>obs <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">total =</span> <span class="kw">sum</span>(n_overlaps))</span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="bootstrap-overlap.html#cb78-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">n_overlaps =</span> <span class="fu">count_overlaps</span>(., y))</span>
+<span id="cb78-2"><a href="bootstrap-overlap.html#cb78-2" aria-hidden="true" tabindex="-1"></a>obs <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total =</span> <span class="fu">sum</span>(n_overlaps))</span></code></pre></div>
 <pre><code>## DataFrame with 1 row and 1 column
 ##       total
 ##   &lt;integer&gt;
 ## 1      5073</code></pre>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="bootstrap-overlap.html#cb78-1" aria-hidden="true"></a><span class="kw">table</span>( obs<span class="op">$</span>n_overlaps )</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="bootstrap-overlap.html#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>( obs<span class="sc">$</span>n_overlaps )</span></code></pre></div>
 <pre><code>## 
 ##    0    1    2    3    4    6 
 ## 9453 3966  486   39    3    1</code></pre>
 <p>We can check if any of the features of <code>y</code> fall in the excluded
 regions:</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="bootstrap-overlap.html#cb80-1" aria-hidden="true"></a>y <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., exclude)) <span class="op">%&gt;%</span></span>
-<span id="cb80-2"><a href="bootstrap-overlap.html#cb80-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">total =</span> <span class="kw">sum</span>(n_overlaps))</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="bootstrap-overlap.html#cb82-1" aria-hidden="true" tabindex="-1"></a>y <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">n_overlaps =</span> <span class="fu">count_overlaps</span>(., exclude)) <span class="sc">%&gt;%</span></span>
+<span id="cb82-2"><a href="bootstrap-overlap.html#cb82-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">total =</span> <span class="fu">sum</span>(n_overlaps))</span></code></pre></div>
 <pre><code>## DataFrame with 1 row and 1 column
 ##       total
 ##   &lt;integer&gt;
@@ -259,45 +281,32 @@ regions:</p>
 <code>y</code>. Here we subset first to metadata columns of interest (an <code>id</code>
 variable that we create, and the signal value which we rename to
 <code>signal</code>).</p>
-<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="bootstrap-overlap.html#cb82-1" aria-hidden="true"></a>pks_to_boot &lt;-<span class="st"> </span>y <span class="op">%&gt;%</span></span>
-<span id="cb82-2"><a href="bootstrap-overlap.html#cb82-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id =</span> <span class="kw">seq_along</span>(y)) <span class="op">%&gt;%</span></span>
-<span id="cb82-3"><a href="bootstrap-overlap.html#cb82-3" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">select</span>(id, <span class="dt">signal =</span> signalValue)</span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="bootstrap-overlap.html#cb84-1" aria-hidden="true" tabindex="-1"></a>pks_to_boot <span class="ot">&lt;-</span> y <span class="sc">%&gt;%</span></span>
+<span id="cb84-2"><a href="bootstrap-overlap.html#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">seq_along</span>(y)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-3"><a href="bootstrap-overlap.html#cb84-3" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">select</span>(id, <span class="at">signal =</span> signalValue)</span></code></pre></div>
 <p>The <code>bootRanges</code> function returns the bootstrap feature sets
 combined into one <em>GRanges</em> object – this tidy format facilitates
 downstream analysis as we will see. The bootstrap iteration is stored
 in the <code>iter</code> metadata column.</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="bootstrap-overlap.html#cb83-1" aria-hidden="true"></a><span class="kw">library</span>(nullranges)</span>
-<span id="cb83-2"><a href="bootstrap-overlap.html#cb83-2" aria-hidden="true"></a>R &lt;-<span class="st"> </span><span class="dv">30</span> <span class="co"># number of iterations</span></span>
-<span id="cb83-3"><a href="bootstrap-overlap.html#cb83-3" aria-hidden="true"></a><span class="kw">set.seed</span>(<span class="dv">5</span>) <span class="co"># set seed for reproducibility</span></span>
-<span id="cb83-4"><a href="bootstrap-overlap.html#cb83-4" aria-hidden="true"></a>boots &lt;-<span class="st"> </span><span class="kw">bootRanges</span>(pks_to_boot, <span class="dt">blockLength=</span><span class="fl">5e5</span>, <span class="dt">R=</span>R, <span class="dt">exclude=</span>exclude)</span>
-<span id="cb83-5"><a href="bootstrap-overlap.html#cb83-5" aria-hidden="true"></a>boots</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="bootstrap-overlap.html#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nullranges)</span>
+<span id="cb85-2"><a href="bootstrap-overlap.html#cb85-2" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># number of iterations</span></span>
+<span id="cb85-3"><a href="bootstrap-overlap.html#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>) <span class="co"># set seed for reproducibility</span></span>
+<span id="cb85-4"><a href="bootstrap-overlap.html#cb85-4" aria-hidden="true" tabindex="-1"></a>boots <span class="ot">&lt;-</span> <span class="fu">bootRanges</span>(pks_to_boot, <span class="at">blockLength=</span><span class="fl">5e5</span>, <span class="at">R=</span>R, <span class="at">exclude=</span>exclude)</span>
+<span id="cb85-5"><a href="bootstrap-overlap.html#cb85-5" aria-hidden="true" tabindex="-1"></a>boots</span></code></pre></div>
 <pre><code>## BootRanges object with 174764 ranges and 5 metadata columns:
-##            seqnames            ranges strand |        id    signal     block
-##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt;
-##        [1]     chr1   2011397-2011809      * |       931  14.42934         5
-##        [2]     chr1   2011973-2012399      * |       932  17.57052         5
-##        [3]     chr1   2012505-2013073      * |       933   9.64691         5
-##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6
-##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6
-##        ...      ...               ...    ... .       ...       ...       ...
-##   [174760]     chrY 57499850-57501632      * |      5141  10.09210      6202
-##   [174761]     chrY 57937341-57937960      * |      1062  15.98656      6203
-##   [174762]     chrY 58145916-58146540      * |       264  15.23097      6204
-##   [174763]     chrY 58146662-58147585      * |       265  12.26661      6204
-##   [174764]     chrY 58214091-58214746      * |       266   9.69322      6204
-##             iter blockLength
-##            &lt;Rle&gt;       &lt;Rle&gt;
-##        [1]     1      500000
-##        [2]     1      500000
-##        [3]     1      500000
-##        [4]     1      500000
-##        [5]     1      500000
-##        ...   ...         ...
-##   [174760]    30      500000
-##   [174761]    30      500000
-##   [174762]    30      500000
-##   [174763]    30      500000
-##   [174764]    30      500000
+##            seqnames            ranges strand |        id    signal     block  iter blockLength
+##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt; &lt;Rle&gt;       &lt;Rle&gt;
+##        [1]     chr1   2011397-2011809      * |       931  14.42934         5     1      500000
+##        [2]     chr1   2011973-2012399      * |       932  17.57052         5     1      500000
+##        [3]     chr1   2012505-2013073      * |       933   9.64691         5     1      500000
+##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6     1      500000
+##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6     1      500000
+##        ...      ...               ...    ... .       ...       ...       ...   ...         ...
+##   [174760]     chrY 57499850-57501632      * |      5141  10.09210      6202    30      500000
+##   [174761]     chrY 57937341-57937960      * |      1062  15.98656      6203    30      500000
+##   [174762]     chrY 58145916-58146540      * |       264  15.23097      6204    30      500000
+##   [174763]     chrY 58146662-58147585      * |       265  12.26661      6204    30      500000
+##   [174764]     chrY 58214091-58214746      * |       266   9.69322      6204    30      500000
 ##   -------
 ##   seqinfo: 24 sequences from hg19 genome</code></pre>
 <p>The default use above of the <code>exclude</code> argument is to drop bootstrapped
@@ -305,24 +314,24 @@ ranges that overlap the exclude list.</p>
 <p>We can examine properties of permuted <code>y</code> over iterations, and compare
 to the original <code>y</code>. To do so, we first add the original features as
 <code>iter=0</code>.</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="bootstrap-overlap.html#cb85-1" aria-hidden="true"></a>combined &lt;-<span class="st"> </span>pks_to_boot <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb85-2"><a href="bootstrap-overlap.html#cb85-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter=</span><span class="dv">0</span>) <span class="op">%&gt;%</span></span>
-<span id="cb85-3"><a href="bootstrap-overlap.html#cb85-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">bind_ranges</span>(boots) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb85-4"><a href="bootstrap-overlap.html#cb85-4" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">select</span>(iter)</span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="bootstrap-overlap.html#cb87-1" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> pks_to_boot <span class="sc">%&gt;%</span> </span>
+<span id="cb87-2"><a href="bootstrap-overlap.html#cb87-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">iter=</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb87-3"><a href="bootstrap-overlap.html#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_ranges</span>(boots) <span class="sc">%&gt;%</span> </span>
+<span id="cb87-4"><a href="bootstrap-overlap.html#cb87-4" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">select</span>(iter)</span></code></pre></div>
 <p>Then compute summaries:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="bootstrap-overlap.html#cb86-1" aria-hidden="true"></a><span class="kw">library</span>(tibble)</span>
-<span id="cb86-2"><a href="bootstrap-overlap.html#cb86-2" aria-hidden="true"></a>stats &lt;-<span class="st"> </span>combined <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb86-3"><a href="bootstrap-overlap.html#cb86-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb86-4"><a href="bootstrap-overlap.html#cb86-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n =</span> <span class="kw">n</span>(),</span>
-<span id="cb86-5"><a href="bootstrap-overlap.html#cb86-5" aria-hidden="true"></a>            <span class="dt">sum_width=</span><span class="kw">sum</span>(width)<span class="op">/</span><span class="fl">1e6</span>) <span class="op">%&gt;%</span></span>
-<span id="cb86-6"><a href="bootstrap-overlap.html#cb86-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="bootstrap-overlap.html#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb88-2"><a href="bootstrap-overlap.html#cb88-2" aria-hidden="true" tabindex="-1"></a>stats <span class="ot">&lt;-</span> combined <span class="sc">%&gt;%</span> </span>
+<span id="cb88-3"><a href="bootstrap-overlap.html#cb88-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb88-4"><a href="bootstrap-overlap.html#cb88-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb88-5"><a href="bootstrap-overlap.html#cb88-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_width=</span><span class="fu">sum</span>(width)<span class="sc">/</span><span class="fl">1e6</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb88-6"><a href="bootstrap-overlap.html#cb88-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span></code></pre></div>
 <p>Original <code>y</code> vs bootstrap:</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="bootstrap-overlap.html#cb87-1" aria-hidden="true"></a>stats[<span class="dv">1</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="bootstrap-overlap.html#cb89-1" aria-hidden="true" tabindex="-1"></a>stats[<span class="dv">1</span>,]</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 3
 ##   iter      n sum_width
 ##   &lt;fct&gt; &lt;int&gt;     &lt;dbl&gt;
 ## 1 0      5838      5.07</code></pre>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="bootstrap-overlap.html#cb89-1" aria-hidden="true"></a><span class="kw">summary</span>(stats[<span class="op">-</span><span class="dv">1</span>,])</span></code></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="bootstrap-overlap.html#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(stats[<span class="sc">-</span><span class="dv">1</span>,])</span></code></pre></div>
 <pre><code>##       iter          n          sum_width    
 ##  1      : 1   Min.   :5595   Min.   :4.843  
 ##  2      : 1   1st Qu.:5723   1st Qu.:4.968  
@@ -334,17 +343,17 @@ to the original <code>y</code>. To do so, we first add the original features as
 <p>We can also look at distributions of various aspects, e.g. here the
 width of features, across a few of the bootstraps and the original
 feature set <code>y</code>.</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="bootstrap-overlap.html#cb91-1" aria-hidden="true"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb91-2"><a href="bootstrap-overlap.html#cb91-2" aria-hidden="true"></a><span class="kw">library</span>(ggridges)</span>
-<span id="cb91-3"><a href="bootstrap-overlap.html#cb91-3" aria-hidden="true"></a>combined <span class="op">%&gt;%</span><span class="st"> </span>plyranges<span class="op">::</span><span class="kw">filter</span>(iter <span class="op">%in%</span><span class="st"> </span><span class="dv">0</span><span class="op">:</span><span class="dv">5</span>) <span class="op">%&gt;%</span></span>
-<span id="cb91-4"><a href="bootstrap-overlap.html#cb91-4" aria-hidden="true"></a><span class="st">  </span>plyranges<span class="op">::</span><span class="kw">select</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb91-5"><a href="bootstrap-overlap.html#cb91-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb91-6"><a href="bootstrap-overlap.html#cb91-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="kw">ifelse</span>(iter <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="st">&quot;original&quot;</span>, <span class="st">&quot;boot&quot;</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb91-7"><a href="bootstrap-overlap.html#cb91-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="kw">log10</span>(width), iter, <span class="dt">fill=</span>type)) <span class="op">+</span></span>
-<span id="cb91-8"><a href="bootstrap-overlap.html#cb91-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_density_ridges</span>(<span class="dt">alpha =</span> <span class="fl">0.75</span>) <span class="op">+</span></span>
-<span id="cb91-9"><a href="bootstrap-overlap.html#cb91-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_text</span>(<span class="dt">data=</span><span class="kw">head</span>(stats),</span>
-<span id="cb91-10"><a href="bootstrap-overlap.html#cb91-10" aria-hidden="true"></a>            <span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.25</span>, <span class="dt">y=</span>iter, <span class="dt">label=</span><span class="kw">paste0</span>(<span class="st">&quot;n=&quot;</span>,n), <span class="dt">fill=</span><span class="ot">NULL</span>),</span>
-<span id="cb91-11"><a href="bootstrap-overlap.html#cb91-11" aria-hidden="true"></a>            <span class="dt">vjust=</span><span class="fl">1.5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="bootstrap-overlap.html#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb93-2"><a href="bootstrap-overlap.html#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggridges)</span>
+<span id="cb93-3"><a href="bootstrap-overlap.html#cb93-3" aria-hidden="true" tabindex="-1"></a>combined <span class="sc">%&gt;%</span> plyranges<span class="sc">::</span><span class="fu">filter</span>(iter <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb93-4"><a href="bootstrap-overlap.html#cb93-4" aria-hidden="true" tabindex="-1"></a>  plyranges<span class="sc">::</span><span class="fu">select</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb93-5"><a href="bootstrap-overlap.html#cb93-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb93-6"><a href="bootstrap-overlap.html#cb93-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">ifelse</span>(iter <span class="sc">==</span> <span class="dv">0</span>, <span class="st">&quot;original&quot;</span>, <span class="st">&quot;boot&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb93-7"><a href="bootstrap-overlap.html#cb93-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">log10</span>(width), iter, <span class="at">fill=</span>type)) <span class="sc">+</span></span>
+<span id="cb93-8"><a href="bootstrap-overlap.html#cb93-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density_ridges</span>(<span class="at">alpha =</span> <span class="fl">0.75</span>) <span class="sc">+</span></span>
+<span id="cb93-9"><a href="bootstrap-overlap.html#cb93-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data=</span><span class="fu">head</span>(stats),</span>
+<span id="cb93-10"><a href="bootstrap-overlap.html#cb93-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x=</span><span class="fl">2.25</span>, <span class="at">y=</span>iter, <span class="at">label=</span><span class="fu">paste0</span>(<span class="st">&quot;n=&quot;</span>,n), <span class="at">fill=</span><span class="cn">NULL</span>),</span>
+<span id="cb93-11"><a href="bootstrap-overlap.html#cb93-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust=</span><span class="fl">1.5</span>)</span></code></pre></div>
 <p><img src="bootstrap-overlap_files/figure-html/boot-width-1.png" width="672" /></p>
 <p>To compute overlap with the null features, we need the <code>complete()</code>
 function from the <em>tidyr</em> package. We saw <code>complete()</code> before – this
@@ -357,13 +366,13 @@ all cases.</p>
 <p>The overlap per iteration of the bootstrap is accomplished by a series
 of <em>plyranges</em> / <em>dplyr</em> commands (we switch to <em>dplyr</em> halfway
 through, after the <code>as_tibble()</code> call).</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="bootstrap-overlap.html#cb92-1" aria-hidden="true"></a><span class="kw">library</span>(tidyr)</span>
-<span id="cb92-2"><a href="bootstrap-overlap.html#cb92-2" aria-hidden="true"></a>null &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(boots) <span class="op">%&gt;%</span></span>
-<span id="cb92-3"><a href="bootstrap-overlap.html#cb92-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb92-4"><a href="bootstrap-overlap.html#cb92-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n_overlaps =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span></span>
-<span id="cb92-5"><a href="bootstrap-overlap.html#cb92-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb92-6"><a href="bootstrap-overlap.html#cb92-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">n_overlaps =</span> <span class="dv">0</span>))</span>
-<span id="cb92-7"><a href="bootstrap-overlap.html#cb92-7" aria-hidden="true"></a><span class="kw">head</span>(null)</span></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="bootstrap-overlap.html#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb94-2"><a href="bootstrap-overlap.html#cb94-2" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(boots) <span class="sc">%&gt;%</span></span>
+<span id="cb94-3"><a href="bootstrap-overlap.html#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb94-4"><a href="bootstrap-overlap.html#cb94-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n_overlaps =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb94-5"><a href="bootstrap-overlap.html#cb94-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb94-6"><a href="bootstrap-overlap.html#cb94-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(iter, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">n_overlaps =</span> <span class="dv">0</span>))</span>
+<span id="cb94-7"><a href="bootstrap-overlap.html#cb94-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(null)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 2
 ##   iter  n_overlaps
 ##   &lt;fct&gt;      &lt;int&gt;
@@ -373,16 +382,16 @@ through, after the <code>as_tibble()</code> call).</p>
 ## 4 4             51
 ## 5 5             39
 ## 6 6             66</code></pre>
-<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="bootstrap-overlap.html#cb94-1" aria-hidden="true"></a><span class="kw">sum</span>( obs<span class="op">$</span>n_overlaps )</span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="bootstrap-overlap.html#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>( obs<span class="sc">$</span>n_overlaps )</span></code></pre></div>
 <pre><code>## [1] 5073</code></pre>
 <p>The observed number of overlaps is about two orders of magnitude more
 than the bootstrapped number, which makes sense as two tissues would
 be expected to share a number of similar regulatory regions (as marked
 by H3K27ac) – more so than randomly placed genomic features, even
 after accounting for excluded regions and feature clustering.</p>
-<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="bootstrap-overlap.html#cb96-1" aria-hidden="true"></a><span class="kw">ggplot</span>(null, <span class="kw">aes</span>(n_overlaps)) <span class="op">+</span></span>
-<span id="cb96-2"><a href="bootstrap-overlap.html#cb96-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth=</span><span class="dv">5</span>) <span class="op">+</span></span>
-<span id="cb96-3"><a href="bootstrap-overlap.html#cb96-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;bootstrap overlaps&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="bootstrap-overlap.html#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(null, <span class="fu">aes</span>(n_overlaps)) <span class="sc">+</span></span>
+<span id="cb98-2"><a href="bootstrap-overlap.html#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth=</span><span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb98-3"><a href="bootstrap-overlap.html#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;bootstrap overlaps&quot;</span>)</span></code></pre></div>
 <p><img src="bootstrap-overlap_files/figure-html/boot-hist-1.png" width="672" /></p>
 <p>What could be improved with this analysis?</p>
 <p>Note that in the above chunks where we count overlaps, we are doubly
@@ -393,28 +402,28 @@ allows us to do more complex operations, such as computing the
 maximum signal value for the overlapping features in <code>y</code> per feature
 in <code>x</code>:</p>
 <p>First add an ID variable to keep track of <code>x</code> features:</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="bootstrap-overlap.html#cb97-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">x_id =</span> <span class="kw">seq_along</span>(x))</span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="bootstrap-overlap.html#cb99-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">x_id =</span> <span class="fu">seq_along</span>(x))</span></code></pre></div>
 <p>Then perform an inner join, and group by the new <code>x</code> ID:</p>
-<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="bootstrap-overlap.html#cb98-1" aria-hidden="true"></a>obs &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(pks_to_boot) <span class="op">%&gt;%</span></span>
-<span id="cb98-2"><a href="bootstrap-overlap.html#cb98-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(x_id) <span class="op">%&gt;%</span></span>
-<span id="cb98-3"><a href="bootstrap-overlap.html#cb98-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">num_overlaps =</span> <span class="kw">n</span>(),</span>
-<span id="cb98-4"><a href="bootstrap-overlap.html#cb98-4" aria-hidden="true"></a>            <span class="dt">max_signal =</span> <span class="kw">max</span>(signal))</span>
-<span id="cb98-5"><a href="bootstrap-overlap.html#cb98-5" aria-hidden="true"></a><span class="kw">sum</span>( obs<span class="op">$</span>num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> )</span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="bootstrap-overlap.html#cb100-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(pks_to_boot) <span class="sc">%&gt;%</span></span>
+<span id="cb100-2"><a href="bootstrap-overlap.html#cb100-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(x_id) <span class="sc">%&gt;%</span></span>
+<span id="cb100-3"><a href="bootstrap-overlap.html#cb100-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_overlaps =</span> <span class="fu">n</span>(),</span>
+<span id="cb100-4"><a href="bootstrap-overlap.html#cb100-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_signal =</span> <span class="fu">max</span>(signal))</span>
+<span id="cb100-5"><a href="bootstrap-overlap.html#cb100-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>( obs<span class="sc">$</span>num_overlaps <span class="sc">&gt;</span> <span class="dv">0</span> )</span></code></pre></div>
 <pre><code>## [1] 4495</code></pre>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="bootstrap-overlap.html#cb100-1" aria-hidden="true"></a><span class="kw">summary</span>( obs<span class="op">$</span>max_signal )</span></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="bootstrap-overlap.html#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( obs<span class="sc">$</span>max_signal )</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   9.002  10.281  12.025  13.029  14.725  35.211</code></pre>
 <p>For the bootstrap ranges overlap step, we also need to add <code>iter</code> to
 the initial <code>group_by</code>, so we count per <code>x</code> feature and per iteration
 of the bootstrap:</p>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="bootstrap-overlap.html#cb102-1" aria-hidden="true"></a>null &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">join_overlap_inner</span>(boots) <span class="op">%&gt;%</span></span>
-<span id="cb102-2"><a href="bootstrap-overlap.html#cb102-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(x_id, iter) <span class="op">%&gt;%</span></span>
-<span id="cb102-3"><a href="bootstrap-overlap.html#cb102-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">num_overlaps =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span></span>
-<span id="cb102-4"><a href="bootstrap-overlap.html#cb102-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb102-5"><a href="bootstrap-overlap.html#cb102-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb102-6"><a href="bootstrap-overlap.html#cb102-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">any_hits =</span> <span class="kw">sum</span>(num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb102-7"><a href="bootstrap-overlap.html#cb102-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">any_hits =</span> <span class="dv">0</span>))</span>
-<span id="cb102-8"><a href="bootstrap-overlap.html#cb102-8" aria-hidden="true"></a><span class="kw">head</span>(null)</span></code></pre></div>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="bootstrap-overlap.html#cb104-1" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> <span class="fu">join_overlap_inner</span>(boots) <span class="sc">%&gt;%</span></span>
+<span id="cb104-2"><a href="bootstrap-overlap.html#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(x_id, iter) <span class="sc">%&gt;%</span></span>
+<span id="cb104-3"><a href="bootstrap-overlap.html#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_overlaps =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb104-4"><a href="bootstrap-overlap.html#cb104-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb104-5"><a href="bootstrap-overlap.html#cb104-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb104-6"><a href="bootstrap-overlap.html#cb104-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">any_hits =</span> <span class="fu">sum</span>(num_overlaps <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb104-7"><a href="bootstrap-overlap.html#cb104-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(iter, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">any_hits =</span> <span class="dv">0</span>))</span>
+<span id="cb104-8"><a href="bootstrap-overlap.html#cb104-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(null)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 2
 ##   iter  any_hits
 ##   &lt;fct&gt;    &lt;int&gt;
@@ -426,8 +435,8 @@ of the bootstrap:</p>
 ## 6 6           63</code></pre>
 <p>Still, we are seeing much more overlap in the observed data than in
 the bootstrap data:</p>
-<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="bootstrap-overlap.html#cb104-1" aria-hidden="true"></a><span class="kw">sum</span>( obs<span class="op">$</span>num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> ) <span class="op">/</span></span>
-<span id="cb104-2"><a href="bootstrap-overlap.html#cb104-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mean</span>(null<span class="op">$</span>any_hits)</span></code></pre></div>
+<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="bootstrap-overlap.html#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>( obs<span class="sc">$</span>num_overlaps <span class="sc">&gt;</span> <span class="dv">0</span> ) <span class="sc">/</span></span>
+<span id="cb106-2"><a href="bootstrap-overlap.html#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(null<span class="sc">$</span>any_hits)</span></code></pre></div>
 <pre><code>## [1] 76.75014</code></pre>
 <p>The above code chunk then avoids double counting. We could also have
 made other per-<code>x</code>-feature statistics in the summarize step after the
@@ -437,23 +446,23 @@ just want the count of overlaps, but the rate of overlaps from the <code>y</code
 perspective, keeping track of the variable number of features per
 bootstrap.</p>
 <p>We demonstrate one approach to obtain this rate for the bootstraps:</p>
-<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="bootstrap-overlap.html#cb106-1" aria-hidden="true"></a>x_thin &lt;-<span class="st"> </span>x <span class="op">%&gt;%</span><span class="st"> </span>plyranges<span class="op">::</span><span class="kw">select</span>(x_id)</span>
-<span id="cb106-2"><a href="bootstrap-overlap.html#cb106-2" aria-hidden="true"></a>null &lt;-<span class="st"> </span>boots <span class="op">%&gt;%</span><span class="st"> </span>plyranges<span class="op">::</span><span class="kw">select</span>(id, iter) <span class="op">%&gt;%</span></span>
-<span id="cb106-3"><a href="bootstrap-overlap.html#cb106-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">join_overlap_inner</span>(x_thin) <span class="op">%&gt;%</span></span>
-<span id="cb106-4"><a href="bootstrap-overlap.html#cb106-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(id, iter) <span class="op">%&gt;%</span></span>
-<span id="cb106-5"><a href="bootstrap-overlap.html#cb106-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">num_overlaps =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span></span>
-<span id="cb106-6"><a href="bootstrap-overlap.html#cb106-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb106-7"><a href="bootstrap-overlap.html#cb106-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb106-8"><a href="bootstrap-overlap.html#cb106-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">any_hits =</span> <span class="kw">sum</span>(num_overlaps <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb106-9"><a href="bootstrap-overlap.html#cb106-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">complete</span>(iter, <span class="dt">fill=</span><span class="kw">list</span>(<span class="dt">any_hits =</span> <span class="dv">0</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="bootstrap-overlap.html#cb108-1" aria-hidden="true" tabindex="-1"></a>x_thin <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> plyranges<span class="sc">::</span><span class="fu">select</span>(x_id)</span>
+<span id="cb108-2"><a href="bootstrap-overlap.html#cb108-2" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> boots <span class="sc">%&gt;%</span> plyranges<span class="sc">::</span><span class="fu">select</span>(id, iter) <span class="sc">%&gt;%</span></span>
+<span id="cb108-3"><a href="bootstrap-overlap.html#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_inner</span>(x_thin) <span class="sc">%&gt;%</span></span>
+<span id="cb108-4"><a href="bootstrap-overlap.html#cb108-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id, iter) <span class="sc">%&gt;%</span></span>
+<span id="cb108-5"><a href="bootstrap-overlap.html#cb108-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_overlaps =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb108-6"><a href="bootstrap-overlap.html#cb108-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb108-7"><a href="bootstrap-overlap.html#cb108-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb108-8"><a href="bootstrap-overlap.html#cb108-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">any_hits =</span> <span class="fu">sum</span>(num_overlaps <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb108-9"><a href="bootstrap-overlap.html#cb108-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(iter, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">any_hits =</span> <span class="dv">0</span>))</span></code></pre></div>
 <p>Now combine with the per-iteration total count:</p>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="bootstrap-overlap.html#cb107-1" aria-hidden="true"></a>totals &lt;-<span class="st"> </span>boots <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb107-2"><a href="bootstrap-overlap.html#cb107-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">group_by</span>(iter) <span class="op">%&gt;%</span></span>
-<span id="cb107-3"><a href="bootstrap-overlap.html#cb107-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">total=</span><span class="kw">n</span>()) <span class="op">%&gt;%</span></span>
-<span id="cb107-4"><a href="bootstrap-overlap.html#cb107-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>()</span>
-<span id="cb107-5"><a href="bootstrap-overlap.html#cb107-5" aria-hidden="true"></a>null <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(totals) <span class="op">%&gt;%</span></span>
-<span id="cb107-6"><a href="bootstrap-overlap.html#cb107-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rate =</span> any_hits<span class="op">/</span>total)</span></code></pre></div>
-<pre><code>## Joining, by = &quot;iter&quot;</code></pre>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="bootstrap-overlap.html#cb109-1" aria-hidden="true" tabindex="-1"></a>totals <span class="ot">&lt;-</span> boots <span class="sc">%&gt;%</span> </span>
+<span id="cb109-2"><a href="bootstrap-overlap.html#cb109-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(iter) <span class="sc">%&gt;%</span></span>
+<span id="cb109-3"><a href="bootstrap-overlap.html#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">total=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb109-4"><a href="bootstrap-overlap.html#cb109-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb109-5"><a href="bootstrap-overlap.html#cb109-5" aria-hidden="true" tabindex="-1"></a>null <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">left_join</span>(totals) <span class="sc">%&gt;%</span></span>
+<span id="cb109-6"><a href="bootstrap-overlap.html#cb109-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate =</span> any_hits<span class="sc">/</span>total)</span></code></pre></div>
+<pre><code>## Joining with `by = join_by(iter)`</code></pre>
 <pre><code>## # A tibble: 30 × 4
 ##    iter  any_hits total    rate
 ##    &lt;fct&gt;    &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
@@ -471,12 +480,12 @@ bootstrap.</p>
 
 </div>
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references hanging-indent">
-<div id="ref-bickel2010">
-<p>Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. “Subsampling Methods for Genomic Inference.” <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-%7BAOAS363%7D">https://doi.org/10.1214/10-{AOAS363}</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bickel2010" class="csl-entry">
+Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. <span>“Subsampling Methods for Genomic Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-{AOAS363}">https://doi.org/10.1214/10-{AOAS363}</a>.
 </div>
-<div id="ref-encode">
-<p>Dunham, I., and others. 2012. “An integrated encyclopedia of DNA elements in the human genome.” <em>Nature</em> 489 (7414): 57–74.</p>
+<div id="ref-encode" class="csl-entry">
+Dunham, I., and others. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.
 </div>
 </div>
             </section>
@@ -502,7 +511,7 @@ gitbook.start({
 "sharing": {
 "github": true,
 "facebook": false,
-"twitter": true,
+"twitter": false,
 "linkedin": false,
 "weibo": false,
 "instapaper": false,
@@ -527,7 +536,7 @@ gitbook.start({
 "link": null,
 "text": null
 },
-"download": ["tidy-ranges-tutorial.pdf", "tidy-ranges-tutorial.epub"],
+"download": null,
 "search": {
 "engine": "fuse",
 "options": null

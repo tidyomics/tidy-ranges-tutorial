@@ -14,7 +14,7 @@ tidy data philosophy.</p>" />
   
   <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="github-repo" content="rstudio/bookdown-demo" />
+  <meta name="github-repo" content="nullranges/tidy-ranges-tutorial" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 5 SNP position in peaks | Tidy Ranges Tutorial" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-03-04" />
+<meta name="date" content="2023-03-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,7 +52,6 @@ tidy data philosophy.</p>" />
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
@@ -62,6 +61,7 @@ tidy data philosophy.</p>" />
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
@@ -122,6 +122,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -168,121 +190,121 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="snp-position-in-peaks" class="section level1 hasAnchor" number="5">
 <h1><span class="header-section-number">Chapter 5</span> SNP position in peaks<a href="snp-position-in-peaks.html#snp-position-in-peaks" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Objective: determine the position of a set of SNPs in peaks, that is, determine the relative positions of those SNPs that overlap the peaks.</p>
-<p>We again will use the ENCODE kidney H3K27ac ChIP-seq peaks used in the previous analysis <span class="citation">(Dunham and others <a href="#ref-encode" role="doc-biblioref">2012</a>)</span>. We will create some artificial SNPs: this analysis could generalize to any time that we have two ranges, where we are interested in the relative position of one set of ranges (SNPs) within the other set of ranges (peaks).</p>
-<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="snp-position-in-peaks.html#cb110-1" aria-hidden="true"></a><span class="kw">library</span>(AnnotationHub)</span>
-<span id="cb110-2"><a href="snp-position-in-peaks.html#cb110-2" aria-hidden="true"></a>ah &lt;-<span class="st"> </span><span class="kw">AnnotationHub</span>()</span>
-<span id="cb110-3"><a href="snp-position-in-peaks.html#cb110-3" aria-hidden="true"></a>kidney_pks &lt;-<span class="st"> </span>ah[[<span class="st">&quot;AH43443&quot;</span>]]</span></code></pre></div>
+<p>We again will use the ENCODE kidney H3K27ac ChIP-seq peaks used in the previous analysis <span class="citation">(<a href="#ref-encode" role="doc-biblioref">Dunham and others 2012</a>)</span>. We will create some artificial SNPs: this analysis could generalize to any time that we have two ranges, where we are interested in the relative position of one set of ranges (SNPs) within the other set of ranges (peaks).</p>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="snp-position-in-peaks.html#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationHub)</span>
+<span id="cb112-2"><a href="snp-position-in-peaks.html#cb112-2" aria-hidden="true" tabindex="-1"></a>ah <span class="ot">&lt;-</span> <span class="fu">AnnotationHub</span>()</span>
+<span id="cb112-3"><a href="snp-position-in-peaks.html#cb112-3" aria-hidden="true" tabindex="-1"></a>kidney_pks <span class="ot">&lt;-</span> ah[[<span class="st">&quot;AH43443&quot;</span>]]</span></code></pre></div>
 <p>We will filter the peaks to standard chromosomes, and include the same cutoffs we used in the previous analysis.</p>
-<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="snp-position-in-peaks.html#cb111-1" aria-hidden="true"></a><span class="kw">suppressPackageStartupMessages</span>(<span class="kw">library</span>(GenomeInfoDb))</span>
-<span id="cb111-2"><a href="snp-position-in-peaks.html#cb111-2" aria-hidden="true"></a>pks &lt;-<span class="st"> </span>kidney_pks</span>
-<span id="cb111-3"><a href="snp-position-in-peaks.html#cb111-3" aria-hidden="true"></a>pks &lt;-<span class="st"> </span><span class="kw">keepStandardChromosomes</span>(pks)</span></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="snp-position-in-peaks.html#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(GenomeInfoDb))</span>
+<span id="cb113-2"><a href="snp-position-in-peaks.html#cb113-2" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> kidney_pks</span>
+<span id="cb113-3"><a href="snp-position-in-peaks.html#cb113-3" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> <span class="fu">keepStandardChromosomes</span>(pks)</span></code></pre></div>
 <pre><code>## Loading required package: GenomicRanges</code></pre>
-<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="snp-position-in-peaks.html#cb113-1" aria-hidden="true"></a><span class="kw">suppressPackageStartupMessages</span>({</span>
-<span id="cb113-2"><a href="snp-position-in-peaks.html#cb113-2" aria-hidden="true"></a>  <span class="kw">library</span>(dplyr)</span>
-<span id="cb113-3"><a href="snp-position-in-peaks.html#cb113-3" aria-hidden="true"></a>  <span class="kw">library</span>(tibble)</span>
-<span id="cb113-4"><a href="snp-position-in-peaks.html#cb113-4" aria-hidden="true"></a>  <span class="kw">library</span>(plyranges)</span>
-<span id="cb113-5"><a href="snp-position-in-peaks.html#cb113-5" aria-hidden="true"></a>})</span>
-<span id="cb113-6"><a href="snp-position-in-peaks.html#cb113-6" aria-hidden="true"></a>q_thr &lt;-<span class="st"> </span><span class="dv">3</span></span>
-<span id="cb113-7"><a href="snp-position-in-peaks.html#cb113-7" aria-hidden="true"></a>s_thr &lt;-<span class="st"> </span><span class="dv">9</span></span>
-<span id="cb113-8"><a href="snp-position-in-peaks.html#cb113-8" aria-hidden="true"></a>pks &lt;-<span class="st"> </span>pks <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb113-9"><a href="snp-position-in-peaks.html#cb113-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">filter</span>(qValue <span class="op">&gt;</span><span class="st"> </span>q_thr <span class="op">&amp;</span><span class="st"> </span>signalValue <span class="op">&gt;</span><span class="st"> </span>s_thr) <span class="op">%&gt;%</span></span>
-<span id="cb113-10"><a href="snp-position-in-peaks.html#cb113-10" aria-hidden="true"></a><span class="st">  </span><span class="kw">sort</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="snp-position-in-peaks.html#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>({</span>
+<span id="cb115-2"><a href="snp-position-in-peaks.html#cb115-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(dplyr)</span>
+<span id="cb115-3"><a href="snp-position-in-peaks.html#cb115-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(tibble)</span>
+<span id="cb115-4"><a href="snp-position-in-peaks.html#cb115-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(plyranges)</span>
+<span id="cb115-5"><a href="snp-position-in-peaks.html#cb115-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb115-6"><a href="snp-position-in-peaks.html#cb115-6" aria-hidden="true" tabindex="-1"></a>q_thr <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb115-7"><a href="snp-position-in-peaks.html#cb115-7" aria-hidden="true" tabindex="-1"></a>s_thr <span class="ot">&lt;-</span> <span class="dv">9</span></span>
+<span id="cb115-8"><a href="snp-position-in-peaks.html#cb115-8" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> pks <span class="sc">%&gt;%</span> </span>
+<span id="cb115-9"><a href="snp-position-in-peaks.html#cb115-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(qValue <span class="sc">&gt;</span> q_thr <span class="sc">&amp;</span> signalValue <span class="sc">&gt;</span> s_thr) <span class="sc">%&gt;%</span></span>
+<span id="cb115-10"><a href="snp-position-in-peaks.html#cb115-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sort</span>()</span></code></pre></div>
 <p>A histogram of peak width:</p>
-<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="snp-position-in-peaks.html#cb114-1" aria-hidden="true"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb114-2"><a href="snp-position-in-peaks.html#cb114-2" aria-hidden="true"></a>pks <span class="op">%&gt;%</span><span class="st"> </span>as_tibble <span class="op">%&gt;%</span></span>
-<span id="cb114-3"><a href="snp-position-in-peaks.html#cb114-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">filter</span>(width <span class="op">&lt;</span><span class="st"> </span><span class="dv">5000</span>) <span class="op">%&gt;%</span></span>
-<span id="cb114-4"><a href="snp-position-in-peaks.html#cb114-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(width)) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb114-5"><a href="snp-position-in-peaks.html#cb114-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_histogram</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="snp-position-in-peaks.html#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb116-2"><a href="snp-position-in-peaks.html#cb116-2" aria-hidden="true" tabindex="-1"></a>pks <span class="sc">%&gt;%</span> as_tibble <span class="sc">%&gt;%</span></span>
+<span id="cb116-3"><a href="snp-position-in-peaks.html#cb116-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(width <span class="sc">&lt;</span> <span class="dv">5000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb116-4"><a href="snp-position-in-peaks.html#cb116-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(width)) <span class="sc">+</span> </span>
+<span id="cb116-5"><a href="snp-position-in-peaks.html#cb116-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code></pre></div>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="snp-position-in-peaks_files/figure-html/peak-widths-1.png" width="672" /></p>
 <p>Let’s subset to peaks that are less than 2000 in width:</p>
-<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="snp-position-in-peaks.html#cb116-1" aria-hidden="true"></a>pks &lt;-<span class="st"> </span>pks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(width <span class="op">&lt;</span><span class="st"> </span><span class="dv">2000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="snp-position-in-peaks.html#cb118-1" aria-hidden="true" tabindex="-1"></a>pks <span class="ot">&lt;-</span> pks <span class="sc">%&gt;%</span> <span class="fu">filter</span>(width <span class="sc">&lt;</span> <span class="dv">2000</span>)</span></code></pre></div>
 <p>Now, we may be interested in SNPs that are associated with regulatory function. While we could find these from a database of chromatin QTL or functionally validated variants, here we will just create a simulated set of SNPs for demonstration.</p>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="snp-position-in-peaks.html#cb117-1" aria-hidden="true"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb117-2"><a href="snp-position-in-peaks.html#cb117-2" aria-hidden="true"></a>snps &lt;-<span class="st"> </span>pks <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb117-3"><a href="snp-position-in-peaks.html#cb117-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">slice</span>(<span class="kw">sample.int</span>(<span class="kw">n</span>(), <span class="dv">2000</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb117-4"><a href="snp-position-in-peaks.html#cb117-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">anchor_5p</span>() <span class="op">%&gt;%</span></span>
-<span id="cb117-5"><a href="snp-position-in-peaks.html#cb117-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start=</span>start <span class="op">+</span><span class="st"> </span><span class="kw">floor</span>(<span class="kw">runif</span>(<span class="kw">n</span>(),<span class="dv">0</span>,width))) <span class="op">%&gt;%</span></span>
-<span id="cb117-6"><a href="snp-position-in-peaks.html#cb117-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width=</span><span class="dv">1</span>)</span>
-<span id="cb117-7"><a href="snp-position-in-peaks.html#cb117-7" aria-hidden="true"></a>snps</span></code></pre></div>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="snp-position-in-peaks.html#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb119-2"><a href="snp-position-in-peaks.html#cb119-2" aria-hidden="true" tabindex="-1"></a>snps <span class="ot">&lt;-</span> pks <span class="sc">%&gt;%</span> </span>
+<span id="cb119-3"><a href="snp-position-in-peaks.html#cb119-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="fu">sample.int</span>(<span class="fu">n</span>(), <span class="dv">2000</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb119-4"><a href="snp-position-in-peaks.html#cb119-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb119-5"><a href="snp-position-in-peaks.html#cb119-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">start=</span>start <span class="sc">+</span> <span class="fu">floor</span>(<span class="fu">runif</span>(<span class="fu">n</span>(),<span class="dv">0</span>,width))) <span class="sc">%&gt;%</span></span>
+<span id="cb119-6"><a href="snp-position-in-peaks.html#cb119-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>)</span>
+<span id="cb119-7"><a href="snp-position-in-peaks.html#cb119-7" aria-hidden="true" tabindex="-1"></a>snps</span></code></pre></div>
 <pre><code>## GRanges object with 2000 ranges and 6 metadata columns:
-##          seqnames    ranges strand |        name     score signalValue
-##             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]     chr1 222886667      * |    Rank_786       943    28.06788
-##      [2]    chr17   1251302      * |  Rank_11154       238    10.45065
-##      [3]     chr9  75179753      * |   Rank_8060       305    12.52016
-##      [4]     chrX  70401571      * |   Rank_9602       266    11.38197
-##      [5]    chr20  37615472      * |  Rank_14922       190     9.52741
-##      ...      ...       ...    ... .         ...       ...         ...
-##   [1996]     chr9  14316343      * |  Rank_15136       188     9.11715
-##   [1997]    chr18  74800298      * |  Rank_15685       181     9.02626
-##   [1998]    chr19  52641902      * |   Rank_2464       606    19.64891
-##   [1999]     chr2 128642862      * |  Rank_15514       184     9.18719
-##   [2000]     chr6 151005236      * |  Rank_13672       203     9.07738
-##             pValue    qValue      peak
-##          &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]   94.3437   89.9679       267
-##      [2]   23.8843   21.0424       458
-##      [3]   30.5751   27.5376       616
-##      [4]   26.6991   23.7679       455
-##      [5]   19.0203   16.3297       414
-##      ...       ...       ...       ...
-##   [1996]   18.8452   16.1647       461
-##   [1997]   18.1808   15.5192       173
-##   [1998]   60.6790   56.9445      1281
-##   [1999]   18.4512   15.7837       125
-##   [2000]   20.3511   17.6170       887
+##          seqnames    ranges strand |        name     score signalValue    pValue    qValue
+##             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;numeric&gt;   &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
+##      [1]     chr1 222886667      * |    Rank_786       943    28.06788   94.3437   89.9679
+##      [2]    chr17   1251302      * |  Rank_11154       238    10.45065   23.8843   21.0424
+##      [3]     chr9  75179753      * |   Rank_8060       305    12.52016   30.5751   27.5376
+##      [4]     chrX  70401571      * |   Rank_9602       266    11.38197   26.6991   23.7679
+##      [5]    chr20  37615472      * |  Rank_14922       190     9.52741   19.0203   16.3297
+##      ...      ...       ...    ... .         ...       ...         ...       ...       ...
+##   [1996]     chr9  14316343      * |  Rank_15136       188     9.11715   18.8452   16.1647
+##   [1997]    chr18  74800298      * |  Rank_15685       181     9.02626   18.1808   15.5192
+##   [1998]    chr19  52641902      * |   Rank_2464       606    19.64891   60.6790   56.9445
+##   [1999]     chr2 128642862      * |  Rank_15514       184     9.18719   18.4512   15.7837
+##   [2000]     chr6 151005236      * |  Rank_13672       203     9.07738   20.3511   17.6170
+##               peak
+##          &lt;numeric&gt;
+##      [1]       267
+##      [2]       458
+##      [3]       616
+##      [4]       455
+##      [5]       414
+##      ...       ...
+##   [1996]       461
+##   [1997]       173
+##   [1998]      1281
+##   [1999]       125
+##   [2000]       887
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <p>These should all overlap peaks:</p>
-<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="snp-position-in-peaks.html#cb119-1" aria-hidden="true"></a>snps <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb119-2"><a href="snp-position-in-peaks.html#cb119-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">n_overlaps =</span> <span class="kw">count_overlaps</span>(., pks)) <span class="op">%&gt;%</span></span>
-<span id="cb119-3"><a href="snp-position-in-peaks.html#cb119-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">tab=</span><span class="kw">table</span>(n_overlaps))</span></code></pre></div>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="snp-position-in-peaks.html#cb121-1" aria-hidden="true" tabindex="-1"></a>snps <span class="sc">%&gt;%</span> </span>
+<span id="cb121-2"><a href="snp-position-in-peaks.html#cb121-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_overlaps =</span> <span class="fu">count_overlaps</span>(., pks)) <span class="sc">%&gt;%</span></span>
+<span id="cb121-3"><a href="snp-position-in-peaks.html#cb121-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">tab=</span><span class="fu">table</span>(n_overlaps))</span></code></pre></div>
 <pre><code>## DataFrame with 1 row and 2 columns
 ##   tab.n_overlaps  tab.Freq
 ##         &lt;factor&gt; &lt;integer&gt;
 ## 1              1      2000</code></pre>
 <p>We now have a bit of a hack for this analysis: we add the start position and width of the peak as addition columns of metadata. This is because otherwise, we will lose the start position when we perform the overlap of SNPs in peaks, and we need it for later.</p>
-<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="snp-position-in-peaks.html#cb121-1" aria-hidden="true"></a>pks_trim &lt;-<span class="st"> </span>pks <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb121-2"><a href="snp-position-in-peaks.html#cb121-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">select</span>(name) <span class="op">%&gt;%</span></span>
-<span id="cb121-3"><a href="snp-position-in-peaks.html#cb121-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">peak_start=</span>start, <span class="dt">peak_width=</span>width)</span></code></pre></div>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="snp-position-in-peaks.html#cb123-1" aria-hidden="true" tabindex="-1"></a>pks_trim <span class="ot">&lt;-</span> pks <span class="sc">%&gt;%</span> </span>
+<span id="cb123-2"><a href="snp-position-in-peaks.html#cb123-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name) <span class="sc">%&gt;%</span></span>
+<span id="cb123-3"><a href="snp-position-in-peaks.html#cb123-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">peak_start=</span>start, <span class="at">peak_width=</span>width)</span></code></pre></div>
 <p>We can then obtain overlaps of SNPs with peaks, and add the relative position of the SNP within the peak extent. We use 1-based indexing, such that if the SNP is the same as the leftmost basepair of the peak, it gets counted as position 1.</p>
-<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb122-1"><a href="snp-position-in-peaks.html#cb122-1" aria-hidden="true"></a>o &lt;-<span class="st"> </span>snps <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb122-2"><a href="snp-position-in-peaks.html#cb122-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">join_overlap_inner</span>(pks_trim) <span class="op">%&gt;%</span></span>
-<span id="cb122-3"><a href="snp-position-in-peaks.html#cb122-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rel_pos =</span> start <span class="op">-</span><span class="st"> </span>peak_start <span class="op">+</span><span class="st"> </span><span class="dv">1</span>,</span>
-<span id="cb122-4"><a href="snp-position-in-peaks.html#cb122-4" aria-hidden="true"></a>         <span class="dt">rel_frac =</span> (rel_pos <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">/</span><span class="st"> </span>(peak_width <span class="op">-</span><span class="st"> </span><span class="dv">1</span> ))</span></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb124-1"><a href="snp-position-in-peaks.html#cb124-1" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> snps <span class="sc">%&gt;%</span> </span>
+<span id="cb124-2"><a href="snp-position-in-peaks.html#cb124-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_inner</span>(pks_trim) <span class="sc">%&gt;%</span></span>
+<span id="cb124-3"><a href="snp-position-in-peaks.html#cb124-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rel_pos =</span> start <span class="sc">-</span> peak_start <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb124-4"><a href="snp-position-in-peaks.html#cb124-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">rel_frac =</span> (rel_pos <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> (peak_width <span class="sc">-</span> <span class="dv">1</span> ))</span></code></pre></div>
 <p>Check our expectations about these new columns:</p>
-<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="snp-position-in-peaks.html#cb123-1" aria-hidden="true"></a><span class="kw">all</span>(o<span class="op">$</span>rel_pos <span class="op">&gt;=</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="snp-position-in-peaks.html#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all</span>(o<span class="sc">$</span>rel_pos <span class="sc">&gt;=</span> <span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="snp-position-in-peaks.html#cb125-1" aria-hidden="true"></a><span class="kw">all</span>(o<span class="op">$</span>rel_frac <span class="op">&gt;=</span><span class="st"> </span><span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="snp-position-in-peaks.html#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all</span>(o<span class="sc">$</span>rel_frac <span class="sc">&gt;=</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="snp-position-in-peaks.html#cb127-1" aria-hidden="true"></a><span class="kw">all</span>(o<span class="op">$</span>rel_frac <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb129-1"><a href="snp-position-in-peaks.html#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all</span>(o<span class="sc">$</span>rel_frac <span class="sc">&lt;=</span> <span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>Finally, we can compute a histogram of where the SNPs fall in the peaks:</p>
-<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb129-1"><a href="snp-position-in-peaks.html#cb129-1" aria-hidden="true"></a>o <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb129-2"><a href="snp-position-in-peaks.html#cb129-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb129-3"><a href="snp-position-in-peaks.html#cb129-3" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(rel_frac)) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb129-4"><a href="snp-position-in-peaks.html#cb129-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">breaks=</span><span class="dv">0</span><span class="op">:</span><span class="dv">10</span><span class="op">/</span><span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="snp-position-in-peaks.html#cb131-1" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span> </span>
+<span id="cb131-2"><a href="snp-position-in-peaks.html#cb131-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb131-3"><a href="snp-position-in-peaks.html#cb131-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(rel_frac)) <span class="sc">+</span> </span>
+<span id="cb131-4"><a href="snp-position-in-peaks.html#cb131-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">breaks=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">10</span><span class="sc">/</span><span class="dv">10</span>)</span></code></pre></div>
 <p><img src="snp-position-in-peaks_files/figure-html/snp-pos-hist-1.png" width="672" /></p>
 <p>Now stratifying by width of peak:</p>
-<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="snp-position-in-peaks.html#cb130-1" aria-hidden="true"></a><span class="kw">quantile</span>(o<span class="op">$</span>peak_width, <span class="dv">0</span><span class="op">:</span><span class="dv">3</span><span class="op">/</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="snp-position-in-peaks.html#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(o<span class="sc">$</span>peak_width, <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span><span class="sc">/</span><span class="dv">3</span>)</span></code></pre></div>
 <pre><code>##        0% 33.33333% 66.66667%      100% 
 ##  246.0000  813.3333 1289.6667 1998.0000</code></pre>
-<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="snp-position-in-peaks.html#cb132-1" aria-hidden="true"></a>o <span class="op">%&gt;%</span></span>
-<span id="cb132-2"><a href="snp-position-in-peaks.html#cb132-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">width_bin =</span> <span class="kw">cut</span>(peak_width,</span>
-<span id="cb132-3"><a href="snp-position-in-peaks.html#cb132-3" aria-hidden="true"></a>                         <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">200</span>,<span class="dv">800</span>,<span class="dv">1300</span>,<span class="dv">2000</span>),</span>
-<span id="cb132-4"><a href="snp-position-in-peaks.html#cb132-4" aria-hidden="true"></a>                         <span class="dt">include.lowest=</span><span class="ot">TRUE</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb132-5"><a href="snp-position-in-peaks.html#cb132-5" aria-hidden="true"></a><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span></span>
-<span id="cb132-6"><a href="snp-position-in-peaks.html#cb132-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(rel_frac)) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb132-7"><a href="snp-position-in-peaks.html#cb132-7" aria-hidden="true"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">breaks=</span><span class="dv">0</span><span class="op">:</span><span class="dv">10</span><span class="op">/</span><span class="dv">10</span>) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb132-8"><a href="snp-position-in-peaks.html#cb132-8" aria-hidden="true"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>width_bin)</span></code></pre></div>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="snp-position-in-peaks.html#cb134-1" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span></span>
+<span id="cb134-2"><a href="snp-position-in-peaks.html#cb134-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width_bin =</span> <span class="fu">cut</span>(peak_width,</span>
+<span id="cb134-3"><a href="snp-position-in-peaks.html#cb134-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">200</span>,<span class="dv">800</span>,<span class="dv">1300</span>,<span class="dv">2000</span>),</span>
+<span id="cb134-4"><a href="snp-position-in-peaks.html#cb134-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">include.lowest=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb134-5"><a href="snp-position-in-peaks.html#cb134-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb134-6"><a href="snp-position-in-peaks.html#cb134-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(rel_frac)) <span class="sc">+</span> </span>
+<span id="cb134-7"><a href="snp-position-in-peaks.html#cb134-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">breaks=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">10</span><span class="sc">/</span><span class="dv">10</span>) <span class="sc">+</span> </span>
+<span id="cb134-8"><a href="snp-position-in-peaks.html#cb134-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>width_bin)</span></code></pre></div>
 <p><img src="snp-position-in-peaks_files/figure-html/snp-pos-hist-facet-1.png" width="672" /></p>
 
 </div>
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references hanging-indent">
-<div id="ref-encode">
-<p>Dunham, I., and others. 2012. “An integrated encyclopedia of DNA elements in the human genome.” <em>Nature</em> 489 (7414): 57–74.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-encode" class="csl-entry">
+Dunham, I., and others. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.
 </div>
 </div>
             </section>
@@ -308,7 +330,7 @@ gitbook.start({
 "sharing": {
 "github": true,
 "facebook": false,
-"twitter": true,
+"twitter": false,
 "linkedin": false,
 "weibo": false,
 "instapaper": false,
@@ -333,7 +355,7 @@ gitbook.start({
 "link": null,
 "text": null
 },
-"download": ["tidy-ranges-tutorial.pdf", "tidy-ranges-tutorial.epub"],
+"download": null,
 "search": {
 "engine": "fuse",
 "options": null
