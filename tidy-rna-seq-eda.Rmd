@@ -71,12 +71,16 @@ gse <- addIds(gse, "SYMBOL")
 
 For this workflow, we don't need the inferential replicates (about
 uncertainty regarding the quantification), so we keep just the counts,
-abundances (TPM), and gene lengths:
+abundances (TPM), and gene lengths. We also manipulate the metadata a
+little bit.
 
 ```{r eval=FALSE}
 library(SummarizedExperiment)
 assayNames(gse)
 assays(gse) <- assays(gse)[1:3]
+gse$rep <- rep(1:3, 4)
+colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
+assay(gse, "counts") <- round(assay(gse, "counts")) # for DE consistency
 # save for easy loading later
 save(gse, file="data/oct4_obj.rda")
 ```
@@ -86,13 +90,11 @@ library(SummarizedExperiment)
 load("data/oct4_obj.rda")
 ```
 
-We manipulate the metadata a little bit, mostly for consistency across
-the different pipelines below.
+The dataset looks like this (remember it has untreated and treated
+samples for both OCT4 and BRG1).
 
 ```{r}
-gse$rep <- rep(1:3, 4)
-colnames(gse) <- paste(gse$line,gse$condition,gse$rep,sep="-")
-assay(gse, "counts") <- round(assay(gse, "counts")) # for consistency
+gse
 ```
 
 We will be interested in the gene set from the Gene Ontology project,
@@ -109,27 +111,33 @@ tab <- tab[!duplicated(tab$SYMBOL),]
 pluri <- tab$SYMBOL
 ```
 
-Now we start with *tidybulk* The following series of piped operations
-turns the *SummarizedExperiment* into a `tidybulk` object. It is also
-possible to work directly on the SummarizedExperiment by loading the
-*tidySummarizedExperiment* package, with details in implementation.
-
+Now we start with *tidybulk* code, comparing in turn to base R.
 We filter the samples that correspond to the OCT4 experiment, and then
 modify the sample names. Samples are referred to with the special
-`.sample` string, while features are referred to with `.feature`.
+`.sample` string, while features are referred to with `.feature`, so
+here we create a new variable to plot the samples `sample_name`.
 
 ```{r message=FALSE}
 library(tidybulk)
+library(tidySummarizedExperiment)
 library(dplyr)
 library(stringr)
 oct4 <- gse %>%
   tidybulk() %>%
   filter(line == "OCT4") %>%
-  # remove prefix
-  mutate(.sample = str_remove(.sample, "OCT4-")) %>%
-  # factor .sample and condition
-  mutate(.sample = factor(.sample, levels=unique(.sample)),
-         condition = factor(condition, c("untrt","trt")))
+  mutate(sample_name = .sample %>%
+           str_remove("OCT4-") %>%
+           factor(levels = unique(.)),
+         condition = condition %>% factor(c("untrt","trt")))
+```
+
+Note, the third line in the `mutate` call uses the `unique` function
+to set the levels: the consequence of this is that the `sample_name`
+factor will have levels in the order in which they are present in the
+current character vector and not alphabetical.
+
+```{r}
+oct4
 ```
 
 *tidybulk* provides access to many steps in bulk analysis, including
@@ -148,8 +156,9 @@ It is straightforward to pipe the data directly into plots:
 ```{r tidy-boxplot}
 library(ggplot2)
 oct4 %>%
-  ggplot(aes(.sample, log10(counts_scaled + 1))) +
-  geom_boxplot()
+  ggplot(aes(sample_name, counts_scaled + 1)) +
+  geom_boxplot() +
+  scale_y_log10()
 ```
 
 For comparing code, let's pull out the genes that remain:
@@ -169,7 +178,7 @@ gse_sub$condition <- factor(gse_sub$condition)
 dds <- gse_sub %>%
   DESeqDataSet(~condition) %>%
   estimateSizeFactors()
-boxplot(log10(counts(dds, normalized=TRUE) + 1))
+boxplot(counts(dds, normalized=TRUE) + 1, log="y")
 ```
 
 We can also make more interesting plots. E.g. for the genes involved
@@ -185,7 +194,7 @@ oct4 %>%
   group_by(.feature) %>%
   mutate(logcounts = logcounts - mean(logcounts)) %>%
   ungroup() %>%
-  ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
+  ggplot(aes(sample_name, logcounts, group=.feature, color=Oct4)) +
   geom_point() +
   geom_line() +
   scale_color_identity()
@@ -202,7 +211,6 @@ to use in package source code.
 ```{r deseq-lines}
 pluri_idx <- mcols(dds)$SYMBOL %in% pluri
 mat <- log10(counts(dds, normalized=TRUE)[pluri_idx,] + 1)
-
 mat <- mat - rowMeans(mat)
 hilite <- rownames(dds)[which(mcols(dds)$SYMBOL == "Pou5f1")]
 plot(mat[1,], type="n", ylim=c(-1,1), xlab="samples", ylab="logcounts")
@@ -215,7 +223,7 @@ for (i in 1:nrow(mat)) {
 We can test for differential expression with DESeq2:
 
 ```{r}
-assays(dds) <- assays(dds)[1:2] # compatiblity with tidybulk
+assays(dds) <- assays(dds)[1:2] # for DE consistency
 res <- dds[gene_idx,] %>%
   DESeq(quiet=TRUE) %>%
   results()
@@ -266,12 +274,12 @@ the right side.
 library(ggrepel)
 plot_data %>%
   filter(gene_type != "null") %>%
-  ggplot(aes(.sample, logcounts, group=.feature, color=Oct4)) +
+  ggplot(aes(sample_name, logcounts, group=.feature, color=Oct4)) +
   geom_point() +
   geom_line() +
   geom_text_repel(data=plot_data %>%
-                    filter(.sample == "trt-3", gene_type != "null"),
-            aes(.sample, logcounts, label=SYMBOL), nudge_x=.5, seed=1) +
+                    filter(sample_name == "trt-3", gene_type != "null"),
+            aes(sample_name, logcounts, label=SYMBOL), nudge_x=.5, seed=1) +
   scale_color_identity() +
   facet_wrap(~gene_type) +
   scale_x_discrete(expand = expansion(add = 2)) +
