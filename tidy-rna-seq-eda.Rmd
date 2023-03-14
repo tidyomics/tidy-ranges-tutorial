@@ -112,18 +112,20 @@ pluri <- tab$SYMBOL
 ```
 
 Now we start with *tidybulk* code, comparing in turn to base R.
+Loading *tidySummarizedExperiment* allows us to operate on the `gse`
+object using familiar "tidy" verbs, thanks to an abstraction described
+in the [tidySummarizedExperiment](https://stemangiola.github.io/tidySummarizedExperiment/)
+documentation.
 We filter the samples that correspond to the OCT4 experiment, and then
 modify the sample names. Samples are referred to with the special
 `.sample` string, while features are referred to with `.feature`, so
 here we create a new variable to plot the samples `sample_name`.
 
 ```{r message=FALSE}
-library(tidybulk)
 library(tidySummarizedExperiment)
 library(dplyr)
 library(stringr)
 oct4 <- gse %>%
-  tidybulk() %>%
   filter(line == "OCT4") %>%
   mutate(sample_name = .sample %>%
            str_remove("OCT4-") %>%
@@ -145,7 +147,8 @@ filtering and count scaling. For details on what is happening behind
 the scene, see the help, e.g. `?keep_abundant` describes that it makes
 use of `edgeR::filterByExpr`.
 
-```{r}
+```{r message=FALSE}
+library(tidybulk)
 oct4 <- oct4 %>%
   keep_abundant(factor_of_interest = condition) %>%
   scale_abundance(method="RLE") # DESeq2 scaling
@@ -223,7 +226,6 @@ for (i in 1:nrow(mat)) {
 We can test for differential expression with DESeq2:
 
 ```{r}
-assays(dds) <- assays(dds)[1:2] # for DE consistency
 res <- dds[gene_idx,] %>%
   DESeq(quiet=TRUE) %>%
   results()
@@ -233,7 +235,7 @@ Or equivalently with *tidybulk*:
 
 ```{r}
 oct4 <- oct4 %>%
-  test_differential_abundance(~condition, method="deseq2", quiet=TRUE)
+  test_differential_abundance(~condition, method="deseq2")
 tidy_res <- oct4 %>%
   pivot_transcript()
 ```
