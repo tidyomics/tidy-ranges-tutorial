@@ -58,8 +58,10 @@ overlaps for ranges on the left side (here `r`). If a range on the
 left has no overlaps it appears with `NA` for the metadata columns of
 the right side ranges. If a range on the left side has multiple
 overlaps with the right side, it will appear multiple times in the
-output. More below on how to deal with this, if it is desired to have
-statistics on per-range overlaps.
+output. 
+
+Keeping reading below on how to deal with this, if it is desired to
+have statistics on per-range overlaps.
 
 ```{r}
 r %>% join_overlap_left(g)
@@ -71,6 +73,17 @@ join:
 ```{r}
 r %>% join_overlap_inner(g)
 ```
+
+**What about other types of overlap?**
+Note that we can specify a distance, called a "gap", if we want to
+also find when ranges are *near* each other, up to a maximum allowed
+distance. We can also specify the minimum amount of overlapping
+basepairs. Every overlap function in plyranges has arguments `maxgap`
+and `minoverlap`. For example, to see if ranges are 50kb from each
+other, we would specify `maxgap=5e4`. If we want to know if ranges are
+50kb from a particular endpoint of another set of ranges, for example
+TSS, we could perform the operations `anchor_5p()` followed by
+`mutate(width=1)`, before overlapping the sets.
 
 We can also perform summarization by columns either in the `r` or the
 `g` object:
@@ -160,3 +173,28 @@ first convert to tibble (or data.frame):
 ```{r}
 mcols(r) %>% as_tibble()
 ```
+
+**Reduce instead of summarize:**
+Above when we used `group_by` and `summarize` we lost the original
+range data. Another option, to preserve the range data, is to use
+the function `reduce_ranges` within groups that we define. If we want
+to preserve the range information for the `r` object, we can start
+with `r` and proceed to join, group by, and reduce within groups. In
+order to compute on the gene widths, we have to add that as a metadata
+column within the join. To keep the no-gene-overlapping ranges in `r`,
+we can count when the gene ID is not `NA`.
+
+```{r}
+r %>%
+  join_overlap_left_directed(g %>% mutate(gene_width=width)) %>%
+  group_by(range_id) %>%
+  reduce_ranges(count=sum(!is.na(gene_id)),
+                mean_width=mean(gene_width))
+```
+
+Hopefully, you've seen that there are many routes to compute the types
+of statistics of interest. The best way to decide which one to use is
+to think first: what do I want the final output to look like, and do I
+need to keep track of non-overlapping ranges? This will help dictate
+the way you set up the call, whether a `join` or a `mutate` to just
+tally a column of overlaps, etc.
