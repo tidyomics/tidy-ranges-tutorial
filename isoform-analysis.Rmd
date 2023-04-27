@@ -1,0 +1,53 @@
+# Isoform analysis
+
+Objective: compare the structure of isoforms within a gene using
+grouping and disjoin operations.
+
+There are many packages in Bioconductor that allow for isoform-level
+analysis (also called transcript-level analysis). Packages that
+facilitate differential transcript analysis include *DEXSeq* and
+*DRIMSeq* (demonstrated in the *rnaseqDTU* workflow), and newer
+packages *satuRn* and *fishpond*.
+
+Once you've identified isoforms of interest within a gene, perhaps
+isoforms that switch in terms of their expression after cells are
+treated, one can use the
+[IsoformSwitchAnalyzeR](https://github.com/kvittingseerup/IsoformSwitchAnalyzeR)
+Bioconductor package to visualize and analyze a set of isoform
+switches. For example, one can test the functional consequences of a
+set of isoform switches in terms of the gain or loss of protein
+domains, or splicing-centric changes (e.g. alternative 3' or 5'
+acceptor sites, alternative transcription start or ends sites, etc.)
+
+*IsoformSwitchAnalyzeR* is a multi-feature and mature package for this
+type of analysis, but we can perform some simpler within-gene isoform
+comparisons using *plyranges*, mostly for demonstration. We will start
+again with the transcript database we've used before:
+
+```{r message=FALSE}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+txp <- transcripts(txdb)
+```
+
+```{r message=FALSE}
+library(plyranges)
+txp <- txp %>% mutate(tx_id = as.character(tx_id))
+txp <- txp %>%
+  mutate(gene_id = mapIds(
+           txdb, keys=tx_id,
+           column="GENEID", keytype="TXID")
+         ) %>%
+  filter(!is.na(gene_id)) %>%
+  keepStandardChromosomes(., pruning.mode="coarse")
+```
+
+```{r}
+library(org.Hs.eg.db)
+txp <- txp %>%
+  mutate(symbol = mapIds(
+           org.Hs.eg.db, keys=gene_id,
+           column="SYMBOL", keytype="ENTREZID")
+         ) %>%
+  filter(!is.na(symbol))
+```
