@@ -7,8 +7,9 @@ rmd_files:
   "tissue-specific-promoter-marks.Rmd",
   "bootstrap-overlap.Rmd",
   "snp-position-in-peaks.Rmd",
-  "tidy-gene-plots.Rmd",
-  "tidy-rna-seq-eda.Rmd",
+  "gene-plots.Rmd",
+  "rna-seq-eda.Rmd",
+  "isoform-analysis.Rmd",
   "references.Rmd"]
 bibliography: references.bib
 language:

@@ -1,4 +1,4 @@
-# Tidy gene plots
+# Gene plots
 
 Objective: for a region of the genome, find peaks near the TSS of genes
 and then plot their signal strength per gene, stratifying by the tissue

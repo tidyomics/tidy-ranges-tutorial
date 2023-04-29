@@ -73,6 +73,7 @@ txp <- txp %>%
 ```
 
 ```{r}
+set.seed(1)
 pick_one <- txp %>%
   as_tibble() %>%
   group_by(gene_id) %>%
@@ -112,3 +113,72 @@ exons <- unlist(ebt) %>%
 exons
 ```
 
+```{r}
+txp_data <- txp %>%
+  select(tx_id, gene_id, ntxp, the_one, .drop_ranges=TRUE) %>%
+  as_tibble()
+ids <- dplyr::left_join(tibble(tx_id = exons$tx_id),
+                        txp_data, by="tx_id")
+all.equal(exons$tx_id, ids$tx_id)
+mcols(exons) <- cbind(mcols(exons), ids %>% select(-tx_id))
+exons
+```
+
+```{r}
+exon_parts <- exons %>%
+  group_by(gene_id) %>%
+  disjoin_ranges(the_one_parts = min(the_one)) %>%
+  filter(the_one_parts > 0)
+exon_parts
+```
+
+```{r}
+txp %>%
+  filter(gene_id == "339451")
+tx_to_show <- txp %>%
+  filter(gene_id == "339451" & the_one == 1) %>%
+  as_tibble() %>%
+  dplyr::pull(tx_name)
+these_parts <- exon_parts %>%
+  filter(gene_id == "339451")
+```
+
+```{r message=FALSE}
+library(plotgardener)
+par <- pgParams(
+  chrom = "chr1", 
+  chromstart = 895.9e3, chromend = 901.2e3,
+  assembly = "hg19", just = c("left", "bottom")
+)
+```
+
+```{r}
+hilite <- data.frame(transcript=tx_to_show, color="magenta")
+```
+
+```{r isoform-plot}
+pageCreate(width = 5, height = 2.5, showGuides = TRUE)
+plotTranscripts(
+  params = par, x = 0.5, y = 1.5, width = 4, height = 1.5,
+  transcriptHighlights = hilite
+)
+plotRanges(
+  these_parts, fill="darkorchid",
+  params = par, x = 0.5, y = 1.75, width = 4, height = .25
+)
+plotText(
+  label = paste("unique pieces of",tx_to_show), fontcolor = "darkorchid",
+  params = par, x = 3.1, y = 1.75,
+  just = c("left", "bottom"), fontsize = 8
+)
+plotGenomeLabel(
+  params = par, x = 0.5, y = 2, length = 4,
+  just = c("left", "top")
+)
+```
+
+Questions:
+
+* How else could we have found pieces of one isoform per gene, that do
+  not belong to any other isoforms of the genes. Would other
+  approaches have any limitations?
