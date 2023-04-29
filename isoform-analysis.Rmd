@@ -32,14 +32,18 @@ txp <- transcripts(txdb)
 
 ```{r message=FALSE}
 library(plyranges)
-txp <- txp %>% mutate(tx_id = as.character(tx_id))
+txp <- txp %>%
+  mutate(tx_id = as.character(tx_id)) %>%
+  filter(seqnames == "chr1")
+```
+
+```{r}
 txp <- txp %>%
   mutate(gene_id = mapIds(
            txdb, keys=tx_id,
            column="GENEID", keytype="TXID")
          ) %>%
-  filter(!is.na(gene_id)) %>%
-  keepStandardChromosomes(., pruning.mode="coarse")
+  filter(!is.na(gene_id))
 ```
 
 ```{r}
@@ -51,3 +55,60 @@ txp <- txp %>%
          ) %>%
   filter(!is.na(symbol))
 ```
+
+```{r message=FALSE}
+library(tibble)
+tab <- txp %>%
+  group_by(gene_id) %>%
+  summarize(ntxp = n_distinct(tx_id)) %>%
+  as_tibble()
+tab_longer <- dplyr::left_join(tibble(gene_id=txp$gene_id), tab)
+txp <- txp %>%
+  mutate(ntxp = tab_longer$ntxp)
+```
+
+```{r}
+txp <- txp %>%
+  filter(ntxp > 1)
+```
+
+```{r}
+pick_one <- txp %>%
+  as_tibble() %>%
+  group_by(gene_id) %>%
+  slice(sample.int(n(), size=1)) %>%
+  dplyr::pull(tx_id)
+```
+
+```{r}
+txp <- txp %>%
+  mutate(the_one = as.integer(tx_id %in% pick_one))
+```
+
+```{r}
+txp %>%
+  group_by(gene_id) %>%
+  disjoin_ranges(tx_ids = paste(tx_id,collapse=","))
+```
+
+```{r}
+txp %>%
+  group_by(gene_id) %>%
+  disjoin_ranges(the_one_parts = min(the_one)) %>%
+  filter(the_one_parts > 0)
+```
+
+```{r}
+txp %>%
+  filter(gene_id == "148413")
+```
+
+```{r}
+ebt <- exonsBy(txdb, by="tx")
+ebt <- ebt[txp$tx_id]
+exons <- unlist(ebt) %>%
+  select(exon_id, exon_rank) %>%
+  mutate(tx_id = rep(names(ebt), lengths(ebt)))
+exons
+```
+
