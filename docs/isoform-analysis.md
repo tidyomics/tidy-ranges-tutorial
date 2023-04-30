@@ -4,10 +4,10 @@ Objective: compare the structure of isoforms within a gene using
 grouping and disjoin operations.
 
 There are many packages in Bioconductor that allow for isoform-level
-analysis (also called transcript-level analysis). Packages that
-facilitate differential transcript analysis include *DEXSeq* and
-*DRIMSeq* (demonstrated in the *rnaseqDTU* workflow), and newer
-packages *satuRn* and *fishpond*.
+analysis across samples (also called transcript-level analysis).
+Packages that facilitate differential transcript analysis include
+*DEXSeq* and *DRIMSeq* (demonstrated in the *rnaseqDTU* workflow), and
+newer packages *satuRn* and *fishpond*.
 
 Once you've identified isoforms of interest within a gene, perhaps
 isoforms that switch in terms of their expression after cells are
@@ -18,11 +18,23 @@ switches. For example, one can test the functional consequences of a
 set of isoform switches in terms of the gain or loss of protein
 domains, or splicing-centric changes (e.g. alternative 3' or 5'
 acceptor sites, alternative transcription start or ends sites, etc.)
-
 *IsoformSwitchAnalyzeR* is a multi-feature and mature package for this
 type of analysis, but we can perform some simpler within-gene isoform
-comparisons using *plyranges*, mostly for demonstration. We will start
-again with the transcript database we've used before:
+comparisons using *plyranges*, mostly for demonstration.
+
+Here we will suppose that we have somehow identified isoforms of
+interest, and we want to compare these isoforms to other isoforms of
+the same gene. For simplicity, we will focus on one isoform per gene,
+for a particular set of interesting genes, just picking isoforms at
+random for genes on `chr1`. We could use *plyranges* to compare
+various metadata about isoforms or exons e.g. RNA-seq or ChIP-seq
+coverage, sequence content, etc. But here we will just compare
+isoforms alone by the interval definitions. Then to reformulate:
+
+Specific objective 1: compare one isoform per gene to the others, in
+terms of the extent from TSS to TES. What makes this isoform distinct?
+
+We will start again with the transcript database we've used before:
 
 
 ```r
@@ -31,6 +43,10 @@ txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 txp <- transcripts(txdb)
 ```
 
+For further operations it will be convenient to have the `tx_id` be a
+character variable, and we filter now to a set of genes of interest
+(here just picking those on `chr1`):
+
 
 ```r
 library(plyranges)
@@ -38,6 +54,9 @@ txp <- txp %>%
   mutate(tx_id = as.character(tx_id)) %>%
   filter(seqnames == "chr1")
 ```
+
+It is sometimes useful to have other identifiers, such as the gene ID
+(Entrez)...
 
 
 ```r
@@ -48,6 +67,9 @@ txp <- txp %>%
          ) %>%
   filter(!is.na(gene_id))
 ```
+
+...and the gene symbol. For simplicity we will keep genes that have a
+non-NA symbol but this step is not necessary.
 
 
 ```r
@@ -60,6 +82,9 @@ txp <- txp %>%
   filter(!is.na(symbol))
 ```
 
+The following is one way to identify which isoforms belong to
+multi-isoform genes:
+
 
 ```r
 library(tibble)
@@ -67,16 +92,75 @@ tab <- txp %>%
   group_by(gene_id) %>%
   summarize(ntxp = n_distinct(tx_id)) %>%
   as_tibble()
+tab
+```
+
+```
+## # A tibble: 2,324 × 2
+##    gene_id    ntxp
+##    <chr>     <int>
+##  1 10000         3
+##  2 100126331     1
+##  3 100126346     1
+##  4 100126348     1
+##  5 100126349     1
+##  6 100128071     1
+##  7 100128787     1
+##  8 100129046     1
+##  9 100129138     1
+## 10 100129196     1
+## # … with 2,314 more rows
+```
+
+```r
 tab_longer <- dplyr::left_join(tibble(gene_id=txp$gene_id), tab)
 txp <- txp %>%
   mutate(ntxp = tab_longer$ntxp)
+txp
 ```
+
+```
+## GRanges object with 7177 ranges and 5 metadata columns:
+##          seqnames              ranges strand |       tx_id     tx_name     gene_id       symbol
+##             <Rle>           <IRanges>  <Rle> | <character> <character> <character>  <character>
+##      [1]     chr1         11874-14409      + |           1  uc001aaa.3   100287102      DDX11L1
+##      [2]     chr1         11874-14409      + |           2  uc010nxq.1   100287102      DDX11L1
+##      [3]     chr1         11874-14409      + |           3  uc010nxr.1   100287102      DDX11L1
+##      [4]     chr1         69091-70008      + |           4  uc001aal.1       79501        OR4F5
+##      [5]     chr1       323892-328581      + |           8  uc001aau.3   100132062 LOC100132062
+##      ...      ...                 ...    ... .         ...         ...         ...          ...
+##   [7173]     chr1 249144203-249152264      - |        7963  uc031pta.1       55657       ZNF692
+##   [7174]     chr1 249144203-249152912      - |        7964  uc001ifb.2       55657       ZNF692
+##   [7175]     chr1 249144203-249153125      - |        7965  uc010pzr.2       55657       ZNF692
+##   [7176]     chr1 249144203-249153315      - |        7966  uc001ifc.2       55657       ZNF692
+##   [7177]     chr1 249144203-249153315      - |        7967  uc001iff.2       55657       ZNF692
+##               ntxp
+##          <integer>
+##      [1]         3
+##      [2]         3
+##      [3]         3
+##      [4]         1
+##      [5]         1
+##      ...       ...
+##   [7173]         6
+##   [7174]         6
+##   [7175]         6
+##   [7176]         6
+##   [7177]         6
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome
+```
+
+We can now filter to the multi-isoform genes:
 
 
 ```r
 txp <- txp %>%
   filter(ntxp > 1)
 ```
+
+Here we arbitrarily pick one isoform per gene, first by identifying
+those in a tibble...
 
 
 ```r
@@ -88,11 +172,23 @@ pick_one <- txp %>%
   dplyr::pull(tx_id)
 ```
 
+...then we can label these in our `txp` object. We will track these
+with an integer, 1 for the isoform of interest, and 0 for the others.
+
 
 ```r
 txp <- txp %>%
   mutate(the_one = as.integer(tx_id %in% pick_one))
 ```
+
+To identify which "parts" of the TSS-to-TES interval belong to which
+isoform, we can use `disjoin_ranges`. This breaks up the ranges, here
+grouped by gene, into distinct parts, and labels those according to
+whatever metadata variables we specify. Here we specify to combine
+`tx_id` into a collapsed string, but we could also perform numeric
+operations, e.g. `min` or `mean` etc. And we can specify more than one
+new variable to be created during the `disjoin_ranges` operation. As
+with `reduce_ranges`, this operation can be `_directed` or not.
 
 
 ```r
@@ -120,6 +216,11 @@ txp %>%
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
 
+Here we try to answer the specific objective, by labeling which parts
+belong exclusively to the isoform of interest by computing
+`min(the_one)` (try to convince yourself that this does in fact
+identify these intervals).
+
 
 ```r
 txp %>%
@@ -146,6 +247,8 @@ txp %>%
 ##   -------
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
+
+Do the parts identified make sense if we check one gene?
 
 
 ```r
@@ -175,10 +278,30 @@ txp %>%
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
 
+Let's pause and consider what we've answered so far. We asked, for a
+given isoform per gene, what parts (intervals) uniquely define that
+isoform, when we just consider TSS-to-TES extent (ignoring the
+exonic/intronic structure). We started here mostly for simplicity, but
+typically we care about *transcribed* sequence, so let's repeat this
+task, now considering what exonic parts are unique to one isoform per
+gene.
+
+Specific objective 2: compare one isoform per gene to the others, in
+terms of the exonic intervals. What makes this isoform distinct?
+
+To start, we will need a list of the exons, grouped by transcript.
+
 
 ```r
 ebt <- exonsBy(txdb, by="tx")
-ebt <- ebt[txp$tx_id]
+ebt <- ebt[txp$tx_id] # subset to those txp/genes of interest
+```
+
+Here, we could have also used `bind_ranges` but I find that for very
+large lists of ranges, `unlist` is faster:
+
+
+```r
 exons <- unlist(ebt) %>%
   select(exon_id, exon_rank) %>%
   mutate(tx_id = rep(names(ebt), lengths(ebt)))
@@ -204,6 +327,15 @@ exons
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
 
+The `exons` ranges are missing some of our key metadata from `txp`. We
+can add this, by first `select`-ing what we want from `txp`, turning
+this into a tibble and `left_join`-ing to the `exons`. I add an
+`all.equal` step to make sure we have the two tables lined up, before
+we add the extra columns with `cbind`.
+
+Some of this code wouldn't be necessary for TranscriptDb with more
+details `exons` output, as with *ensembldb*.
+
 
 ```r
 txp_data <- txp %>%
@@ -211,6 +343,27 @@ txp_data <- txp %>%
   as_tibble()
 ids <- dplyr::left_join(tibble(tx_id = exons$tx_id),
                         txp_data, by="tx_id")
+ids
+```
+
+```
+## # A tibble: 67,595 × 4
+##    tx_id gene_id    ntxp the_one
+##    <chr> <chr>     <int>   <int>
+##  1 1     100287102     3       1
+##  2 1     100287102     3       1
+##  3 1     100287102     3       1
+##  4 2     100287102     3       0
+##  5 2     100287102     3       0
+##  6 2     100287102     3       0
+##  7 3     100287102     3       0
+##  8 3     100287102     3       0
+##  9 3     100287102     3       0
+## 10 11    729759        2       0
+## # … with 67,585 more rows
+```
+
+```r
 all.equal(exons$tx_id, ids$tx_id)
 ```
 
@@ -255,6 +408,9 @@ exons
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
 
+We repeat similar code as performed above with `txp`, now identifying
+parts of exons that are unique to the isoform of interest, per gene:
+
 
 ```r
 exon_parts <- exons %>%
@@ -282,6 +438,9 @@ exon_parts
 ##   -------
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome
 ```
+
+To confirm that we've identified the right parts, let's use
+*plotgardener* to visualize a particular gene:
 
 
 ```r
@@ -318,6 +477,8 @@ these_parts <- exon_parts %>%
   filter(gene_id == "339451")
 ```
 
+We lay out a page zooming into this gene and its isoforms:
+
 
 ```r
 library(plotgardener)
@@ -328,10 +489,14 @@ par <- pgParams(
 )
 ```
 
+We will highlight our isoform of interest:
+
 
 ```r
 hilite <- data.frame(transcript=tx_to_show, color="magenta")
 ```
+
+Finally, putting it all together:
 
 
 ```r
@@ -344,7 +509,7 @@ plotRanges(
   these_parts, fill="darkorchid",
   params = par, x = 0.5, y = 1.75, width = 4, height = .25
 )
-label <- paste("unique pieces of", tx_to_show)
+label <- paste("unique parts of", tx_to_show)
 plotText(
   label = label, fontcolor = "darkorchid",
   params = par, x = 3.1, y = 1.75,
@@ -360,6 +525,6 @@ plotGenomeLabel(
 
 Questions:
 
-* How else could we have found pieces of one isoform per gene, that do
-  not belong to any other isoforms of the genes. Would other
-  approaches have any limitations?
+-   How else could we have found parts of one isoform per gene, that
+    do not belong to any other isoforms of the genes. Would other
+    approaches have any limitations?
