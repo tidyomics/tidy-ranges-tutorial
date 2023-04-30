@@ -1,4 +1,4 @@
-# Tissue-specific promoter marks
+# Promoter marks
 
 Objective: determine if tissue-specific promoter marks (e.g. H3K27ac)
 are often near genes that are expressed in a tissue-specific manner.

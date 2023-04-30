@@ -1,6 +1,6 @@
 join-is-an-overlap
-overlap-granges-with-plyranges
-tissue-specific-promoter-marks
+compute-overlaps
+promoter-marks
 bootstrap-overlap
 snp-position-in-peaks
 gene-plots

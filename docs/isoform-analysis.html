@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-04-29" />
+<meta name="date" content="2023-04-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -163,8 +163,8 @@ div.csl-indent {
 <li class="divider"></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
 <li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
-<li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
-<li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
+<li class="chapter" data-level="2" data-path="compute-overlaps.html"><a href="compute-overlaps.html"><i class="fa fa-check"></i><b>2</b> Compute overlaps</a></li>
+<li class="chapter" data-level="3" data-path="promoter-marks.html"><a href="promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Promoter marks</a></li>
 <li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
 <li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
 <li class="chapter" data-level="6" data-path="gene-plots.html"><a href="gene-plots.html"><i class="fa fa-check"></i><b>6</b> Gene plots</a></li>
@@ -424,7 +424,7 @@ again with the transcript database we’ve used before:</p>
 <span id="cb227-5"><a href="isoform-analysis.html#cb227-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> <span class="st">&quot;hg19&quot;</span>, <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
 <span id="cb227-6"><a href="isoform-analysis.html#cb227-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="isoform-analysis.html#cb228-1" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">transcript=</span>tx_to_show, <span class="at">color=</span><span class="st">&quot;magenta&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="isoform-analysis.html#cb229-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="fl">2.5</span>, <span class="at">showGuides =</span> <span class="cn">TRUE</span>)</span>
+<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="isoform-analysis.html#cb229-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="fl">2.5</span>, <span class="at">showGuides =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb229-2"><a href="isoform-analysis.html#cb229-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotTranscripts</span>(</span>
 <span id="cb229-3"><a href="isoform-analysis.html#cb229-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">1.5</span>,</span>
 <span id="cb229-4"><a href="isoform-analysis.html#cb229-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcriptHighlights =</span> hilite</span>

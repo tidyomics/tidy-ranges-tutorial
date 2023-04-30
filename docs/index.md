@@ -1,7 +1,7 @@
 --- 
 title: "Tidy Ranges Tutorial"
 author: "nullranges devel team"
-date: "2023-04-29"
+date: "2023-04-30"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
