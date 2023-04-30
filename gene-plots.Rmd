@@ -128,7 +128,7 @@ par <- pgParams(
 Finally we put all the pieces together on a page (for laying out the
 plot, first use `showGuides=TRUE`).
 
-```{r garden}
+```{r garden, fig.width=5, fig.height=3, message=FALSE}
 pageCreate(width = 5, height = 3, showGuides = FALSE)
 plotGenes(
   params = par, x = 0.5, y = 2.5, width = 4, height = .75

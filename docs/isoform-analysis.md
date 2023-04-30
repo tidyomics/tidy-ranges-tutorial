@@ -49,30 +49,15 @@ txp <- txp %>%
   filter(!is.na(gene_id))
 ```
 
-```
-## 'select()' returned 1:1 mapping between keys and columns
-```
-
 
 ```r
 library(org.Hs.eg.db)
-```
-
-```
-## 
-```
-
-```r
 txp <- txp %>%
   mutate(symbol = mapIds(
            org.Hs.eg.db, keys=gene_id,
            column="SYMBOL", keytype="ENTREZID")
          ) %>%
   filter(!is.na(symbol))
-```
-
-```
-## 'select()' returned 1:1 mapping between keys and columns
 ```
 
 
@@ -355,47 +340,23 @@ plotTranscripts(
   params = par, x = 0.5, y = 1.5, width = 4, height = 1.5,
   transcriptHighlights = hilite
 )
-```
-
-```
-## transcripts[transcripts1]
-```
-
-```r
 plotRanges(
   these_parts, fill="darkorchid",
   params = par, x = 0.5, y = 1.75, width = 4, height = .25
 )
-```
-
-```
-## ranges[ranges1]
-```
-
-```r
+label <- paste("unique pieces of", tx_to_show)
 plotText(
-  label = paste("unique pieces of",tx_to_show), fontcolor = "darkorchid",
+  label = label, fontcolor = "darkorchid",
   params = par, x = 3.1, y = 1.75,
   just = c("left", "bottom"), fontsize = 8
 )
-```
-
-```
-## text[text1]
-```
-
-```r
 plotGenomeLabel(
   params = par, x = 0.5, y = 2, length = 4,
   just = c("left", "top")
 )
 ```
 
-```
-## genomeLabel[genomeLabel1]
-```
-
-<img src="isoform-analysis_files/figure-html/isoform-plot-1.png" width="672" />
+<img src="isoform-analysis_files/figure-html/isoform-plot-1.png" width="480" />
 
 Questions:
 

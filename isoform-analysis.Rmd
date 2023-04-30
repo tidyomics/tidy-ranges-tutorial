@@ -4,10 +4,10 @@ Objective: compare the structure of isoforms within a gene using
 grouping and disjoin operations.
 
 There are many packages in Bioconductor that allow for isoform-level
-analysis (also called transcript-level analysis). Packages that
-facilitate differential transcript analysis include *DEXSeq* and
-*DRIMSeq* (demonstrated in the *rnaseqDTU* workflow), and newer
-packages *satuRn* and *fishpond*.
+analysis across samples (also called transcript-level analysis).
+Packages that facilitate differential transcript analysis include
+*DEXSeq* and *DRIMSeq* (demonstrated in the *rnaseqDTU* workflow), and
+newer packages *satuRn* and *fishpond*.
 
 Once you've identified isoforms of interest within a gene, perhaps
 isoforms that switch in terms of their expression after cells are
@@ -18,11 +18,22 @@ switches. For example, one can test the functional consequences of a
 set of isoform switches in terms of the gain or loss of protein
 domains, or splicing-centric changes (e.g. alternative 3' or 5'
 acceptor sites, alternative transcription start or ends sites, etc.)
-
 *IsoformSwitchAnalyzeR* is a multi-feature and mature package for this
 type of analysis, but we can perform some simpler within-gene isoform
-comparisons using *plyranges*, mostly for demonstration. We will start
-again with the transcript database we've used before:
+comparisons using *plyranges*, mostly for demonstration.
+
+Here we will suppose that we have somehow identified isoforms of
+interest, and we want to compare these isoforms to other isoforms of
+the same gene. For simplicity, we will focus on one isoform per gene,
+just picking them at random. We could use *plyranges* to compare
+various metadata about isoforms or exons e.g. RNA-seq or ChIP-seq
+coverage, sequence content, etc. But here we will just compare
+isoforms alone by the interval definitions. Then to reformulate.
+
+Specific objective 1: compare one isoform per gene to the others, in
+terms of the extent from TSS to TES. What makes this isoform distinct?
+
+We will start again with the transcript database we've used before:
 
 ```{r message=FALSE}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
@@ -37,7 +48,7 @@ txp <- txp %>%
   filter(seqnames == "chr1")
 ```
 
-```{r}
+```{r message=FALSE}
 txp <- txp %>%
   mutate(gene_id = mapIds(
            txdb, keys=tx_id,
@@ -46,7 +57,7 @@ txp <- txp %>%
   filter(!is.na(gene_id))
 ```
 
-```{r}
+```{r message=FALSE}
 library(org.Hs.eg.db)
 txp <- txp %>%
   mutate(symbol = mapIds(
@@ -104,6 +115,9 @@ txp %>%
   filter(gene_id == "9651")
 ```
 
+Specific objective 2: compare one isoform per gene to the others, in
+terms of the exonic intervals. What makes this isoform distinct?
+
 ```{r}
 ebt <- exonsBy(txdb, by="tx")
 ebt <- ebt[txp$tx_id]
@@ -156,7 +170,7 @@ par <- pgParams(
 hilite <- data.frame(transcript=tx_to_show, color="magenta")
 ```
 
-```{r isoform-plot}
+```{r isoform-plot, fig.width=5, fig.height=2.5, message=FALSE}
 pageCreate(width = 5, height = 2.5, showGuides = FALSE)
 plotTranscripts(
   params = par, x = 0.5, y = 1.5, width = 4, height = 1.5,
@@ -166,8 +180,9 @@ plotRanges(
   these_parts, fill="darkorchid",
   params = par, x = 0.5, y = 1.75, width = 4, height = .25
 )
+label <- paste("unique pieces of", tx_to_show)
 plotText(
-  label = paste("unique pieces of",tx_to_show), fontcolor = "darkorchid",
+  label = label, fontcolor = "darkorchid",
   params = par, x = 3.1, y = 1.75,
   just = c("left", "bottom"), fontsize = 8
 )
@@ -179,6 +194,7 @@ plotGenomeLabel(
 
 Questions:
 
-* How else could we have found pieces of one isoform per gene, that do
-  not belong to any other isoforms of the genes. Would other
-  approaches have any limitations?
+- How else could we have found pieces of one isoform per gene, that
+do not belong to any other isoforms of the genes. Would other
+approaches have any limitations?
+

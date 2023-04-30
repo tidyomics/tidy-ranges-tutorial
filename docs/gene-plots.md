@@ -165,44 +165,19 @@ pageCreate(width = 5, height = 3, showGuides = FALSE)
 plotGenes(
   params = par, x = 0.5, y = 2.5, width = 4, height = .75
 )
-```
-
-```
-## genes[genes1]
-```
-
-```r
 plotRanges(
   pks_to_plot,
   fill = colorby("tissue", palette=cols),
   params = par, x = 0.5, y = 1.75, width = 4, height = 1.75
 )
-```
-
-```
-## ranges[ranges1]
-```
-
-```r
 plotGenomeLabel(
   params = par, x = 0.5, y = 2.5, length = 4,
   just = c("left", "top")
 )
-```
-
-```
-## genomeLabel[genomeLabel1]
-```
-
-```r
 plotGG(
   p + ggtitle("UMOD"), 
   params = par, x = 2.25, y = 1.75, width = 2.5, height = 1.75
 )
 ```
 
-```
-## gg[gg1]
-```
-
-<img src="gene-plots_files/figure-html/garden-1.png" width="672" />
+<img src="gene-plots_files/figure-html/garden-1.png" width="480" />
