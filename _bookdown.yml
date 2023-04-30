@@ -3,8 +3,8 @@ output_dir: "docs"
 rmd_files: 
   ["index.Rmd",
   "join-is-an-overlap.Rmd",
-  "overlap-granges-with-plyranges.Rmd",
-  "tissue-specific-promoter-marks.Rmd",
+  "compute-overlaps.Rmd",
+  "promoter-marks.Rmd",
   "bootstrap-overlap.Rmd",
   "snp-position-in-peaks.Rmd",
   "gene-plots.Rmd",

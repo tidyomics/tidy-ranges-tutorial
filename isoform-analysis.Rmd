@@ -157,7 +157,7 @@ hilite <- data.frame(transcript=tx_to_show, color="magenta")
 ```
 
 ```{r isoform-plot}
-pageCreate(width = 5, height = 2.5, showGuides = TRUE)
+pageCreate(width = 5, height = 2.5, showGuides = FALSE)
 plotTranscripts(
   params = par, x = 0.5, y = 1.5, width = 4, height = 1.5,
   transcriptHighlights = hilite

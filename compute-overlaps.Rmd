@@ -1,4 +1,4 @@
-# Overlap GRanges with plyranges
+# Compute overlaps
 
 Objective: compute overlaps and summary statistics between two sets of
 genomic ranges. In particular, suppose we want to compute the mean

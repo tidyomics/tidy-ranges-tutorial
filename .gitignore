@@ -1,5 +1,4 @@
 _bookdown_files/*
-docs/*.md
 data/*
 *.rds
 *.gz
