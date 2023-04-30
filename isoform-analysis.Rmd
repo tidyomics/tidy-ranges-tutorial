@@ -73,7 +73,7 @@ txp <- txp %>%
 ```
 
 ```{r}
-set.seed(1)
+set.seed(3)
 pick_one <- txp %>%
   as_tibble() %>%
   group_by(gene_id) %>%
@@ -101,7 +101,7 @@ txp %>%
 
 ```{r}
 txp %>%
-  filter(gene_id == "148413")
+  filter(gene_id == "9651")
 ```
 
 ```{r}

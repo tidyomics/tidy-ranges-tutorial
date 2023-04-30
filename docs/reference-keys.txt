@@ -3,5 +3,6 @@ overlap-granges-with-plyranges
 tissue-specific-promoter-marks
 bootstrap-overlap
 snp-position-in-peaks
-tidy-gene-plots
-tidy-rna-seq-eda
+gene-plots
+rna-seq-eda
+isoform-analysis

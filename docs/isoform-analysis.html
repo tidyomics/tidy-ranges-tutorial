@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 8 Isoform analysis | Tidy Ranges Tutorial</title>
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 8 Isoform analysis | Tidy Ranges Tutorial" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="github-repo" content="nullranges/tidy-ranges-tutorial" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 8 Isoform analysis | Tidy Ranges Tutorial" />
+  
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  
+
+<meta name="author" content="nullranges devel team" />
+
+
+<meta name="date" content="2023-04-29" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="rna-seq-eda.html"/>
+<link rel="next" href="references.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy Ranges Tutorial</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="overlap-granges-with-plyranges.html"><a href="overlap-granges-with-plyranges.html"><i class="fa fa-check"></i><b>2</b> Overlap GRanges with plyranges</a></li>
+<li class="chapter" data-level="3" data-path="tissue-specific-promoter-marks.html"><a href="tissue-specific-promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Tissue-specific promoter marks</a></li>
+<li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="gene-plots.html"><a href="gene-plots.html"><i class="fa fa-check"></i><b>6</b> Gene plots</a></li>
+<li class="chapter" data-level="7" data-path="rna-seq-eda.html"><a href="rna-seq-eda.html"><i class="fa fa-check"></i><b>7</b> RNA-seq EDA</a></li>
+<li class="chapter" data-level="8" data-path="isoform-analysis.html"><a href="isoform-analysis.html"><i class="fa fa-check"></i><b>8</b> Isoform analysis</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Tidy Ranges Tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="isoform-analysis" class="section level1 hasAnchor" number="8">
+<h1><span class="header-section-number">Chapter 8</span> Isoform analysis<a href="isoform-analysis.html#isoform-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Objective: compare the structure of isoforms within a gene using
+grouping and disjoin operations.</p>
+<p>There are many packages in Bioconductor that allow for isoform-level
+analysis (also called transcript-level analysis). Packages that
+facilitate differential transcript analysis include <em>DEXSeq</em> and
+<em>DRIMSeq</em> (demonstrated in the <em>rnaseqDTU</em> workflow), and newer
+packages <em>satuRn</em> and <em>fishpond</em>.</p>
+<p>Once you’ve identified isoforms of interest within a gene, perhaps
+isoforms that switch in terms of their expression after cells are
+treated, one can use the
+<a href="https://github.com/kvittingseerup/IsoformSwitchAnalyzeR">IsoformSwitchAnalyzeR</a>
+Bioconductor package to visualize and analyze a set of isoform
+switches. For example, one can test the functional consequences of a
+set of isoform switches in terms of the gain or loss of protein
+domains, or splicing-centric changes (e.g. alternative 3’ or 5’
+acceptor sites, alternative transcription start or ends sites, etc.)</p>
+<p><em>IsoformSwitchAnalyzeR</em> is a multi-feature and mature package for this
+type of analysis, but we can perform some simpler within-gene isoform
+comparisons using <em>plyranges</em>, mostly for demonstration. We will start
+again with the transcript database we’ve used before:</p>
+<div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb198-1"><a href="isoform-analysis.html#cb198-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
+<span id="cb198-2"><a href="isoform-analysis.html#cb198-2" aria-hidden="true" tabindex="-1"></a>txdb <span class="ot">&lt;-</span> TxDb.Hsapiens.UCSC.hg19.knownGene</span>
+<span id="cb198-3"><a href="isoform-analysis.html#cb198-3" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> <span class="fu">transcripts</span>(txdb)</span></code></pre></div>
+<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="isoform-analysis.html#cb199-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb199-2"><a href="isoform-analysis.html#cb199-2" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb199-3"><a href="isoform-analysis.html#cb199-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">as.character</span>(tx_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb199-4"><a href="isoform-analysis.html#cb199-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(seqnames <span class="sc">==</span> <span class="st">&quot;chr1&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb200"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb200-1"><a href="isoform-analysis.html#cb200-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb200-2"><a href="isoform-analysis.html#cb200-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_id =</span> <span class="fu">mapIds</span>(</span>
+<span id="cb200-3"><a href="isoform-analysis.html#cb200-3" aria-hidden="true" tabindex="-1"></a>           txdb, <span class="at">keys=</span>tx_id,</span>
+<span id="cb200-4"><a href="isoform-analysis.html#cb200-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;GENEID&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;TXID&quot;</span>)</span>
+<span id="cb200-5"><a href="isoform-analysis.html#cb200-5" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb200-6"><a href="isoform-analysis.html#cb200-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gene_id))</span></code></pre></div>
+<pre><code>## &#39;select()&#39; returned 1:1 mapping between keys and columns</code></pre>
+<div class="sourceCode" id="cb202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb202-1"><a href="isoform-analysis.html#cb202-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span></code></pre></div>
+<pre><code>## </code></pre>
+<div class="sourceCode" id="cb204"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb204-1"><a href="isoform-analysis.html#cb204-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb204-2"><a href="isoform-analysis.html#cb204-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">symbol =</span> <span class="fu">mapIds</span>(</span>
+<span id="cb204-3"><a href="isoform-analysis.html#cb204-3" aria-hidden="true" tabindex="-1"></a>           org.Hs.eg.db, <span class="at">keys=</span>gene_id,</span>
+<span id="cb204-4"><a href="isoform-analysis.html#cb204-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;ENTREZID&quot;</span>)</span>
+<span id="cb204-5"><a href="isoform-analysis.html#cb204-5" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb204-6"><a href="isoform-analysis.html#cb204-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(symbol))</span></code></pre></div>
+<pre><code>## &#39;select()&#39; returned 1:1 mapping between keys and columns</code></pre>
+<div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb206-1"><a href="isoform-analysis.html#cb206-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb206-2"><a href="isoform-analysis.html#cb206-2" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb206-3"><a href="isoform-analysis.html#cb206-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb206-4"><a href="isoform-analysis.html#cb206-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ntxp =</span> <span class="fu">n_distinct</span>(tx_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb206-5"><a href="isoform-analysis.html#cb206-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb206-6"><a href="isoform-analysis.html#cb206-6" aria-hidden="true" tabindex="-1"></a>tab_longer <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">tibble</span>(<span class="at">gene_id=</span>txp<span class="sc">$</span>gene_id), tab)</span>
+<span id="cb206-7"><a href="isoform-analysis.html#cb206-7" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb206-8"><a href="isoform-analysis.html#cb206-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ntxp =</span> tab_longer<span class="sc">$</span>ntxp)</span></code></pre></div>
+<div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="isoform-analysis.html#cb207-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb207-2"><a href="isoform-analysis.html#cb207-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ntxp <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="isoform-analysis.html#cb208-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb208-2"><a href="isoform-analysis.html#cb208-2" aria-hidden="true" tabindex="-1"></a>pick_one <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb208-3"><a href="isoform-analysis.html#cb208-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb208-4"><a href="isoform-analysis.html#cb208-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb208-5"><a href="isoform-analysis.html#cb208-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="fu">sample.int</span>(<span class="fu">n</span>(), <span class="at">size=</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb208-6"><a href="isoform-analysis.html#cb208-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_id)</span></code></pre></div>
+<div class="sourceCode" id="cb209"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb209-1"><a href="isoform-analysis.html#cb209-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb209-2"><a href="isoform-analysis.html#cb209-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">the_one =</span> <span class="fu">as.integer</span>(tx_id <span class="sc">%in%</span> pick_one))</span></code></pre></div>
+<div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="isoform-analysis.html#cb210-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb210-2"><a href="isoform-analysis.html#cb210-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb210-3"><a href="isoform-analysis.html#cb210-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">tx_ids =</span> <span class="fu">paste</span>(tx_id,<span class="at">collapse=</span><span class="st">&quot;,&quot;</span>))</span></code></pre></div>
+<pre><code>## GRanges object with 4438 ranges and 2 metadata columns:
+##          seqnames              ranges strand |     gene_id                 tx_ids
+##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;            &lt;character&gt;
+##      [1]     chr1         11874-14409      * |   100287102                  1,2,3
+##      [2]     chr1       367659-368597      * |      729759                     11
+##      [3]     chr1       621096-622034      * |      729759                   4099
+##      [4]     chr1       762971-763177      * |      643837         14,15,16,17,18
+##      [5]     chr1       763178-778984      * |      643837      14,15,16,17,18,19
+##      ...      ...                 ...    ... .         ...                    ...
+##   [4434]     chr1 249144203-249150234      * |       55657 7962,7963,7964,7965,..
+##   [4435]     chr1 249150235-249152264      * |       55657 7963,7964,7965,7966,..
+##   [4436]     chr1 249152265-249152912      * |       55657    7964,7965,7966,7967
+##   [4437]     chr1 249152913-249153125      * |       55657         7965,7966,7967
+##   [4438]     chr1 249153126-249153315      * |       55657              7966,7967
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="isoform-analysis.html#cb212-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb212-2"><a href="isoform-analysis.html#cb212-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb212-3"><a href="isoform-analysis.html#cb212-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
+<span id="cb212-4"><a href="isoform-analysis.html#cb212-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+<pre><code>## GRanges object with 257 ranges and 2 metadata columns:
+##         seqnames              ranges strand |     gene_id the_one_parts
+##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;     &lt;integer&gt;
+##     [1]     chr1       621096-622034      * |      729759             1
+##     [2]     chr1     2407754-2411622      * |        9651             1
+##     [3]     chr1     2495189-2495267      * |        8764             1
+##     [4]     chr1     3689334-3689351      * |      388588             1
+##     [5]     chr1     6268367-6268677      * |      388591             1
+##     ...      ...                 ...    ... .         ...           ...
+##   [253]     chr1 243651535-243663020      * |       10000             1
+##   [254]     chr1 244571794-244586136      * |         159             1
+##   [255]     chr1 246580715-246670644      * |       64754             1
+##   [256]     chr1 247492918-247495045      * |       84838             1
+##   [257]     chr1 249119835-249120154      * |       80851             1
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="isoform-analysis.html#cb214-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb214-2"><a href="isoform-analysis.html#cb214-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;9651&quot;</span>)</span></code></pre></div>
+<pre><code>## GRanges object with 6 ranges and 6 metadata columns:
+##       seqnames          ranges strand |       tx_id     tx_name     gene_id      symbol      ntxp
+##          &lt;Rle&gt;       &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
+##   [1]     chr1 2407754-2436964      + |         134  uc001aji.1        9651       PLCH2         6
+##   [2]     chr1 2411623-2436892      + |         135  uc010nyz.2        9651       PLCH2         6
+##   [3]     chr1 2411623-2436964      + |         136  uc009vle.1        9651       PLCH2         6
+##   [4]     chr1 2411623-2436965      + |         137  uc001ajj.1        9651       PLCH2         6
+##   [5]     chr1 2411623-2436969      + |         138  uc001ajk.1        9651       PLCH2         6
+##   [6]     chr1 2430183-2436964      + |         139  uc001ajl.1        9651       PLCH2         6
+##         the_one
+##       &lt;integer&gt;
+##   [1]         1
+##   [2]         0
+##   [3]         0
+##   [4]         0
+##   [5]         0
+##   [6]         0
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="isoform-analysis.html#cb216-1" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> <span class="fu">exonsBy</span>(txdb, <span class="at">by=</span><span class="st">&quot;tx&quot;</span>)</span>
+<span id="cb216-2"><a href="isoform-analysis.html#cb216-2" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> ebt[txp<span class="sc">$</span>tx_id]</span>
+<span id="cb216-3"><a href="isoform-analysis.html#cb216-3" aria-hidden="true" tabindex="-1"></a>exons <span class="ot">&lt;-</span> <span class="fu">unlist</span>(ebt) <span class="sc">%&gt;%</span></span>
+<span id="cb216-4"><a href="isoform-analysis.html#cb216-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(exon_id, exon_rank) <span class="sc">%&gt;%</span></span>
+<span id="cb216-5"><a href="isoform-analysis.html#cb216-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">rep</span>(<span class="fu">names</span>(ebt), <span class="fu">lengths</span>(ebt)))</span>
+<span id="cb216-6"><a href="isoform-analysis.html#cb216-6" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
+<pre><code>## GRanges object with 67595 ranges and 3 metadata columns:
+##        seqnames              ranges strand |   exon_id exon_rank       tx_id
+##           &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;integer&gt; &lt;character&gt;
+##      1     chr1         11874-12227      + |         1         1           1
+##      1     chr1         12613-12721      + |         3         2           1
+##      1     chr1         13221-14409      + |         5         3           1
+##      2     chr1         11874-12227      + |         1         1           2
+##      2     chr1         12595-12721      + |         2         2           2
+##    ...      ...                 ...    ... .       ...       ...         ...
+##   7967     chr1 249149757-249149834      - |     27460         7        7967
+##   7967     chr1 249149579-249149657      - |     27459         8        7967
+##   7967     chr1 249148136-249148250      - |     27458         9        7967
+##   7967     chr1 249144881-249144980      - |     27457        10        7967
+##   7967     chr1 249144203-249144715      - |     27456        11        7967
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="isoform-analysis.html#cb218-1" aria-hidden="true" tabindex="-1"></a>txp_data <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb218-2"><a href="isoform-analysis.html#cb218-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tx_id, gene_id, ntxp, the_one, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb218-3"><a href="isoform-analysis.html#cb218-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb218-4"><a href="isoform-analysis.html#cb218-4" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">tibble</span>(<span class="at">tx_id =</span> exons<span class="sc">$</span>tx_id),</span>
+<span id="cb218-5"><a href="isoform-analysis.html#cb218-5" aria-hidden="true" tabindex="-1"></a>                        txp_data, <span class="at">by=</span><span class="st">&quot;tx_id&quot;</span>)</span>
+<span id="cb218-6"><a href="isoform-analysis.html#cb218-6" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(exons<span class="sc">$</span>tx_id, ids<span class="sc">$</span>tx_id)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb220"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb220-1"><a href="isoform-analysis.html#cb220-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(exons) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">mcols</span>(exons), ids <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>tx_id))</span>
+<span id="cb220-2"><a href="isoform-analysis.html#cb220-2" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
+<pre><code>## GRanges object with 67595 ranges and 6 metadata columns:
+##        seqnames              ranges strand |   exon_id exon_rank       tx_id     gene_id      ntxp
+##           &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;integer&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
+##      1     chr1         11874-12227      + |         1         1           1   100287102         3
+##      1     chr1         12613-12721      + |         3         2           1   100287102         3
+##      1     chr1         13221-14409      + |         5         3           1   100287102         3
+##      2     chr1         11874-12227      + |         1         1           2   100287102         3
+##      2     chr1         12595-12721      + |         2         2           2   100287102         3
+##    ...      ...                 ...    ... .       ...       ...         ...         ...       ...
+##   7967     chr1 249149757-249149834      - |     27460         7        7967       55657         6
+##   7967     chr1 249149579-249149657      - |     27459         8        7967       55657         6
+##   7967     chr1 249148136-249148250      - |     27458         9        7967       55657         6
+##   7967     chr1 249144881-249144980      - |     27457        10        7967       55657         6
+##   7967     chr1 249144203-249144715      - |     27456        11        7967       55657         6
+##          the_one
+##        &lt;integer&gt;
+##      1         1
+##      1         1
+##      1         1
+##      2         0
+##      2         0
+##    ...       ...
+##   7967         0
+##   7967         0
+##   7967         0
+##   7967         0
+##   7967         0
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="isoform-analysis.html#cb222-1" aria-hidden="true" tabindex="-1"></a>exon_parts <span class="ot">&lt;-</span> exons <span class="sc">%&gt;%</span></span>
+<span id="cb222-2"><a href="isoform-analysis.html#cb222-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb222-3"><a href="isoform-analysis.html#cb222-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
+<span id="cb222-4"><a href="isoform-analysis.html#cb222-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb222-5"><a href="isoform-analysis.html#cb222-5" aria-hidden="true" tabindex="-1"></a>exon_parts</span></code></pre></div>
+<pre><code>## GRanges object with 1604 ranges and 2 metadata columns:
+##          seqnames              ranges strand |     gene_id the_one_parts
+##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;     &lt;integer&gt;
+##      [1]     chr1       621096-622034      * |      729759             1
+##      [2]     chr1       776580-778984      * |      643837             1
+##      [3]     chr1       898412-898488      * |      339451             1
+##      [4]     chr1       898634-898716      * |      339451             1
+##      [5]     chr1       898885-899229      * |      339451             1
+##      ...      ...                 ...    ... .         ...           ...
+##   [1600]     chr1 247301447-247302017      * |        7678             1
+##   [1601]     chr1 247493268-247493383      * |       84838             1
+##   [1602]     chr1 247494734-247495045      * |       84838             1
+##   [1603]     chr1 249120034-249120154      * |       80851             1
+##   [1604]     chr1 249152521-249152710      * |       55657             1
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb224"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb224-1"><a href="isoform-analysis.html#cb224-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb224-2"><a href="isoform-analysis.html#cb224-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
+<pre><code>## GRanges object with 5 ranges and 6 metadata columns:
+##       seqnames        ranges strand |       tx_id     tx_name     gene_id      symbol      ntxp
+##          &lt;Rle&gt;     &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
+##   [1]     chr1 895967-901099      + |          55  uc001aca.2      339451      KLHL17         5
+##   [2]     chr1 896829-897858      + |          56  uc001acb.1      339451      KLHL17         5
+##   [3]     chr1 897009-897858      + |          57  uc010nya.1      339451      KLHL17         5
+##   [4]     chr1 897461-901099      + |          58  uc001acc.2      339451      KLHL17         5
+##   [5]     chr1 897735-899229      + |          59  uc010nyb.1      339451      KLHL17         5
+##         the_one
+##       &lt;integer&gt;
+##   [1]         0
+##   [2]         0
+##   [3]         0
+##   [4]         0
+##   [5]         1
+##   -------
+##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
+<div class="sourceCode" id="cb226"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb226-1"><a href="isoform-analysis.html#cb226-1" aria-hidden="true" tabindex="-1"></a>tx_to_show <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb226-2"><a href="isoform-analysis.html#cb226-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span> <span class="sc">&amp;</span> the_one <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb226-3"><a href="isoform-analysis.html#cb226-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb226-4"><a href="isoform-analysis.html#cb226-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_name)</span>
+<span id="cb226-5"><a href="isoform-analysis.html#cb226-5" aria-hidden="true" tabindex="-1"></a>these_parts <span class="ot">&lt;-</span> exon_parts <span class="sc">%&gt;%</span></span>
+<span id="cb226-6"><a href="isoform-analysis.html#cb226-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="isoform-analysis.html#cb227-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotgardener)</span>
+<span id="cb227-2"><a href="isoform-analysis.html#cb227-2" aria-hidden="true" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">pgParams</span>(</span>
+<span id="cb227-3"><a href="isoform-analysis.html#cb227-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">chrom =</span> <span class="st">&quot;chr1&quot;</span>, </span>
+<span id="cb227-4"><a href="isoform-analysis.html#cb227-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromstart =</span> <span class="fl">895.9e3</span>, <span class="at">chromend =</span> <span class="fl">901.2e3</span>,</span>
+<span id="cb227-5"><a href="isoform-analysis.html#cb227-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> <span class="st">&quot;hg19&quot;</span>, <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb227-6"><a href="isoform-analysis.html#cb227-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="isoform-analysis.html#cb228-1" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">transcript=</span>tx_to_show, <span class="at">color=</span><span class="st">&quot;magenta&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="isoform-analysis.html#cb229-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="fl">2.5</span>, <span class="at">showGuides =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb229-2"><a href="isoform-analysis.html#cb229-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotTranscripts</span>(</span>
+<span id="cb229-3"><a href="isoform-analysis.html#cb229-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">1.5</span>,</span>
+<span id="cb229-4"><a href="isoform-analysis.html#cb229-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcriptHighlights =</span> hilite</span>
+<span id="cb229-5"><a href="isoform-analysis.html#cb229-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## transcripts[transcripts1]</code></pre>
+<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="isoform-analysis.html#cb231-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRanges</span>(</span>
+<span id="cb231-2"><a href="isoform-analysis.html#cb231-2" aria-hidden="true" tabindex="-1"></a>  these_parts, <span class="at">fill=</span><span class="st">&quot;darkorchid&quot;</span>,</span>
+<span id="cb231-3"><a href="isoform-analysis.html#cb231-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.75</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> .<span class="dv">25</span></span>
+<span id="cb231-4"><a href="isoform-analysis.html#cb231-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ranges[ranges1]</code></pre>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="isoform-analysis.html#cb233-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotText</span>(</span>
+<span id="cb233-2"><a href="isoform-analysis.html#cb233-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">&quot;unique pieces of&quot;</span>,tx_to_show), <span class="at">fontcolor =</span> <span class="st">&quot;darkorchid&quot;</span>,</span>
+<span id="cb233-3"><a href="isoform-analysis.html#cb233-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">3.1</span>, <span class="at">y =</span> <span class="fl">1.75</span>,</span>
+<span id="cb233-4"><a href="isoform-analysis.html#cb233-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">fontsize =</span> <span class="dv">8</span></span>
+<span id="cb233-5"><a href="isoform-analysis.html#cb233-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## text[text1]</code></pre>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="isoform-analysis.html#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenomeLabel</span>(</span>
+<span id="cb235-2"><a href="isoform-analysis.html#cb235-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">2</span>, <span class="at">length =</span> <span class="dv">4</span>,</span>
+<span id="cb235-3"><a href="isoform-analysis.html#cb235-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;top&quot;</span>)</span>
+<span id="cb235-4"><a href="isoform-analysis.html#cb235-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## genomeLabel[genomeLabel1]</code></pre>
+<p><img src="isoform-analysis_files/figure-html/isoform-plot-1.png" width="672" /></p>
+<p>Questions:</p>
+<ul>
+<li>How else could we have found pieces of one isoform per gene, that do
+not belong to any other isoforms of the genes. Would other
+approaches have any limitations?</li>
+</ul>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="rna-seq-eda.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
