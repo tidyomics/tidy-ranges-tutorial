@@ -1,0 +1,73 @@
+# Many models
+
+```{r message=FALSE}
+library(fission)
+data(fission)
+se <- fission
+colData(se)
+```
+
+```{r}
+library(tidybulk)
+se <- se %>%
+  keep_abundant(factor_of_interest = strain) %>%
+  scale_abundance()
+```
+
+```{r}
+pca <- se %>%
+  reduce_dimensions(method="PCA")
+library(ggplot2)
+pca %>%
+  pivot_sample() %>%
+  ggplot(aes(PC1, PC2, shape=strain, color=minute)) +
+  geom_point()
+```
+
+```{r}
+library(tidySummarizedExperiment)
+se <- se %>%
+  mutate(logcounts = log2(counts_scaled + 1),
+         logcounts = (logcounts - mean(logcounts))/sd(logcounts))
+se <- se %>%
+  mutate(time = as.numeric(as.character(minute)) / 180)
+```
+
+```{r}
+se_sub <- se %>%
+  filter(time != 0)
+se_sub <- se_sub[1:100,]
+flabel <- rep(1:20, each=5)
+names(flabel) <- rownames(se_sub)
+se_sub <- se_sub %>%
+  mutate(flabel = flabel[.feature])
+```
+
+```{r}
+library(purrr)
+library(glmnet)
+nested <- se_sub %>%
+  nest(data = -flabel) %>%
+  mutate(wide = map(data, \(d) {
+    
+    suppressMessages({
+      d %>%
+        select(.sample, strain, time, .feature, logcounts) %>%
+        pivot_wider(names_from = .feature, values_from = logcounts)
+    })
+    
+  }))
+
+nested %>%
+  mutate(fit = map(wide, \(d) {
+
+    mat <- d %>%
+      filter(strain == "wt") %>%
+      select(-c(.sample, strain)) %>%
+      as.matrix()
+    cv.glmnet(x = mat[,-1], y = mat[,1], nfolds = 5)
+    
+  }))
+
+# predict(fit, newx=mat[,-1])[,1]
+```
