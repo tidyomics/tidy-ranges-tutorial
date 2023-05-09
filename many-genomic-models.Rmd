@@ -1,5 +1,37 @@
 # Many models
 
+Objective: learn how to run many models (think many linear regressions or
+many machine learning models) in a tidy framework, by "nesting" the
+genomic dataset and storing the fitted models as rows of a new column
+in the nested table.
+
+In the previous chapter, we looked at some basic filtering and
+plotting operations, with perhaps the most interesting operation being
+a grouped centering of the gene expression.  Here we will explore a
+special case of tidy-style operations on a genomic dataset, in
+particular a *SummarizedExperiment*, where we want to run multiple,
+similar models across groups of features (or likewise, the same could
+be done to rows).
+
+For some other references to these types of operations, you can check
+out:
+
+* [The "many models" chapter of R for Data Science](https://r4ds.had.co.nz/many-models.html) 
+  by Hadley Wickham and Garrett Grolemund, which introduced the basics
+  of how to run many models in a tidy framework
+* The [nest](https://tidyr.tidyverse.org/articles/nest.html)
+  documentation in *tidyr*
+* The [tidymodels](https://www.tidymodels.org/) package
+
+Given the size of genomic data, and the way in which
+*tidySummarizedExperiment* abstracts the link between data (`assay`)
+and metadata (`rowData` and `colData`), we will consider in this
+chapter, how the speed of the operations may be impacted by our
+choices in setting up the code. In the end, you may find that more
+standard way of running the analyses is more efficient, depending on
+the cost incurred by the nesting operation, which we will describe
+shortly.
+
 ```{r message=FALSE}
 library(fission)
 data(fission)

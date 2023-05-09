@@ -9,7 +9,7 @@ rmd_files:
   "snp-position-in-peaks.Rmd",
   "gene-plots.Rmd",
   "rna-seq-eda.Rmd",
-  "many-models.Rmd",
+  "many-genomic-models.Rmd",
   "isoform-analysis.Rmd",
   "references.Rmd"]
 bibliography: references.bib
