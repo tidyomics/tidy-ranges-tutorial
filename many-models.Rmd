@@ -24,7 +24,7 @@ pca %>%
   geom_point()
 ```
 
-```{r}
+```{r message=FALSE}
 library(tidySummarizedExperiment)
 se <- se %>%
   mutate(logcounts = log2(counts_scaled + 1),
@@ -33,22 +33,55 @@ se <- se %>%
   mutate(time = as.numeric(as.character(minute)) / 180)
 ```
 
-```{r}
-se_sub <- se %>%
-  filter(time != 0)
-se_sub <- se_sub[1:100,]
-flabel <- rep(1:20, each=5)
-names(flabel) <- rownames(se_sub)
-se_sub <- se_sub %>%
-  mutate(flabel = flabel[.feature])
+The original
+[publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4050258/) 
+states:
+
+> Sequencing reads were aligned to the fission yeast genome (PomBase
+> database release 11)
+
+```{r message=FALSE}
+library(plyranges)
+rowRanges(se) %>%
+  filter(seqnames == "I") %>%
+  summarize(max(end))
+genes_to_keep <- rowRanges(se) %>%
+  filter(seqnames == "I") %>%
+  names()
 ```
 
 ```{r}
+se0 <- se # save the original object
+se <- se %>%
+  filter(time != 0) %>%
+  filter(.feature %in% genes_to_keep)
+```
+
+```{r}
+tiles <- data.frame(seqnames="I",start=1,end=5.6e6) %>%
+  as_granges() %>%
+  tile_ranges(width=1e5) %>%
+  select(-partition) %>%
+  mutate(tile = seq_along(.))
+tiles
+```
+
+```{r}
+tile <- rowRanges(se) %>%
+  anchor_5p() %>%
+  mutate(width=1) %>%
+  join_overlap_left(tiles) %>%
+  select(tile, .drop_ranges=TRUE)
+nrow(se) == nrow(tile)
+rowData(se) <- cbind(rowData(se), tile)
+```
+
+```{r message=FALSE}
 library(purrr)
 library(glmnet)
-nested <- se_sub %>%
-  nest(data = -flabel) %>%
-  mutate(wide = map(data, \(d) {
+nested <- se %>%
+  nest(data = -tile) %>%
+  mutate(train = map(data, \(d) {
     
     suppressMessages({
       d %>%
@@ -57,17 +90,37 @@ nested <- se_sub %>%
     })
     
   }))
+```
 
-nested %>%
-  mutate(fit = map(wide, \(d) {
+```{r}
+nested <- nested %>%
+  mutate(fit = map(train, \(tr) {
 
-    mat <- d %>%
-      filter(strain == "wt") %>%
-      select(-c(.sample, strain)) %>%
+    x <- tr %>%
+      select(-c(.sample, strain, time)) %>%
       as.matrix()
-    cv.glmnet(x = mat[,-1], y = mat[,1], nfolds = 5)
+    y <- tr %>% pull(time)
+    glmnet(x = x, y = y, alpha = .5, lambda = .1)
     
   }))
+```
 
-# predict(fit, newx=mat[,-1])[,1]
+```{r}
+nested <- nested %>%
+  mutate(
+    pred = map2(train, fit, \(tr,f) {
+      newx <- tr %>%
+        select(-c(.sample, strain, time)) %>%
+        as.matrix()
+      predict(f, newx = newx)[,1]
+    }),
+    obs = map(train, \(tr) tr %>% pull(time)),
+    n = map_dbl(data, nrow),
+    in_r2 = map2_dbl(obs, pred, \(x,y) cor(x,y)^2)
+  )
+```
+
+```{r}
+library(ggplot2)
+ggplot(nested, aes(n, in_r2)) + geom_point()
 ```
