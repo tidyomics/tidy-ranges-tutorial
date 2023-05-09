@@ -7,14 +7,23 @@ se <- fission
 colData(se)
 ```
 
-```{r}
+We again use *tidybulk* to filter to abundant genes and scale counts
+for library size:
+
+```{r message=FALSE}
 library(tidybulk)
 se <- se %>%
   keep_abundant(factor_of_interest = strain) %>%
   scale_abundance()
+assayNames(se)
 ```
 
-```{r}
+We make a PCA plot of the log scaled counts, to get a sense for
+how the samples vary. Note that minute 0 and 180 are similar, as the
+cells have not yet responded to the stimulus at minute 0. We will
+later remove these samples for simple modeling.
+
+```{r fission-pca}
 pca <- se %>%
   reduce_dimensions(method="PCA")
 library(ggplot2)
@@ -24,6 +33,11 @@ pca %>%
   geom_point()
 ```
 
+Using *tidySummarizedExperiment*, we compute `logcounts` and then
+center and scale these values. Likewise, we turn the `minute` variable
+from a factor into a numeric, and scale from 0 to 1. These changes
+will help us compare coefficients across gene later.
+
 ```{r message=FALSE}
 library(tidySummarizedExperiment)
 se <- se %>%
@@ -31,14 +45,26 @@ se <- se %>%
          logcounts = (logcounts - mean(logcounts))/sd(logcounts))
 se <- se %>%
   mutate(time = as.numeric(as.character(minute)) / 180)
+se
 ```
 
-The original
+For demonstration, we will work with just the first chromosome: `I`.
+
+For our task of modeling the design using gene expression, in blocks
+along the genome, we need to create tiles to determine which genes
+to group together. To do so, we need to know how long the chromosomes
+are. The original
 [publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4050258/) 
 states:
 
 > Sequencing reads were aligned to the fission yeast genome (PomBase
 > database release 11)
+
+Usually we would look for the length of chromosomes from a source that
+hosts the reference (e.g. UCSC genome lengths can be obtained using
+`Seqinfo`). In this case, I wasn't able to find information about this
+particular release, so I just guess the length of the chromosome using
+the gene with the largest coordinate:
 
 ```{r message=FALSE}
 library(plyranges)
@@ -50,12 +76,18 @@ genes_to_keep <- rowRanges(se) %>%
   names()
 ```
 
+We now filter the `se` object to remove the 0 time point, and to
+keep just the features on chromosome I.
+
 ```{r}
 se0 <- se # save the original object
 se <- se %>%
   filter(time != 0) %>%
   filter(.feature %in% genes_to_keep)
 ```
+
+To make tiles on chromosome I, we just need to specify the extent
+(here I plug in the largest gene coordinate):
 
 ```{r}
 tiles <- data.frame(seqnames="I",start=1,end=5.6e6) %>%
@@ -66,61 +98,84 @@ tiles <- data.frame(seqnames="I",start=1,end=5.6e6) %>%
 tiles
 ```
 
+We now determine which tile the genes fall in (using TSS only, so
+that genes fall in a single tile).
+
 ```{r}
-tile <- rowRanges(se) %>%
+ranges_tiled <- rowRanges(se) %>%
   anchor_5p() %>%
   mutate(width=1) %>%
   join_overlap_left(tiles) %>%
   select(tile, .drop_ranges=TRUE)
-nrow(se) == nrow(tile)
-rowData(se) <- cbind(rowData(se), tile)
+nrow(se) == nrow(ranges_tiled)
+rowData(se) <- cbind(rowData(se), ranges_tiled)
 ```
+
+Typically we have a little less than 50 genes per tile:
+
+```{r}
+summary(as.vector(table(rowData(se)$tile)))
+```
+
+Next, we want to create a *nested* table, where *tidySE* (shortened
+name for *tidySummarizedExperiment*) objects are grouped by tile and
+placed within a column of the table. There are a few choices on how to
+proceed. One option would be to `pivot_wider` the *tidySE*, as in this
+chunk below:
+
+```{r}
+se %>%
+  filter(.feature %in% rownames(se)[1:5]) %>%
+  select(.sample, strain, time, .feature, logcounts) %>%
+  pivot_wider(names_from = .feature, values_from = logcounts)
+```
+
+This ends up being a bit slower than just extracting the information
+with `assay` and transposing it.
 
 ```{r message=FALSE}
 library(purrr)
-library(glmnet)
 nested <- se %>%
   nest(data = -tile) %>%
-  mutate(train = map(data, \(d) {
-    
-    suppressMessages({
-      d %>%
-        select(.sample, strain, time, .feature, logcounts) %>%
-        pivot_wider(names_from = .feature, values_from = logcounts)
-    })
-    
+  mutate(trainx = map(data, \(d) {
+    t(assay(d, "logcounts"))
   }))
+nested
 ```
 
-```{r}
+We fit an elastic net model:
+
+```{r message=FALSE}
+library(glmnet)
+y <- colData(se)$time
 nested <- nested %>%
-  mutate(fit = map(train, \(tr) {
-
-    x <- tr %>%
-      select(-c(.sample, strain, time)) %>%
-      as.matrix()
-    y <- tr %>% pull(time)
+  mutate(fit = map(trainx, \(x) {
     glmnet(x = x, y = y, alpha = .5, lambda = .1)
-    
   }))
+nested
 ```
+
+We use the elastic net model, to predict the design from the gene
+expression (a variable number and set of genes per tile):
 
 ```{r}
 nested <- nested %>%
   mutate(
-    pred = map2(train, fit, \(tr,f) {
-      newx <- tr %>%
-        select(-c(.sample, strain, time)) %>%
-        as.matrix()
-      predict(f, newx = newx)[,1]
+    pred = map2(trainx, fit, \(tr,fit) {
+      predict(fit, newx = tr)[,1]
     }),
-    obs = map(train, \(tr) tr %>% pull(time)),
     n = map_dbl(data, nrow),
-    in_r2 = map2_dbl(obs, pred, \(x,y) cor(x,y)^2)
+    in_r2 = map_dbl(pred, \(pred) cor(pred,y)^2)
   )
+nested
 ```
 
-```{r}
+Finally we plot the prediction $R^2$, and compare to the number of
+genes in the models:
+
+```{r many-models-r2}
 library(ggplot2)
-ggplot(nested, aes(n, in_r2)) + geom_point()
+ggplot(nested, aes(n, in_r2)) +
+  geom_point() +
+  ylab("in-sample r2")
 ```
