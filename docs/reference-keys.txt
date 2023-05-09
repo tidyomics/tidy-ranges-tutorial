@@ -5,5 +5,5 @@ bootstrap-overlap
 snp-position-in-peaks
 gene-plots
 rna-seq-eda
-many-models
+many-genomic-models
 isoform-analysis

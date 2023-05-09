@@ -1,4 +1,4 @@
-# Many models
+# Many genomic models
 
 Objective: learn how to run many models (think many linear regressions or
 many machine learning models) in a tidy framework, by "nesting" the

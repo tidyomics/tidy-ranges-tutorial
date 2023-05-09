@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 8 Many genomic models | Tidy Ranges Tutorial</title>
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 8 Many genomic models | Tidy Ranges Tutorial" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="github-repo" content="nullranges/tidy-ranges-tutorial" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 8 Many genomic models | Tidy Ranges Tutorial" />
+  
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  
+
+<meta name="author" content="nullranges devel team" />
+
+
+<meta name="date" content="2023-05-09" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="rna-seq-eda.html"/>
+<link rel="next" href="isoform-analysis.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy Ranges Tutorial</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="compute-overlaps.html"><a href="compute-overlaps.html"><i class="fa fa-check"></i><b>2</b> Compute overlaps</a></li>
+<li class="chapter" data-level="3" data-path="promoter-marks.html"><a href="promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Promoter marks</a></li>
+<li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="gene-plots.html"><a href="gene-plots.html"><i class="fa fa-check"></i><b>6</b> Gene plots</a></li>
+<li class="chapter" data-level="7" data-path="rna-seq-eda.html"><a href="rna-seq-eda.html"><i class="fa fa-check"></i><b>7</b> RNA-seq EDA</a></li>
+<li class="chapter" data-level="8" data-path="many-genomic-models.html"><a href="many-genomic-models.html"><i class="fa fa-check"></i><b>8</b> Many genomic models</a></li>
+<li class="chapter" data-level="9" data-path="isoform-analysis.html"><a href="isoform-analysis.html"><i class="fa fa-check"></i><b>9</b> Isoform analysis</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Tidy Ranges Tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="many-genomic-models" class="section level1 hasAnchor" number="8">
+<h1><span class="header-section-number">Chapter 8</span> Many genomic models<a href="many-genomic-models.html#many-genomic-models" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Objective: learn how to run many models (think many linear regressions or
+many machine learning models) in a tidy framework, by “nesting” the
+genomic dataset and storing the fitted models as rows of a new column
+in the nested table.</p>
+<p>In the previous chapter, we looked at some basic filtering and
+plotting operations, with perhaps the most interesting operation being
+a grouped centering of the gene expression. Here we will explore a
+special case of tidy-style operations on a genomic dataset, in
+particular a <em>SummarizedExperiment</em>, where we want to run multiple,
+similar models across groups of features (or likewise, the same could
+be done to rows).</p>
+<p>For some other references to these types of operations, you can check
+out:</p>
+<ul>
+<li><a href="https://r4ds.had.co.nz/many-models.html">The “many models” chapter of R for Data Science</a>
+by Hadley Wickham and Garrett Grolemund, which introduced the basics
+of how to run many models in a tidy framework</li>
+<li>The <a href="https://tidyr.tidyverse.org/articles/nest.html">nest</a>
+documentation in <em>tidyr</em></li>
+<li>The <a href="https://www.tidymodels.org/">tidymodels</a> package</li>
+</ul>
+<p>Given the size of genomic data, and the way in which
+<em>tidySummarizedExperiment</em> abstracts the link between data (<code>assay</code>)
+and metadata (<code>rowData</code> and <code>colData</code>), we will consider in this
+chapter, how the speed of the operations may be impacted by our
+choices in setting up the code. In the end, you may find that more
+standard way of running the analyses is more efficient, depending on
+the cost incurred by the nesting operation, which we will describe
+shortly.</p>
+<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="many-genomic-models.html#cb191-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fission)</span>
+<span id="cb191-2"><a href="many-genomic-models.html#cb191-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fission)</span>
+<span id="cb191-3"><a href="many-genomic-models.html#cb191-3" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> fission</span>
+<span id="cb191-4"><a href="many-genomic-models.html#cb191-4" aria-hidden="true" tabindex="-1"></a><span class="fu">colData</span>(se)</span></code></pre></div>
+<pre><code>## DataFrame with 36 rows and 4 columns
+##              strain   minute replicate          id
+##            &lt;factor&gt; &lt;factor&gt;  &lt;factor&gt; &lt;character&gt;
+## GSM1368273       wt       0         r1     wt_0_r1
+## GSM1368274       wt       0         r2     wt_0_r2
+## GSM1368275       wt       0         r3     wt_0_r3
+## GSM1368276       wt       15        r1    wt_15_r1
+## GSM1368277       wt       15        r2    wt_15_r2
+## ...             ...      ...       ...         ...
+## GSM1368304      mut      120        r2  mut_120_r2
+## GSM1368305      mut      120        r3  mut_120_r3
+## GSM1368306      mut      180        r1  mut_180_r1
+## GSM1368307      mut      180        r2  mut_180_r2
+## GSM1368308      mut      180        r3  mut_180_r3</code></pre>
+<p>We again use <em>tidybulk</em> to filter to abundant genes and scale counts
+for library size:</p>
+<div class="sourceCode" id="cb193"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb193-1"><a href="many-genomic-models.html#cb193-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybulk)</span>
+<span id="cb193-2"><a href="many-genomic-models.html#cb193-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb193-3"><a href="many-genomic-models.html#cb193-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">keep_abundant</span>(<span class="at">factor_of_interest =</span> strain) <span class="sc">%&gt;%</span></span>
+<span id="cb193-4"><a href="many-genomic-models.html#cb193-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_abundance</span>()</span>
+<span id="cb193-5"><a href="many-genomic-models.html#cb193-5" aria-hidden="true" tabindex="-1"></a><span class="fu">assayNames</span>(se)</span></code></pre></div>
+<pre><code>## [1] &quot;counts&quot;        &quot;counts_scaled&quot;</code></pre>
+<p>We make a PCA plot of the log scaled counts, to get a sense for
+how the samples vary. Note that minute 0 and 180 are similar, as the
+cells have not yet responded to the stimulus at minute 0. We will
+later remove these samples for simple modeling.</p>
+<div class="sourceCode" id="cb195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb195-1"><a href="many-genomic-models.html#cb195-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb195-2"><a href="many-genomic-models.html#cb195-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_dimensions</span>(<span class="at">method=</span><span class="st">&quot;PCA&quot;</span>)</span></code></pre></div>
+<pre><code>## Getting the 500 most variable genes</code></pre>
+<pre><code>## Fraction of variance explained by the selected principal components</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   `Fraction of variance`    PC
+##                    &lt;dbl&gt; &lt;int&gt;
+## 1                  0.293     1
+## 2                  0.182     2</code></pre>
+<pre><code>## tidybulk says: to access the raw results do `attr(..., &quot;internals&quot;)$PCA`</code></pre>
+<div class="sourceCode" id="cb200"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb200-1"><a href="many-genomic-models.html#cb200-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb200-2"><a href="many-genomic-models.html#cb200-2" aria-hidden="true" tabindex="-1"></a>pca <span class="sc">%&gt;%</span></span>
+<span id="cb200-3"><a href="many-genomic-models.html#cb200-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_sample</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb200-4"><a href="many-genomic-models.html#cb200-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(PC1, PC2, <span class="at">shape=</span>strain, <span class="at">color=</span>minute)) <span class="sc">+</span></span>
+<span id="cb200-5"><a href="many-genomic-models.html#cb200-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div>
+<p><img src="many-genomic-models_files/figure-html/fission-pca-1.png" width="672" /></p>
+<p>Using <em>tidySummarizedExperiment</em>, we compute <code>logcounts</code> and then
+center and scale these values. Likewise, we turn the <code>minute</code> variable
+from a factor into a numeric, and scale from 0 to 1. These changes
+will help us compare coefficients across gene later.</p>
+<div class="sourceCode" id="cb201"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb201-1"><a href="many-genomic-models.html#cb201-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySummarizedExperiment)</span>
+<span id="cb201-2"><a href="many-genomic-models.html#cb201-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb201-3"><a href="many-genomic-models.html#cb201-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> <span class="fu">log2</span>(counts_scaled <span class="sc">+</span> <span class="dv">1</span>),</span>
+<span id="cb201-4"><a href="many-genomic-models.html#cb201-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">logcounts =</span> (logcounts <span class="sc">-</span> <span class="fu">mean</span>(logcounts))<span class="sc">/</span><span class="fu">sd</span>(logcounts))</span>
+<span id="cb201-5"><a href="many-genomic-models.html#cb201-5" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb201-6"><a href="many-genomic-models.html#cb201-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(minute)) <span class="sc">/</span> <span class="dv">180</span>)</span>
+<span id="cb201-7"><a href="many-genomic-models.html#cb201-7" aria-hidden="true" tabindex="-1"></a>se</span></code></pre></div>
+<pre><code>## # A SummarizedExperiment-tibble abstraction: 210,996 × 20
+## # [90mFeatures=5861 | Samples=36 | Assays=counts, counts_scaled, logcounts[0m
+##    .feature    .sample counts count…¹ logco…² strain minute repli…³ id      TMM multi…⁴  time symbol
+##    &lt;chr&gt;       &lt;chr&gt;    &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;   &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; 
+##  1 SPAC212.09c GSM136…     23    23.1  -1.70  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
+##  2 SPAC212.04c GSM136…     37    37.1  -1.42  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
+##  3 SPAC977.11  GSM136…    155   155.   -0.581 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
+##  4 SPAC977.13c GSM136…     19    19.0  -1.81  wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
+##  5 SPAC977.15  GSM136…     91    91.2  -0.896 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
+##  6 SPAC977.16c GSM136…    184   184.   -0.479 wt     0      r1      wt_0…  1.18    1.00     0 dak2  
+##  7 SPNCRNA.607 GSM136…     49    49.1  -1.26  wt     0      r1      wt_0…  1.18    1.00     0 SPNCR…
+##  8 SPAC1F8.06  GSM136…    105   105.   -0.812 wt     0      r1      wt_0…  1.18    1.00     0 fta5  
+##  9 SPAC1F8.08  GSM136…    151   151.   -0.597 wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
+## 10 SPAC11D3.19 GSM136…     22    22.1  -1.72  wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
+## # … with 40 more rows, 7 more variables: biotype &lt;fct&gt;, .abundant &lt;lgl&gt;, seqnames &lt;fct&gt;,
+## #   start &lt;int&gt;, end &lt;int&gt;, width &lt;int&gt;, strand &lt;fct&gt;, and abbreviated variable names
+## #   ¹​counts_scaled, ²​logcounts, ³​replicate, ⁴​multiplier</code></pre>
+<p>For demonstration, we will work with just the first chromosome: <code>I</code>.</p>
+<p>For our task of modeling the design using gene expression, in blocks
+along the genome, we need to create tiles to determine which genes
+to group together. To do so, we need to know how long the chromosomes
+are. The original
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4050258/">publication</a>
+states:</p>
+<blockquote>
+<p>Sequencing reads were aligned to the fission yeast genome (PomBase
+database release 11)</p>
+</blockquote>
+<p>Usually we would look for the length of chromosomes from a source that
+hosts the reference (e.g. UCSC genome lengths can be obtained using
+<code>Seqinfo</code>). In this case, I wasn’t able to find information about this
+particular release, so I just guess the length of the chromosome using
+the gene with the largest coordinate:</p>
+<div class="sourceCode" id="cb203"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb203-1"><a href="many-genomic-models.html#cb203-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb203-2"><a href="many-genomic-models.html#cb203-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rowRanges</span>(se) <span class="sc">%&gt;%</span></span>
+<span id="cb203-3"><a href="many-genomic-models.html#cb203-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(seqnames <span class="sc">==</span> <span class="st">&quot;I&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb203-4"><a href="many-genomic-models.html#cb203-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">max</span>(end))</span></code></pre></div>
+<pre><code>## DataFrame with 1 row and 1 column
+##    max.end.
+##   &lt;integer&gt;
+## 1   5556768</code></pre>
+<div class="sourceCode" id="cb205"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb205-1"><a href="many-genomic-models.html#cb205-1" aria-hidden="true" tabindex="-1"></a>genes_to_keep <span class="ot">&lt;-</span> <span class="fu">rowRanges</span>(se) <span class="sc">%&gt;%</span></span>
+<span id="cb205-2"><a href="many-genomic-models.html#cb205-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(seqnames <span class="sc">==</span> <span class="st">&quot;I&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb205-3"><a href="many-genomic-models.html#cb205-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code></pre></div>
+<p>We now filter the <code>se</code> object to remove the 0 time point, and to
+keep just the features on chromosome I.</p>
+<div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb206-1"><a href="many-genomic-models.html#cb206-1" aria-hidden="true" tabindex="-1"></a>se0 <span class="ot">&lt;-</span> se <span class="co"># save the original object</span></span>
+<span id="cb206-2"><a href="many-genomic-models.html#cb206-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb206-3"><a href="many-genomic-models.html#cb206-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb206-4"><a href="many-genomic-models.html#cb206-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.feature <span class="sc">%in%</span> genes_to_keep)</span></code></pre></div>
+<p>To make tiles on chromosome I, we just need to specify the extent
+(here I plug in the largest gene coordinate):</p>
+<div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="many-genomic-models.html#cb207-1" aria-hidden="true" tabindex="-1"></a>tiles <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">seqnames=</span><span class="st">&quot;I&quot;</span>,<span class="at">start=</span><span class="dv">1</span>,<span class="at">end=</span><span class="fl">5.6e6</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb207-2"><a href="many-genomic-models.html#cb207-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_granges</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb207-3"><a href="many-genomic-models.html#cb207-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tile_ranges</span>(<span class="at">width=</span><span class="fl">1e5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb207-4"><a href="many-genomic-models.html#cb207-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>partition) <span class="sc">%&gt;%</span></span>
+<span id="cb207-5"><a href="many-genomic-models.html#cb207-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tile =</span> <span class="fu">seq_along</span>(.))</span>
+<span id="cb207-6"><a href="many-genomic-models.html#cb207-6" aria-hidden="true" tabindex="-1"></a>tiles</span></code></pre></div>
+<pre><code>## GRanges object with 56 ranges and 1 metadata column:
+##        seqnames          ranges strand |      tile
+##           &lt;Rle&gt;       &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt;
+##    [1]        I        1-100000      * |         1
+##    [2]        I   100001-200000      * |         2
+##    [3]        I   200001-300000      * |         3
+##    [4]        I   300001-400000      * |         4
+##    [5]        I   400001-500000      * |         5
+##    ...      ...             ...    ... .       ...
+##   [52]        I 5100001-5200000      * |        52
+##   [53]        I 5200001-5300000      * |        53
+##   [54]        I 5300001-5400000      * |        54
+##   [55]        I 5400001-5500000      * |        55
+##   [56]        I 5500001-5600000      * |        56
+##   -------
+##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
+<p>We now determine which tile the genes fall in (using TSS only, so
+that genes fall in a single tile).</p>
+<div class="sourceCode" id="cb209"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb209-1"><a href="many-genomic-models.html#cb209-1" aria-hidden="true" tabindex="-1"></a>ranges_tiled <span class="ot">&lt;-</span> <span class="fu">rowRanges</span>(se) <span class="sc">%&gt;%</span></span>
+<span id="cb209-2"><a href="many-genomic-models.html#cb209-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb209-3"><a href="many-genomic-models.html#cb209-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb209-4"><a href="many-genomic-models.html#cb209-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_left</span>(tiles) <span class="sc">%&gt;%</span></span>
+<span id="cb209-5"><a href="many-genomic-models.html#cb209-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tile, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>)</span>
+<span id="cb209-6"><a href="many-genomic-models.html#cb209-6" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(se) <span class="sc">==</span> <span class="fu">nrow</span>(ranges_tiled)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb211"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb211-1"><a href="many-genomic-models.html#cb211-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rowData</span>(se) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rowData</span>(se), ranges_tiled)</span></code></pre></div>
+<p>Typically we have a little less than 50 genes per tile:</p>
+<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="many-genomic-models.html#cb212-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.vector</span>(<span class="fu">table</span>(<span class="fu">rowData</span>(se)<span class="sc">$</span>tile)))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    5.00   44.00   49.00   46.98   51.25   59.00</code></pre>
+<p>Next, we want to create a <em>nested</em> table, where <em>tidySE</em> (shortened
+name for <em>tidySummarizedExperiment</em>) objects are grouped by tile and
+placed within a column of the table. There are a few choices on how to
+proceed. One option would be to <code>pivot_wider</code> the <em>tidySE</em>, as in this
+chunk below:</p>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="many-genomic-models.html#cb214-1" aria-hidden="true" tabindex="-1"></a>se <span class="sc">%&gt;%</span></span>
+<span id="cb214-2"><a href="many-genomic-models.html#cb214-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.feature <span class="sc">%in%</span> <span class="fu">rownames</span>(se)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">%&gt;%</span></span>
+<span id="cb214-3"><a href="many-genomic-models.html#cb214-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(.sample, strain, time, .feature, logcounts) <span class="sc">%&gt;%</span></span>
+<span id="cb214-4"><a href="many-genomic-models.html#cb214-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> .feature, <span class="at">values_from =</span> logcounts)</span></code></pre></div>
+<pre><code>## tidySummarizedExperiment says: A data frame is returned for independent data analysis.</code></pre>
+<pre><code>## # A tibble: 30 × 8
+##    .sample    strain   time SPAC212.09c SPAC212.04c SPAC977.11 SPAC977.13c SPAC977.15
+##    &lt;chr&gt;      &lt;fct&gt;   &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;
+##  1 GSM1368276 wt     0.0833      -1.30       -1.51      -0.705      -1.85      -0.617
+##  2 GSM1368277 wt     0.0833      -1.03       -2.01      -1.19       -1.27      -0.677
+##  3 GSM1368278 wt     0.0833      -0.993      -2.11      -1.13       -1.88      -0.364
+##  4 GSM1368279 wt     0.167       -0.802      -1.40      -0.690      -0.324     -0.966
+##  5 GSM1368280 wt     0.167       -0.574      -1.06      -0.847      -0.399     -0.835
+##  6 GSM1368281 wt     0.167       -0.685      -0.880     -0.685      -0.571     -0.779
+##  7 GSM1368282 wt     0.333       -0.744      -1.56      -1.10       -1.45      -1.45 
+##  8 GSM1368283 wt     0.333       -0.959      -1.58      -0.910      -0.828     -1.11 
+##  9 GSM1368284 wt     0.333       -0.832      -1.51      -0.874      -1.07      -1.01 
+## 10 GSM1368285 wt     0.667       -1.03       -1.49      -0.866      -1.74      -1.40 
+## # … with 20 more rows</code></pre>
+<p>This ends up being a bit slower than just extracting the information
+with <code>assay</code> and transposing it.</p>
+<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="many-genomic-models.html#cb217-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb217-2"><a href="many-genomic-models.html#cb217-2" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb217-3"><a href="many-genomic-models.html#cb217-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">data =</span> <span class="sc">-</span>tile) <span class="sc">%&gt;%</span></span>
+<span id="cb217-4"><a href="many-genomic-models.html#cb217-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trainx =</span> <span class="fu">map</span>(data, \(d) {</span>
+<span id="cb217-5"><a href="many-genomic-models.html#cb217-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>(<span class="fu">assay</span>(d, <span class="st">&quot;logcounts&quot;</span>))</span>
+<span id="cb217-6"><a href="many-genomic-models.html#cb217-6" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb217-7"><a href="many-genomic-models.html#cb217-7" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<pre><code>## # A tibble: 56 × 3
+##     tile data            trainx         
+##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;         
+##  1     1 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 20]&gt;
+##  2     2 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt;
+##  3     3 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt;
+##  4     4 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt;
+##  5     5 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 44]&gt;
+##  6     6 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 53]&gt;
+##  7     7 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 45]&gt;
+##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt;
+##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt;
+## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt;
+## # … with 46 more rows</code></pre>
+<p>We fit an elastic net model:</p>
+<div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="many-genomic-models.html#cb219-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb219-2"><a href="many-genomic-models.html#cb219-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">colData</span>(se)<span class="sc">$</span>time</span>
+<span id="cb219-3"><a href="many-genomic-models.html#cb219-3" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
+<span id="cb219-4"><a href="many-genomic-models.html#cb219-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">map</span>(trainx, \(x) {</span>
+<span id="cb219-5"><a href="many-genomic-models.html#cb219-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glmnet</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">alpha =</span> .<span class="dv">5</span>, <span class="at">lambda =</span> .<span class="dv">1</span>)</span>
+<span id="cb219-6"><a href="many-genomic-models.html#cb219-6" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb219-7"><a href="many-genomic-models.html#cb219-7" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<pre><code>## # A tibble: 56 × 4
+##     tile data            trainx          fit    
+##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;          &lt;list&gt; 
+##  1     1 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 20]&gt; &lt;elnet&gt;
+##  2     2 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt; &lt;elnet&gt;
+##  3     3 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt;
+##  4     4 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt; &lt;elnet&gt;
+##  5     5 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 44]&gt; &lt;elnet&gt;
+##  6     6 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 53]&gt; &lt;elnet&gt;
+##  7     7 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 45]&gt; &lt;elnet&gt;
+##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt; &lt;elnet&gt;
+##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt;
+## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt; &lt;elnet&gt;
+## # … with 46 more rows</code></pre>
+<p>We use the elastic net model, to predict the design from the gene
+expression (a variable number and set of genes per tile):</p>
+<div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb221-1"><a href="many-genomic-models.html#cb221-1" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
+<span id="cb221-2"><a href="many-genomic-models.html#cb221-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb221-3"><a href="many-genomic-models.html#cb221-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred =</span> <span class="fu">map2</span>(trainx, fit, \(tr,fit) {</span>
+<span id="cb221-4"><a href="many-genomic-models.html#cb221-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">predict</span>(fit, <span class="at">newx =</span> tr)[,<span class="dv">1</span>]</span>
+<span id="cb221-5"><a href="many-genomic-models.html#cb221-5" aria-hidden="true" tabindex="-1"></a>    }),</span>
+<span id="cb221-6"><a href="many-genomic-models.html#cb221-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">map_dbl</span>(data, nrow),</span>
+<span id="cb221-7"><a href="many-genomic-models.html#cb221-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">in_r2 =</span> <span class="fu">map_dbl</span>(pred, \(pred) <span class="fu">cor</span>(pred,y)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb221-8"><a href="many-genomic-models.html#cb221-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb221-9"><a href="many-genomic-models.html#cb221-9" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<pre><code>## # A tibble: 56 × 7
+##     tile data            trainx          fit     pred           n in_r2
+##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;          &lt;list&gt;  &lt;list&gt;     &lt;dbl&gt; &lt;dbl&gt;
+##  1     1 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 20]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    20 0.851
+##  2     2 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    54 0.908
+##  3     3 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    41 0.906
+##  4     4 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 54]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    54 0.880
+##  5     5 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 44]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    44 0.912
+##  6     6 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 53]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    53 0.892
+##  7     7 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 45]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    45 0.894
+##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    47 0.856
+##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    41 0.890
+## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    59 0.894
+## # … with 46 more rows</code></pre>
+<p>Finally we plot the prediction <span class="math inline">\(R^2\)</span>, and compare to the number of
+genes in the models:</p>
+<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="many-genomic-models.html#cb223-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb223-2"><a href="many-genomic-models.html#cb223-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nested, <span class="fu">aes</span>(n, in_r2)) <span class="sc">+</span></span>
+<span id="cb223-3"><a href="many-genomic-models.html#cb223-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb223-4"><a href="many-genomic-models.html#cb223-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;in-sample r2&quot;</span>)</span></code></pre></div>
+<p><img src="many-genomic-models_files/figure-html/many-models-r2-1.png" width="672" /></p>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="rna-seq-eda.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="isoform-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
