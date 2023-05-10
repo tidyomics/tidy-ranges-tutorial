@@ -232,10 +232,10 @@ mouse ESC line where treatment with a compound leads to loss of OCT4
 expression. The experiment also involved the same approach to another
 transcription factor BRG1, but we focus here on the OCT4 samples.</p>
 <p>First we load the metadata about the samples:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="rna-seq-eda.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(oct4)</span>
-<span id="cb1-2"><a href="rna-seq-eda.html#cb1-2" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package=</span><span class="st">&quot;oct4&quot;</span>)</span>
-<span id="cb1-3"><a href="rna-seq-eda.html#cb1-3" aria-hidden="true" tabindex="-1"></a>coldata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(dir,<span class="st">&quot;coldata.csv&quot;</span>))</span>
-<span id="cb1-4"><a href="rna-seq-eda.html#cb1-4" aria-hidden="true" tabindex="-1"></a>coldata</span></code></pre></div>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="rna-seq-eda.html#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(oct4)</span>
+<span id="cb152-2"><a href="rna-seq-eda.html#cb152-2" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package=</span><span class="st">&quot;oct4&quot;</span>)</span>
+<span id="cb152-3"><a href="rna-seq-eda.html#cb152-3" aria-hidden="true" tabindex="-1"></a>coldata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(dir,<span class="st">&quot;coldata.csv&quot;</span>))</span>
+<span id="cb152-4"><a href="rna-seq-eda.html#cb152-4" aria-hidden="true" tabindex="-1"></a>coldata</span></code></pre></div>
 <pre><code>##         names line condition
 ## 1  SRX2236945 OCT4     untrt
 ## 2  SRX2236946 OCT4     untrt
@@ -249,33 +249,33 @@ transcription factor BRG1, but we focus here on the OCT4 samples.</p>
 ## 10 SRX2236954 BRG1       trt
 ## 11 SRX2236955 BRG1       trt
 ## 12 SRX2236956 BRG1       trt</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="rna-seq-eda.html#cb3-1" aria-hidden="true" tabindex="-1"></a>coldata<span class="sc">$</span>files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;quants&quot;</span>, coldata<span class="sc">$</span>names, <span class="st">&quot;quant.sf.gz&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb154-1"><a href="rna-seq-eda.html#cb154-1" aria-hidden="true" tabindex="-1"></a>coldata<span class="sc">$</span>files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;quants&quot;</span>, coldata<span class="sc">$</span>names, <span class="st">&quot;quant.sf.gz&quot;</span>)</span></code></pre></div>
 <p>Read in the count data with <em>tximeta</em>, which automatically imports the
 information about the gene provenance (which transcripts were used to
 quantify the gene and isoform abundance). We then summarize the
 quantification to the gene-level, and add the gene <code>SYMBOL</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="rna-seq-eda.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tximeta)</span>
-<span id="cb4-2"><a href="rna-seq-eda.html#cb4-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fu">tximeta</span>(coldata)</span>
-<span id="cb4-3"><a href="rna-seq-eda.html#cb4-3" aria-hidden="true" tabindex="-1"></a>gse <span class="ot">&lt;-</span> <span class="fu">summarizeToGene</span>(se)</span>
-<span id="cb4-4"><a href="rna-seq-eda.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Mm.eg.db)</span>
-<span id="cb4-5"><a href="rna-seq-eda.html#cb4-5" aria-hidden="true" tabindex="-1"></a>gse <span class="ot">&lt;-</span> <span class="fu">addIds</span>(gse, <span class="st">&quot;SYMBOL&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="rna-seq-eda.html#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tximeta)</span>
+<span id="cb155-2"><a href="rna-seq-eda.html#cb155-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fu">tximeta</span>(coldata)</span>
+<span id="cb155-3"><a href="rna-seq-eda.html#cb155-3" aria-hidden="true" tabindex="-1"></a>gse <span class="ot">&lt;-</span> <span class="fu">summarizeToGene</span>(se)</span>
+<span id="cb155-4"><a href="rna-seq-eda.html#cb155-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Mm.eg.db)</span>
+<span id="cb155-5"><a href="rna-seq-eda.html#cb155-5" aria-hidden="true" tabindex="-1"></a>gse <span class="ot">&lt;-</span> <span class="fu">addIds</span>(gse, <span class="st">&quot;SYMBOL&quot;</span>)</span></code></pre></div>
 <p>For this workflow, we don’t need the inferential replicates (about
 uncertainty regarding the quantification), so we keep just the counts,
 abundances (TPM), and gene lengths. We also manipulate the metadata a
 little bit.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="rna-seq-eda.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
-<span id="cb5-2"><a href="rna-seq-eda.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">assayNames</span>(gse)</span>
-<span id="cb5-3"><a href="rna-seq-eda.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">assays</span>(gse) <span class="ot">&lt;-</span> <span class="fu">assays</span>(gse)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
-<span id="cb5-4"><a href="rna-seq-eda.html#cb5-4" aria-hidden="true" tabindex="-1"></a>gse<span class="sc">$</span>rep <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span>)</span>
-<span id="cb5-5"><a href="rna-seq-eda.html#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(gse) <span class="ot">&lt;-</span> <span class="fu">paste</span>(gse<span class="sc">$</span>line,gse<span class="sc">$</span>condition,gse<span class="sc">$</span>rep,<span class="at">sep=</span><span class="st">&quot;-&quot;</span>)</span>
-<span id="cb5-6"><a href="rna-seq-eda.html#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">assay</span>(gse, <span class="st">&quot;counts&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">assay</span>(gse, <span class="st">&quot;counts&quot;</span>)) <span class="co"># for DE consistency</span></span>
-<span id="cb5-7"><a href="rna-seq-eda.html#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># save for easy loading later</span></span>
-<span id="cb5-8"><a href="rna-seq-eda.html#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(gse, <span class="at">file=</span><span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="rna-seq-eda.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
-<span id="cb6-2"><a href="rna-seq-eda.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb156"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb156-1"><a href="rna-seq-eda.html#cb156-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
+<span id="cb156-2"><a href="rna-seq-eda.html#cb156-2" aria-hidden="true" tabindex="-1"></a><span class="fu">assayNames</span>(gse)</span>
+<span id="cb156-3"><a href="rna-seq-eda.html#cb156-3" aria-hidden="true" tabindex="-1"></a><span class="fu">assays</span>(gse) <span class="ot">&lt;-</span> <span class="fu">assays</span>(gse)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb156-4"><a href="rna-seq-eda.html#cb156-4" aria-hidden="true" tabindex="-1"></a>gse<span class="sc">$</span>rep <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb156-5"><a href="rna-seq-eda.html#cb156-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(gse) <span class="ot">&lt;-</span> <span class="fu">paste</span>(gse<span class="sc">$</span>line,gse<span class="sc">$</span>condition,gse<span class="sc">$</span>rep,<span class="at">sep=</span><span class="st">&quot;-&quot;</span>)</span>
+<span id="cb156-6"><a href="rna-seq-eda.html#cb156-6" aria-hidden="true" tabindex="-1"></a><span class="fu">assay</span>(gse, <span class="st">&quot;counts&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">assay</span>(gse, <span class="st">&quot;counts&quot;</span>)) <span class="co"># for DE consistency</span></span>
+<span id="cb156-7"><a href="rna-seq-eda.html#cb156-7" aria-hidden="true" tabindex="-1"></a><span class="co"># save for easy loading later</span></span>
+<span id="cb156-8"><a href="rna-seq-eda.html#cb156-8" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(gse, <span class="at">file=</span><span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="rna-seq-eda.html#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
+<span id="cb157-2"><a href="rna-seq-eda.html#cb157-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;data/oct4_obj.rda&quot;</span>)</span></code></pre></div>
 <p>The dataset looks like this (remember it has untreated and treated
 samples for both OCT4 and BRG1).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="rna-seq-eda.html#cb7-1" aria-hidden="true" tabindex="-1"></a>gse</span></code></pre></div>
+<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="rna-seq-eda.html#cb158-1" aria-hidden="true" tabindex="-1"></a>gse</span></code></pre></div>
 <pre><code>## class: RangedSummarizedExperiment 
 ## dim: 53697 12 
 ## metadata(6): tximetaInfo quantInfo ... txomeInfo txdbInfo
@@ -289,14 +289,14 @@ samples for both OCT4 and BRG1).</p>
 which describes maintenance of pluripotency. We can extra this from
 the mouse organism data package with the following three lines of
 code:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="rna-seq-eda.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
-<span id="cb9-2"><a href="rna-seq-eda.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Mm.eg.db)</span></code></pre></div>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="rna-seq-eda.html#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
+<span id="cb160-2"><a href="rna-seq-eda.html#cb160-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Mm.eg.db)</span></code></pre></div>
 <pre><code>## </code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="rna-seq-eda.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pluripotency</span></span>
-<span id="cb11-2"><a href="rna-seq-eda.html#cb11-2" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">select</span>(org.Mm.eg.db, <span class="st">&quot;GO:0019827&quot;</span>, <span class="st">&quot;SYMBOL&quot;</span>, <span class="st">&quot;GO&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="rna-seq-eda.html#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pluripotency</span></span>
+<span id="cb162-2"><a href="rna-seq-eda.html#cb162-2" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">select</span>(org.Mm.eg.db, <span class="st">&quot;GO:0019827&quot;</span>, <span class="st">&quot;SYMBOL&quot;</span>, <span class="st">&quot;GO&quot;</span>)</span></code></pre></div>
 <pre><code>## &#39;select()&#39; returned 1:many mapping between keys and columns</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="rna-seq-eda.html#cb13-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> tab[<span class="sc">!</span><span class="fu">duplicated</span>(tab<span class="sc">$</span>SYMBOL),]</span>
-<span id="cb13-2"><a href="rna-seq-eda.html#cb13-2" aria-hidden="true" tabindex="-1"></a>pluri <span class="ot">&lt;-</span> tab<span class="sc">$</span>SYMBOL</span></code></pre></div>
+<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="rna-seq-eda.html#cb164-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> tab[<span class="sc">!</span><span class="fu">duplicated</span>(tab<span class="sc">$</span>SYMBOL),]</span>
+<span id="cb164-2"><a href="rna-seq-eda.html#cb164-2" aria-hidden="true" tabindex="-1"></a>pluri <span class="ot">&lt;-</span> tab<span class="sc">$</span>SYMBOL</span></code></pre></div>
 <p>Now we start with <em>tidybulk</em> code, comparing in turn to base R.
 Loading <em>tidySummarizedExperiment</em> allows us to operate on the <code>gse</code>
 object using familiar “tidy” verbs, thanks to an abstraction described
@@ -306,20 +306,20 @@ We filter the samples that correspond to the OCT4 experiment, and then
 modify the sample names. Samples are referred to with the special
 <code>.sample</code> string, while features are referred to with <code>.feature</code>, so
 here we create a new variable to plot the samples <code>sample_name</code>.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="rna-seq-eda.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySummarizedExperiment)</span>
-<span id="cb14-2"><a href="rna-seq-eda.html#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb14-3"><a href="rna-seq-eda.html#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb14-4"><a href="rna-seq-eda.html#cb14-4" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> gse <span class="sc">%&gt;%</span></span>
-<span id="cb14-5"><a href="rna-seq-eda.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(line <span class="sc">==</span> <span class="st">&quot;OCT4&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-6"><a href="rna-seq-eda.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sample_name =</span> .sample <span class="sc">%&gt;%</span></span>
-<span id="cb14-7"><a href="rna-seq-eda.html#cb14-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_remove</span>(<span class="st">&quot;OCT4-&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-8"><a href="rna-seq-eda.html#cb14-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">factor</span>(<span class="at">levels =</span> <span class="fu">unique</span>(.)),</span>
-<span id="cb14-9"><a href="rna-seq-eda.html#cb14-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">condition =</span> condition <span class="sc">%&gt;%</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;untrt&quot;</span>,<span class="st">&quot;trt&quot;</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="rna-seq-eda.html#cb165-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySummarizedExperiment)</span>
+<span id="cb165-2"><a href="rna-seq-eda.html#cb165-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb165-3"><a href="rna-seq-eda.html#cb165-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb165-4"><a href="rna-seq-eda.html#cb165-4" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> gse <span class="sc">%&gt;%</span></span>
+<span id="cb165-5"><a href="rna-seq-eda.html#cb165-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(line <span class="sc">==</span> <span class="st">&quot;OCT4&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb165-6"><a href="rna-seq-eda.html#cb165-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sample_name =</span> .sample <span class="sc">%&gt;%</span></span>
+<span id="cb165-7"><a href="rna-seq-eda.html#cb165-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_remove</span>(<span class="st">&quot;OCT4-&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb165-8"><a href="rna-seq-eda.html#cb165-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">factor</span>(<span class="at">levels =</span> <span class="fu">unique</span>(.)),</span>
+<span id="cb165-9"><a href="rna-seq-eda.html#cb165-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">condition =</span> condition <span class="sc">%&gt;%</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;untrt&quot;</span>,<span class="st">&quot;trt&quot;</span>)))</span></code></pre></div>
 <p>Note, the third line in the <code>mutate</code> call uses the <code>unique</code> function
 to set the levels: the consequence of this is that the <code>sample_name</code>
 factor will have levels in the order in which they are present in the
 current character vector and not alphabetical.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="rna-seq-eda.html#cb15-1" aria-hidden="true" tabindex="-1"></a>oct4</span></code></pre></div>
+<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="rna-seq-eda.html#cb166-1" aria-hidden="true" tabindex="-1"></a>oct4</span></code></pre></div>
 <pre><code>## # A SummarizedExperiment-tibble abstraction: 322,182 × 18
 ## # [90mFeatures=53697 | Samples=6 | Assays=counts, abundance, length[0m
 ##    .feature    .sample counts abund…¹ length names line  condi…²   rep sampl…³ gene_id tx_ids SYMBOL
@@ -340,49 +340,49 @@ current character vector and not alphabetical.</p>
 filtering and count scaling. For details on what is happening behind
 the scene, see the help, e.g. <code>?keep_abundant</code> describes that it makes
 use of <code>edgeR::filterByExpr</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="rna-seq-eda.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybulk)</span>
-<span id="cb17-2"><a href="rna-seq-eda.html#cb17-2" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a href="rna-seq-eda.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">keep_abundant</span>(<span class="at">factor_of_interest =</span> condition) <span class="sc">%&gt;%</span></span>
-<span id="cb17-4"><a href="rna-seq-eda.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_abundance</span>(<span class="at">method=</span><span class="st">&quot;RLE&quot;</span>) <span class="co"># DESeq2 scaling</span></span></code></pre></div>
+<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="rna-seq-eda.html#cb168-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybulk)</span>
+<span id="cb168-2"><a href="rna-seq-eda.html#cb168-2" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb168-3"><a href="rna-seq-eda.html#cb168-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">keep_abundant</span>(<span class="at">factor_of_interest =</span> condition) <span class="sc">%&gt;%</span></span>
+<span id="cb168-4"><a href="rna-seq-eda.html#cb168-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_abundance</span>(<span class="at">method=</span><span class="st">&quot;RLE&quot;</span>) <span class="co"># DESeq2 scaling</span></span></code></pre></div>
 <p>It is straightforward to pipe the data directly into plots:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="rna-seq-eda.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb18-2"><a href="rna-seq-eda.html#cb18-2" aria-hidden="true" tabindex="-1"></a>oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a href="rna-seq-eda.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb18-4"><a href="rna-seq-eda.html#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb18-5"><a href="rna-seq-eda.html#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="rna-seq-eda.html#cb169-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb169-2"><a href="rna-seq-eda.html#cb169-2" aria-hidden="true" tabindex="-1"></a>oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb169-3"><a href="rna-seq-eda.html#cb169-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb169-4"><a href="rna-seq-eda.html#cb169-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb169-5"><a href="rna-seq-eda.html#cb169-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>()</span></code></pre></div>
 <p><img src="rna-seq-eda_files/figure-html/tidy-boxplot-1.png" width="672" /></p>
 <p>For comparing code, let’s pull out the genes that remain:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="rna-seq-eda.html#cb19-1" aria-hidden="true" tabindex="-1"></a>gene_idx <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span> <span class="fu">pivot_transcript</span>() <span class="sc">%&gt;%</span> <span class="fu">pull</span>(.feature)</span>
-<span id="cb19-2"><a href="rna-seq-eda.html#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gene_idx)</span></code></pre></div>
+<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="rna-seq-eda.html#cb170-1" aria-hidden="true" tabindex="-1"></a>gene_idx <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span> <span class="fu">pivot_transcript</span>() <span class="sc">%&gt;%</span> <span class="fu">pull</span>(.feature)</span>
+<span id="cb170-2"><a href="rna-seq-eda.html#cb170-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gene_idx)</span></code></pre></div>
 <pre><code>## [1] &quot;ENSMUSG00000000001.4&quot;  &quot;ENSMUSG00000000028.15&quot; &quot;ENSMUSG00000000031.16&quot; &quot;ENSMUSG00000000037.16&quot;
 ## [5] &quot;ENSMUSG00000000056.7&quot;  &quot;ENSMUSG00000000058.6&quot;</code></pre>
 <p>The equivalent code in DESeq2. Understanding this code requires
 knowledge that <code>boxplot</code> plots columns of a matrix.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="rna-seq-eda.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span>
-<span id="cb21-2"><a href="rna-seq-eda.html#cb21-2" aria-hidden="true" tabindex="-1"></a>gse_sub <span class="ot">&lt;-</span> gse[ gene_idx , gse<span class="sc">$</span>line <span class="sc">==</span> <span class="st">&quot;OCT4&quot;</span> ]</span>
-<span id="cb21-3"><a href="rna-seq-eda.html#cb21-3" aria-hidden="true" tabindex="-1"></a>gse_sub<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(gse_sub<span class="sc">$</span>condition)</span>
-<span id="cb21-4"><a href="rna-seq-eda.html#cb21-4" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> gse_sub <span class="sc">%&gt;%</span></span>
-<span id="cb21-5"><a href="rna-seq-eda.html#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">DESeqDataSet</span>(<span class="sc">~</span>condition) <span class="sc">%&gt;%</span></span>
-<span id="cb21-6"><a href="rna-seq-eda.html#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimateSizeFactors</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="rna-seq-eda.html#cb172-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span>
+<span id="cb172-2"><a href="rna-seq-eda.html#cb172-2" aria-hidden="true" tabindex="-1"></a>gse_sub <span class="ot">&lt;-</span> gse[ gene_idx , gse<span class="sc">$</span>line <span class="sc">==</span> <span class="st">&quot;OCT4&quot;</span> ]</span>
+<span id="cb172-3"><a href="rna-seq-eda.html#cb172-3" aria-hidden="true" tabindex="-1"></a>gse_sub<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(gse_sub<span class="sc">$</span>condition)</span>
+<span id="cb172-4"><a href="rna-seq-eda.html#cb172-4" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> gse_sub <span class="sc">%&gt;%</span></span>
+<span id="cb172-5"><a href="rna-seq-eda.html#cb172-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">DESeqDataSet</span>(<span class="sc">~</span>condition) <span class="sc">%&gt;%</span></span>
+<span id="cb172-6"><a href="rna-seq-eda.html#cb172-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimateSizeFactors</span>()</span></code></pre></div>
 <pre><code>## using counts and average transcript lengths from tximeta</code></pre>
 <pre><code>## using &#39;avgTxLength&#39; from assays(dds), correcting for library size</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="rna-seq-eda.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(<span class="fu">counts</span>(dds, <span class="at">normalized=</span><span class="cn">TRUE</span>) <span class="sc">+</span> <span class="dv">1</span>, <span class="at">log=</span><span class="st">&quot;y&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb175-1"><a href="rna-seq-eda.html#cb175-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(<span class="fu">counts</span>(dds, <span class="at">normalized=</span><span class="cn">TRUE</span>) <span class="sc">+</span> <span class="dv">1</span>, <span class="at">log=</span><span class="st">&quot;y&quot;</span>)</span></code></pre></div>
 <p><img src="rna-seq-eda_files/figure-html/deseq-boxplot-1.png" width="672" /></p>
 <p>We can also make more interesting plots. E.g. for the genes involved
 in pluripotency, make a line plot, highlighting OCT4. In addition,
 center the log counts for each gene (subtract the mean of log counts
 across samples).</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="rna-seq-eda.html#cb25-1" aria-hidden="true" tabindex="-1"></a>oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb25-2"><a href="rna-seq-eda.html#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SYMBOL <span class="sc">%in%</span> pluri) <span class="sc">%&gt;%</span></span>
-<span id="cb25-3"><a href="rna-seq-eda.html#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> <span class="fu">log10</span>(counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-4"><a href="rna-seq-eda.html#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Oct4 =</span> <span class="fu">ifelse</span>(SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-5"><a href="rna-seq-eda.html#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(.feature) <span class="sc">%&gt;%</span></span>
-<span id="cb25-6"><a href="rna-seq-eda.html#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> logcounts <span class="sc">-</span> <span class="fu">mean</span>(logcounts)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-7"><a href="rna-seq-eda.html#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb25-8"><a href="rna-seq-eda.html#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, logcounts, <span class="at">group=</span>.feature, <span class="at">color=</span>Oct4)) <span class="sc">+</span></span>
-<span id="cb25-9"><a href="rna-seq-eda.html#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb25-10"><a href="rna-seq-eda.html#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb25-11"><a href="rna-seq-eda.html#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_identity</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb176-1"><a href="rna-seq-eda.html#cb176-1" aria-hidden="true" tabindex="-1"></a>oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb176-2"><a href="rna-seq-eda.html#cb176-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SYMBOL <span class="sc">%in%</span> pluri) <span class="sc">%&gt;%</span></span>
+<span id="cb176-3"><a href="rna-seq-eda.html#cb176-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> <span class="fu">log10</span>(counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb176-4"><a href="rna-seq-eda.html#cb176-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Oct4 =</span> <span class="fu">ifelse</span>(SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb176-5"><a href="rna-seq-eda.html#cb176-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(.feature) <span class="sc">%&gt;%</span></span>
+<span id="cb176-6"><a href="rna-seq-eda.html#cb176-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> logcounts <span class="sc">-</span> <span class="fu">mean</span>(logcounts)) <span class="sc">%&gt;%</span></span>
+<span id="cb176-7"><a href="rna-seq-eda.html#cb176-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb176-8"><a href="rna-seq-eda.html#cb176-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, logcounts, <span class="at">group=</span>.feature, <span class="at">color=</span>Oct4)) <span class="sc">+</span></span>
+<span id="cb176-9"><a href="rna-seq-eda.html#cb176-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb176-10"><a href="rna-seq-eda.html#cb176-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb176-11"><a href="rna-seq-eda.html#cb176-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_identity</span>()</span></code></pre></div>
 <pre><code>## tidySummarizedExperiment says: A data frame is returned for independent data analysis.</code></pre>
 <p><img src="rna-seq-eda_files/figure-html/tidy-lines-1.png" width="672" /></p>
 <p>The equivalent code for base R requires defining more intermediate
@@ -392,23 +392,23 @@ prioritizes the operations in a way that is human readable. In some
 cases, e.g. performing linear algebra operations on matrices, base R
 code may prove to be more efficient, which is a consideration for what
 to use in package source code.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="rna-seq-eda.html#cb27-1" aria-hidden="true" tabindex="-1"></a>pluri_idx <span class="ot">&lt;-</span> <span class="fu">mcols</span>(dds)<span class="sc">$</span>SYMBOL <span class="sc">%in%</span> pluri</span>
-<span id="cb27-2"><a href="rna-seq-eda.html#cb27-2" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">log10</span>(<span class="fu">counts</span>(dds, <span class="at">normalized=</span><span class="cn">TRUE</span>)[pluri_idx,] <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb27-3"><a href="rna-seq-eda.html#cb27-3" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">-</span> <span class="fu">rowMeans</span>(mat)</span>
-<span id="cb27-4"><a href="rna-seq-eda.html#cb27-4" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dds)[<span class="fu">which</span>(<span class="fu">mcols</span>(dds)<span class="sc">$</span>SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>)]</span>
-<span id="cb27-5"><a href="rna-seq-eda.html#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mat[<span class="dv">1</span>,], <span class="at">type=</span><span class="st">&quot;n&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="at">xlab=</span><span class="st">&quot;samples&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;logcounts&quot;</span>)</span>
-<span id="cb27-6"><a href="rna-seq-eda.html#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mat)) {</span>
-<span id="cb27-7"><a href="rna-seq-eda.html#cb27-7" aria-hidden="true" tabindex="-1"></a>  col <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">rownames</span>(mat)[i] <span class="sc">==</span> hilite, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)</span>
-<span id="cb27-8"><a href="rna-seq-eda.html#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">points</span>(mat[i,], <span class="at">type=</span><span class="st">&quot;b&quot;</span>, <span class="at">col=</span>col)</span>
-<span id="cb27-9"><a href="rna-seq-eda.html#cb27-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb178-1"><a href="rna-seq-eda.html#cb178-1" aria-hidden="true" tabindex="-1"></a>pluri_idx <span class="ot">&lt;-</span> <span class="fu">mcols</span>(dds)<span class="sc">$</span>SYMBOL <span class="sc">%in%</span> pluri</span>
+<span id="cb178-2"><a href="rna-seq-eda.html#cb178-2" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">log10</span>(<span class="fu">counts</span>(dds, <span class="at">normalized=</span><span class="cn">TRUE</span>)[pluri_idx,] <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb178-3"><a href="rna-seq-eda.html#cb178-3" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">-</span> <span class="fu">rowMeans</span>(mat)</span>
+<span id="cb178-4"><a href="rna-seq-eda.html#cb178-4" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dds)[<span class="fu">which</span>(<span class="fu">mcols</span>(dds)<span class="sc">$</span>SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>)]</span>
+<span id="cb178-5"><a href="rna-seq-eda.html#cb178-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mat[<span class="dv">1</span>,], <span class="at">type=</span><span class="st">&quot;n&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="at">xlab=</span><span class="st">&quot;samples&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;logcounts&quot;</span>)</span>
+<span id="cb178-6"><a href="rna-seq-eda.html#cb178-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mat)) {</span>
+<span id="cb178-7"><a href="rna-seq-eda.html#cb178-7" aria-hidden="true" tabindex="-1"></a>  col <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">rownames</span>(mat)[i] <span class="sc">==</span> hilite, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)</span>
+<span id="cb178-8"><a href="rna-seq-eda.html#cb178-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">points</span>(mat[i,], <span class="at">type=</span><span class="st">&quot;b&quot;</span>, <span class="at">col=</span>col)</span>
+<span id="cb178-9"><a href="rna-seq-eda.html#cb178-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p><img src="rna-seq-eda_files/figure-html/deseq-lines-1.png" width="672" /></p>
 <p>We can test for differential expression with DESeq2:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="rna-seq-eda.html#cb28-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> dds[gene_idx,] <span class="sc">%&gt;%</span></span>
-<span id="cb28-2"><a href="rna-seq-eda.html#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">DESeq</span>(<span class="at">quiet=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb28-3"><a href="rna-seq-eda.html#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">results</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="rna-seq-eda.html#cb179-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> dds[gene_idx,] <span class="sc">%&gt;%</span></span>
+<span id="cb179-2"><a href="rna-seq-eda.html#cb179-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">DESeq</span>(<span class="at">quiet=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb179-3"><a href="rna-seq-eda.html#cb179-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">results</span>()</span></code></pre></div>
 <p>Or equivalently with <em>tidybulk</em>:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="rna-seq-eda.html#cb29-1" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb29-2"><a href="rna-seq-eda.html#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">test_differential_abundance</span>(<span class="sc">~</span>condition, <span class="at">method=</span><span class="st">&quot;deseq2&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="rna-seq-eda.html#cb180-1" aria-hidden="true" tabindex="-1"></a>oct4 <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb180-2"><a href="rna-seq-eda.html#cb180-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">test_differential_abundance</span>(<span class="sc">~</span>condition, <span class="at">method=</span><span class="st">&quot;deseq2&quot;</span>)</span></code></pre></div>
 <pre><code>## =====================================
 ## tidybulk says: All testing methods use raw counts, irrespective of if scale_abundance
 ## or adjust_abundance have been calculated. Therefore, it is essential to add covariates
@@ -432,13 +432,13 @@ to use in package source code.</p>
 ## 
 ## tidybulk says: to access the raw results (fitted GLM) do `attr(..., &quot;internals&quot;)$deseq2`
 ## This message is displayed once per session.</code></pre>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="rna-seq-eda.html#cb31-1" aria-hidden="true" tabindex="-1"></a>tidy_res <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb31-2"><a href="rna-seq-eda.html#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_transcript</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="rna-seq-eda.html#cb182-1" aria-hidden="true" tabindex="-1"></a>tidy_res <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb182-2"><a href="rna-seq-eda.html#cb182-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_transcript</span>()</span></code></pre></div>
 <p>Because we have filtered the two objects identically, we obtain the
 same test results:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="rna-seq-eda.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fu">rownames</span>(res), tidy_res<span class="sc">$</span>.feature)</span></code></pre></div>
+<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="rna-seq-eda.html#cb183-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fu">rownames</span>(res), tidy_res<span class="sc">$</span>.feature)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="rna-seq-eda.html#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="at">base_sig =</span> res<span class="sc">$</span>padj <span class="sc">&lt;</span> .<span class="dv">1</span>, <span class="at">tidy_sig =</span> tidy_res<span class="sc">$</span>padj <span class="sc">&lt;</span> .<span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb185"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb185-1"><a href="rna-seq-eda.html#cb185-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="at">base_sig =</span> res<span class="sc">$</span>padj <span class="sc">&lt;</span> .<span class="dv">1</span>, <span class="at">tidy_sig =</span> tidy_res<span class="sc">$</span>padj <span class="sc">&lt;</span> .<span class="dv">1</span>)</span></code></pre></div>
 <pre><code>##         tidy_sig
 ## base_sig FALSE  TRUE
 ##    FALSE 17965     0
@@ -447,35 +447,35 @@ same test results:</p>
 to split the genes involved in pluripotency by the DE result (the
 significance and LFC), and then add the gene symbol to the side.</p>
 <p>We begin by building the dataset:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="rna-seq-eda.html#cb36-1" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
-<span id="cb36-2"><a href="rna-seq-eda.html#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SYMBOL <span class="sc">%in%</span> pluri) <span class="sc">%&gt;%</span></span>
-<span id="cb36-3"><a href="rna-seq-eda.html#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> <span class="fu">log10</span>(counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-4"><a href="rna-seq-eda.html#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Oct4 =</span> <span class="fu">ifelse</span>(SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-5"><a href="rna-seq-eda.html#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(.feature) <span class="sc">%&gt;%</span></span>
-<span id="cb36-6"><a href="rna-seq-eda.html#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> logcounts <span class="sc">-</span> <span class="fu">mean</span>(logcounts)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-7"><a href="rna-seq-eda.html#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb36-8"><a href="rna-seq-eda.html#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_type =</span> <span class="fu">case_when</span>(</span>
-<span id="cb36-9"><a href="rna-seq-eda.html#cb36-9" aria-hidden="true" tabindex="-1"></a>           padj <span class="sc">&lt;</span> .<span class="dv">1</span> <span class="sc">&amp;</span> log2FoldChange <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;up&quot;</span>,</span>
-<span id="cb36-10"><a href="rna-seq-eda.html#cb36-10" aria-hidden="true" tabindex="-1"></a>           padj <span class="sc">&lt;</span> .<span class="dv">1</span> <span class="sc">&amp;</span> log2FoldChange <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;down&quot;</span>,</span>
-<span id="cb36-11"><a href="rna-seq-eda.html#cb36-11" aria-hidden="true" tabindex="-1"></a>           <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;null&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb187-1"><a href="rna-seq-eda.html#cb187-1" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> oct4 <span class="sc">%&gt;%</span></span>
+<span id="cb187-2"><a href="rna-seq-eda.html#cb187-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SYMBOL <span class="sc">%in%</span> pluri) <span class="sc">%&gt;%</span></span>
+<span id="cb187-3"><a href="rna-seq-eda.html#cb187-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> <span class="fu">log10</span>(counts_scaled <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb187-4"><a href="rna-seq-eda.html#cb187-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Oct4 =</span> <span class="fu">ifelse</span>(SYMBOL <span class="sc">==</span> <span class="st">&quot;Pou5f1&quot;</span>, <span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb187-5"><a href="rna-seq-eda.html#cb187-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(.feature) <span class="sc">%&gt;%</span></span>
+<span id="cb187-6"><a href="rna-seq-eda.html#cb187-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logcounts =</span> logcounts <span class="sc">-</span> <span class="fu">mean</span>(logcounts)) <span class="sc">%&gt;%</span></span>
+<span id="cb187-7"><a href="rna-seq-eda.html#cb187-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb187-8"><a href="rna-seq-eda.html#cb187-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_type =</span> <span class="fu">case_when</span>(</span>
+<span id="cb187-9"><a href="rna-seq-eda.html#cb187-9" aria-hidden="true" tabindex="-1"></a>           padj <span class="sc">&lt;</span> .<span class="dv">1</span> <span class="sc">&amp;</span> log2FoldChange <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;up&quot;</span>,</span>
+<span id="cb187-10"><a href="rna-seq-eda.html#cb187-10" aria-hidden="true" tabindex="-1"></a>           padj <span class="sc">&lt;</span> .<span class="dv">1</span> <span class="sc">&amp;</span> log2FoldChange <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;down&quot;</span>,</span>
+<span id="cb187-11"><a href="rna-seq-eda.html#cb187-11" aria-hidden="true" tabindex="-1"></a>           <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;null&quot;</span>))</span></code></pre></div>
 <pre><code>## tidySummarizedExperiment says: A data frame is returned for independent data analysis.</code></pre>
 <p>Now we repeat the code from before, but now faceting by
 <code>gene_type</code>. Furthermore, we use <code>geom_text_repel</code> to add labels to
 the right side.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="rna-seq-eda.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
-<span id="cb38-2"><a href="rna-seq-eda.html#cb38-2" aria-hidden="true" tabindex="-1"></a>plot_data <span class="sc">%&gt;%</span></span>
-<span id="cb38-3"><a href="rna-seq-eda.html#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_type <span class="sc">!=</span> <span class="st">&quot;null&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb38-4"><a href="rna-seq-eda.html#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, logcounts, <span class="at">group=</span>.feature, <span class="at">color=</span>Oct4)) <span class="sc">+</span></span>
-<span id="cb38-5"><a href="rna-seq-eda.html#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb38-6"><a href="rna-seq-eda.html#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb38-7"><a href="rna-seq-eda.html#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="at">data=</span>plot_data <span class="sc">%&gt;%</span></span>
-<span id="cb38-8"><a href="rna-seq-eda.html#cb38-8" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">filter</span>(sample_name <span class="sc">==</span> <span class="st">&quot;trt-3&quot;</span>, gene_type <span class="sc">!=</span> <span class="st">&quot;null&quot;</span>),</span>
-<span id="cb38-9"><a href="rna-seq-eda.html#cb38-9" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">aes</span>(sample_name, logcounts, <span class="at">label=</span>SYMBOL),</span>
-<span id="cb38-10"><a href="rna-seq-eda.html#cb38-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nudge_x=</span>.<span class="dv">5</span>, <span class="at">seed=</span><span class="dv">1</span>, <span class="at">max.overlaps=</span><span class="cn">Inf</span>) <span class="sc">+</span></span>
-<span id="cb38-11"><a href="rna-seq-eda.html#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_identity</span>() <span class="sc">+</span></span>
-<span id="cb38-12"><a href="rna-seq-eda.html#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_type) <span class="sc">+</span></span>
-<span id="cb38-13"><a href="rna-seq-eda.html#cb38-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">add =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb38-14"><a href="rna-seq-eda.html#cb38-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;sample&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="rna-seq-eda.html#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb189-2"><a href="rna-seq-eda.html#cb189-2" aria-hidden="true" tabindex="-1"></a>plot_data <span class="sc">%&gt;%</span></span>
+<span id="cb189-3"><a href="rna-seq-eda.html#cb189-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_type <span class="sc">!=</span> <span class="st">&quot;null&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb189-4"><a href="rna-seq-eda.html#cb189-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sample_name, logcounts, <span class="at">group=</span>.feature, <span class="at">color=</span>Oct4)) <span class="sc">+</span></span>
+<span id="cb189-5"><a href="rna-seq-eda.html#cb189-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb189-6"><a href="rna-seq-eda.html#cb189-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb189-7"><a href="rna-seq-eda.html#cb189-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="at">data=</span>plot_data <span class="sc">%&gt;%</span></span>
+<span id="cb189-8"><a href="rna-seq-eda.html#cb189-8" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">filter</span>(sample_name <span class="sc">==</span> <span class="st">&quot;trt-3&quot;</span>, gene_type <span class="sc">!=</span> <span class="st">&quot;null&quot;</span>),</span>
+<span id="cb189-9"><a href="rna-seq-eda.html#cb189-9" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">aes</span>(sample_name, logcounts, <span class="at">label=</span>SYMBOL),</span>
+<span id="cb189-10"><a href="rna-seq-eda.html#cb189-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nudge_x=</span>.<span class="dv">5</span>, <span class="at">seed=</span><span class="dv">1</span>, <span class="at">max.overlaps=</span><span class="cn">Inf</span>) <span class="sc">+</span></span>
+<span id="cb189-11"><a href="rna-seq-eda.html#cb189-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_identity</span>() <span class="sc">+</span></span>
+<span id="cb189-12"><a href="rna-seq-eda.html#cb189-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_type) <span class="sc">+</span></span>
+<span id="cb189-13"><a href="rna-seq-eda.html#cb189-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">add =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb189-14"><a href="rna-seq-eda.html#cb189-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;sample&quot;</span>)</span></code></pre></div>
 <p><img src="rna-seq-eda_files/figure-html/tidy-lines-faceted-1.png" width="672" /></p>
 
 </div>
@@ -548,6 +548,20 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>

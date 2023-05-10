@@ -201,12 +201,17 @@ uniformly along the chromosome (“shuffling”), is to better preserve
 inter-feature distances, because genomic features tend to cluster in
 the genome, even after considering things like excluded regions. This
 technique of generating null feature sets is called
-<em>block bootstrap resampling</em>,
-and we will use the <em>nullranges</em> implementation of the
-block bootstrapping algorithm <span class="citation">(<a href="#ref-Mu2023" role="doc-biblioref">Mu et al. 2023</a>)</span> to generate the null features,
-followed by overlap analysis with <em>plyranges</em> <span class="citation">(<a href="#ref-Lee2019" role="doc-biblioref">Lee, Cook, and Lawrence 2019</a>)</span>.
-The approach used in <em>nullranges</em> to generate bootstrap ranges closely
-follows the GSC method proposed by <span class="citation"><a href="#ref-bickel2010" role="doc-biblioref">Bickel et al.</a> (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
+<em>block bootstrap resampling</em>, and we will use the <em>nullranges</em>
+implementation of the block bootstrapping algorithm <span class="citation">(<a href="#ref-Mu2023" role="doc-biblioref">Mu et al. 2023</a>)</span> to
+generate the null features, followed by overlap analysis with
+<em>plyranges</em> <span class="citation">(<a href="#ref-Lee2019" role="doc-biblioref">Lee, Cook, and Lawrence 2019</a>)</span>. The approach used in <em>nullranges</em> to generate
+bootstrap ranges closely follows the GSC method proposed by
+<span class="citation"><a href="#ref-bickel2010" role="doc-biblioref">Bickel et al.</a> (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
+<p>Note that an alternative approach for null hypothesis comparisons is to
+define a set of <em>covariate-matched ranges</em>, an approach also implemented
+in the <em>nullranges</em> package and described in <span class="citation"><a href="#ref-Davis2023" role="doc-biblioref">Davis et al.</a> (<a href="#ref-Davis2023" role="doc-biblioref">2023</a>)</span>. For examples
+of using matching with ranges, see the related articles
+<a href="https://nullranges.github.io/nullranges/">here</a>.</p>
 <p>We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
 peaks used in the previous analysis <span class="citation">(<a href="#ref-encode" role="doc-biblioref">Dunham and others 2012</a>)</span>.</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="bootstrap-overlap.html#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationHub)</span>
@@ -485,6 +490,9 @@ bootstrap.</p>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-bickel2010" class="csl-entry">
 Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. <span>“Subsampling Methods for Genomic Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-{AOAS363}">https://doi.org/10.1214/10-{AOAS363}</a>.
+</div>
+<div id="ref-Davis2023" class="csl-entry">
+Davis, Eric S, Wancen Mu, Stuart Lee, Mikhail G Dozmorov, Michael I Love, and Douglas H Phanstiel. 2023. <span>“<span class="nocase">matchRanges: generating null hypothesis genomic ranges via covariate-matched sampling</span>.”</span> <em>Bioinformatics</em> 39 (5). <a href="https://doi.org/10.1093/bioinformatics/btad197">https://doi.org/10.1093/bioinformatics/btad197</a>.
 </div>
 <div id="ref-encode" class="csl-entry">
 Dunham, I., and others. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.

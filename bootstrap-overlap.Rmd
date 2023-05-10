@@ -11,12 +11,18 @@ uniformly along the chromosome ("shuffling"), is to better preserve
 inter-feature distances, because genomic features tend to cluster in
 the genome, even after considering things like excluded regions. This
 technique of generating null feature sets is called 
-*block bootstrap resampling*,
-and we will use the *nullranges* implementation of the
-block bootstrapping algorithm [@Mu2023] to generate the null features,
-followed by overlap analysis with *plyranges* [@Lee2019].
-The approach used in *nullranges* to generate bootstrap ranges closely
-follows the GSC method proposed by @bickel2010.
+*block bootstrap resampling*, and we will use the *nullranges*
+implementation of the block bootstrapping algorithm [@Mu2023] to
+generate the null features, followed by overlap analysis with
+*plyranges* [@Lee2019].  The approach used in *nullranges* to generate
+bootstrap ranges closely follows the GSC method proposed by
+@bickel2010.
+
+Note that an alternative approach for null hypothesis comparisons is to
+define a set of *covariate-matched ranges*, an approach also implemented
+in the *nullranges* package and described in @Davis2023. For examples
+of using matching with ranges, see the related articles
+[here](https://nullranges.github.io/nullranges/).
 
 We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
 peaks used in the previous analysis [@encode].

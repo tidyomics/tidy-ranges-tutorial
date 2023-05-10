@@ -16,8 +16,8 @@ be done to rows).
 For some other references to these types of operations, you can check
 out:
 
-* [The "many models" chapter of R for Data Science](https://r4ds.had.co.nz/many-models.html) 
-  by Hadley Wickham and Garrett Grolemund, which introduced the basics
+* [The "many models" chapter](https://r4ds.had.co.nz/many-models.html) 
+  of R for Data Science by @Wickham2017, which introduced the basics
   of how to run many models in a tidy framework
 * The [nest](https://tidyr.tidyverse.org/articles/nest.html)
   documentation in *tidyr*
@@ -127,6 +127,9 @@ pca %>%
 ```
 
 <img src="many-genomic-models_files/figure-html/fission-pca-1.png" width="672" />
+
+Now, let's consider a setup in which we might want to compute many
+similar models across the genes...
 
 Using *tidySummarizedExperiment*, we compute `logcounts` and then
 center and scale these values. Likewise, we turn the `minute` variable
@@ -345,7 +348,7 @@ nested
 ## # … with 46 more rows
 ```
 
-We fit an elastic net model:
+We fit an elastic net model [@Friedman2010].
 
 
 ```r
