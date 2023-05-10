@@ -42,7 +42,7 @@ contains a dataset created by @Leong2014
 > response.
 
 The experiment considers fission yeast of two strains,
-wild-type (WT) and atf21$\delta$, but here we will not focus on these
+wild-type (WT) and atf21$\Delta$, but here we will not focus on these
 two strains but just lump the data together, to increase our sample
 size for the point of building the models.
 
@@ -128,17 +128,76 @@ pca %>%
 
 <img src="many-genomic-models_files/figure-html/fission-pca-1.png" width="672" />
 
-Now, let's consider a setup in which we might want to compute many
-similar models across the genes...
-
-Using *tidySummarizedExperiment*, we compute `logcounts` and then
-center and scale these values. Likewise, we turn the `minute` variable
-from a factor into a numeric, and scale from 0 to 1. These changes
-will help us compare coefficients across gene later.
+We can plot the gene with the most contribution to PC1:
 
 
 ```r
+max_pc1 <- which.max(abs(attr(pca, "internals")[["PCA"]][["rotation"]][,"PC1"]))
+max_pc1
+```
+
+```
+## SPBC839.06 
+##          8
+```
+
+```r
 library(tidySummarizedExperiment)
+se %>%
+  filter(.feature == names(max_pc1)) %>%
+  ggplot(aes(minute, counts_scaled + 1, color=strain, group=strain)) +
+  geom_point() +
+  stat_smooth(se=FALSE) +
+  scale_y_log10() +
+  ggtitle( rowData(se)[names(max_pc1),"symbol"] )
+```
+
+<img src="many-genomic-models_files/figure-html/max_pc1-1.png" width="672" />
+
+Now, let's consider a hypothetical analysis question: can we predict
+the `minute` (quantitatively) using the log gene expression of a genes
+in a neighborhood on the chromosome. While this is mostly a contrived
+question, for the purposes of demonstrating nesting of genomic
+datasets, you could imagine that there might be modules of responsive
+genes positioned along the chromosome, and that a prediction task is
+one way to identify genes that are related to an aspect of the
+experimental design.
+
+The steps will be:
+
+* Create centered log scaled counts
+* Create "blocks" of genes, by tiling the genome and labeling the
+  genes that fall within the same tile
+* "Nest" the *tidySE* such that we can operate on the blocks of genes
+  together
+* Run a series of models, each time predicting the `minute` variable
+  using the expression of the genes in the block
+* Evaluate these models (here simply looking at in-sample training
+  error)
+
+"Nesting" a dataset is an operation, similar to `group_by`, where a
+variable is used to perform grouped operations. We will specify to
+nest all the data (columns) besides the grouping variable, such that
+we end up with a *tibble* that looks like:
+
+| grouping variable | data     |
+|-------------------|----------|
+| value1            | RngdSmmE |
+| value2            | RngdSmmE |
+| ...               | ...      |
+
+Hence, for every row of the SummarizedExperiment that has `value1` for
+the grouping variable, we will have a subsetted SummarizedExperiment
+("ranged" refers to the face that it is `rowRanges`).
+
+Let's start with the first task.
+We compute `logcounts` and then center and scale these
+values. Likewise, we turn the `minute` variable from a factor into a
+numeric, and scale from 0 to 1. These changes would help us compare
+coefficients across gene later.
+
+
+```r
 se <- se %>%
   mutate(logcounts = log2(counts_scaled + 1),
          logcounts = (logcounts - mean(logcounts))/sd(logcounts))
@@ -320,11 +379,38 @@ se %>%
 This ends up being a bit slower than just extracting the information
 with `assay` and transposing it.
 
+First let's create our nested dataset:
+
 
 ```r
 library(purrr)
 nested <- se %>%
-  nest(data = -tile) %>%
+  nest(data = -tile)
+nested
+```
+
+```
+## # A tibble: 56 × 2
+##     tile data           
+##    <int> <list>         
+##  1     1 <RngdSmmE[,30]>
+##  2     2 <RngdSmmE[,30]>
+##  3     3 <RngdSmmE[,30]>
+##  4     4 <RngdSmmE[,30]>
+##  5     5 <RngdSmmE[,30]>
+##  6     6 <RngdSmmE[,30]>
+##  7     7 <RngdSmmE[,30]>
+##  8     8 <RngdSmmE[,30]>
+##  9     9 <RngdSmmE[,30]>
+## 10    10 <RngdSmmE[,30]>
+## # … with 46 more rows
+```
+
+Now, by row, extract out and transpose log scaled counts:
+
+
+```r
+nested <- nested %>%
   mutate(trainx = map(data, \(d) {
     t(assay(d, "logcounts"))
   }))
@@ -423,3 +509,13 @@ ggplot(nested, aes(n, in_r2)) +
 ```
 
 <img src="many-genomic-models_files/figure-html/many-models-r2-1.png" width="672" />
+
+Questions:
+
+* How else could we have performed the analysis, without doing the
+  nesting operation? Would this have been faster? What other variables
+  would need to be created to keep track of the many models?
+* What advantages or disadvantages can you think about for the
+  different ways of running multiple models across large genomic
+  datasets?
+
