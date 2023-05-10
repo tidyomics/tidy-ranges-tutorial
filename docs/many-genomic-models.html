@@ -215,11 +215,24 @@ documentation in <em>tidyr</em></li>
 <p>Given the size of genomic data, and the way in which
 <em>tidySummarizedExperiment</em> abstracts the link between data (<code>assay</code>)
 and metadata (<code>rowData</code> and <code>colData</code>), we will consider in this
-chapter, how the speed of the operations may be impacted by our
-choices in setting up the code. In the end, you may find that more
-standard way of running the analyses is more efficient, depending on
-the cost incurred by the nesting operation, which we will describe
-shortly.</p>
+chapter how the speed of the operations may be impacted by our
+choices in setting up the code. In the end, you may find that a more
+standard way of running the analyses (e.g. using base R/Bioc) is more
+efficient, depending on the cost incurred by the nesting operation,
+which we will describe shortly.</p>
+<p>We will work with a Bioconductor experiment package <em>fission</em> which
+contains a dataset created by <span class="citation"><a href="#ref-Leong2014" role="doc-biblioref">Leong et al.</a> (<a href="#ref-Leong2014" role="doc-biblioref">2014</a>)</span>
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4050258/">PMC4050258</a>:</p>
+<blockquote>
+<p>Here we integrate high-throughput RNA sequencing and label-free
+quantitative protein mass spectrometry to investigate global changes
+in transcript and protein levels in the fission yeast stress
+response.</p>
+</blockquote>
+<p>The experiment considers fission yeast of two strains,
+wild-type (WT) and atf21<span class="math inline">\(\delta\)</span>, but here we will not focus on these
+two strains but just lump the data together, to increase our sample
+size for the point of building the models.</p>
 <div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="many-genomic-models.html#cb191-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fission)</span>
 <span id="cb191-2"><a href="many-genomic-models.html#cb191-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fission)</span>
 <span id="cb191-3"><a href="many-genomic-models.html#cb191-3" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> fission</span>
@@ -467,6 +480,12 @@ genes in the models:</p>
 <span id="cb223-4"><a href="many-genomic-models.html#cb223-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;in-sample r2&quot;</span>)</span></code></pre></div>
 <p><img src="many-genomic-models_files/figure-html/many-models-r2-1.png" width="672" /></p>
 
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Leong2014" class="csl-entry">
+Leong, Hui Sun, Keren Dawson, Chris Wirth, Yaoyong Li, Yvonne Connolly, Duncan L Smith, Caroline R M Wilkinson, and Crispin J Miller. 2014. <span>“A Global Non-Coding <span>RNA</span> System Modulates Fission Yeast Protein Levels in Response to Stress.”</span> <em>Nat. Commun.</em> 5 (1): 3947.
+</div>
 </div>
             </section>
 

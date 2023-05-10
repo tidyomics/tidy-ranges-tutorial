@@ -197,8 +197,9 @@ genomic extent (distance from left-most to right-most basepair) of
 genes overlapping a set of query ranges.</p>
 <p>We move on from the “classroom example” by seeing how we compute
 overlaps when the features are in genomic space. We will use <em>GRanges</em>
-in the Bioconductor package <em>GenomicRanges</em> to represent the features
-and <em>plyranges</em> to compute the overlaps, similarly to how we used
+in the Bioconductor package <em>GenomicRanges</em> <span class="citation">(<a href="#ref-Lawrence2013" role="doc-biblioref">Lawrence et al. 2013</a>)</span>
+to represent the features and <em>plyranges</em> <span class="citation">(<a href="#ref-Lee2019" role="doc-biblioref">Lee, Cook, and Lawrence 2019</a>)</span>
+to compute the overlaps, similarly to how we used
 <em>dplyr</em> to compute the overlaps in the previous analysis. So
 data.frame is to <em>dplyr</em> as GRanges is to <em>plyranges</em>.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="compute-overlaps.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span></code></pre></div>
@@ -429,10 +430,12 @@ Above when we used <code>group_by</code> and <code>summarize</code> we lost the 
 range data. Another option, to preserve the range data, is to use
 the function <code>reduce_ranges</code> within groups that we define. If we want
 to preserve the range information for the <code>r</code> object, we can start
-with <code>r</code> and proceed to join, group by, and reduce within groups. In
-order to compute on the gene widths, we have to add that as a metadata
-column within the join. To keep the no-gene-overlapping ranges in <code>r</code>,
-we can count when the gene ID is not <code>NA</code>.</p>
+with <code>r</code> and proceed to join, group by, and reduce within groups.
+For an example of <code>reduce_ranges</code> used in the context of a genomic
+data analysis see <span class="citation"><a href="#ref-Lee2020" role="doc-biblioref">Lee, Lawrence, and Love</a> (<a href="#ref-Lee2020" role="doc-biblioref">2020</a>)</span>.
+In order to compute on the gene widths, we have to add that as a
+metadata column within the join. To keep the no-gene-overlapping
+ranges in <code>r</code>, we can count when the gene ID is not <code>NA</code>.</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="compute-overlaps.html#cb55-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">%&gt;%</span></span>
 <span id="cb55-2"><a href="compute-overlaps.html#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_left_directed</span>(g <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">gene_width=</span>width)) <span class="sc">%&gt;%</span></span>
 <span id="cb55-3"><a href="compute-overlaps.html#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(range_id) <span class="sc">%&gt;%</span></span>
@@ -453,6 +456,18 @@ need to keep track of non-overlapping ranges? This will help dictate
 the way you set up the call, whether a <code>join</code> or a <code>mutate</code> to just
 tally a column of overlaps, etc.</p>
 
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Lawrence2013" class="csl-entry">
+Lawrence, Michael, Wolfgang Huber, Hervé Pagès, Patrick Aboyoun, Marc Carlson, Robert Gentleman, Martin T Morgan, and Vincent J Carey. 2013. <span>“Software for Computing and Annotating Genomic Ranges.”</span> <em>PLoS Comput. Biol.</em> 9 (8): e1003118.
+</div>
+<div id="ref-Lee2019" class="csl-entry">
+Lee, Stuart, Dianne Cook, and Michael Lawrence. 2019. <span>“Plyranges: A Grammar of Genomic Data Transformation.”</span> <em>Genome Biol.</em> 20 (1): 4.
+</div>
+<div id="ref-Lee2020" class="csl-entry">
+Lee, Stuart, Michael Lawrence, and Michael I Love. 2020. <span>“Fluent Genomics with Plyranges and Tximeta.”</span> <em>F1000Res.</em> 9 (February): 109.
+</div>
 </div>
             </section>
 

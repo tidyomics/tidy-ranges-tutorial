@@ -14,7 +14,8 @@ isoforms that switch in terms of their expression after cells are
 treated, one can use the
 [IsoformSwitchAnalyzeR](https://github.com/kvittingseerup/IsoformSwitchAnalyzeR)
 Bioconductor package to visualize and analyze a set of isoform
-switches. For example, one can test the functional consequences of a
+switches [@Vitting-Seerup2019].
+For example, one can test the functional consequences of a
 set of isoform switches in terms of the gain or loss of protein
 domains, or splicing-centric changes (e.g. alternative 3' or 5'
 acceptor sites, alternative transcription start or ends sites, etc.)

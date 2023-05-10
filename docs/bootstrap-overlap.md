@@ -13,10 +13,10 @@ the genome, even after considering things like excluded regions. This
 technique of generating null feature sets is called 
 *block bootstrap resampling*,
 and we will use the *nullranges* implementation of the
-block bootstrapping algorithm to generate the null features, followed
-by overlap analysis with *plyranges*. The approach used in
-*nullranges* to generate bootstrap ranges closely follows the method
-described by @bickel2010.
+block bootstrapping algorithm [@Mu2023] to generate the null features,
+followed by overlap analysis with *plyranges* [@Lee2019].
+The approach used in *nullranges* to generate bootstrap ranges closely
+follows the GSC method proposed by @bickel2010.
 
 We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
 peaks used in the previous analysis [@encode].

@@ -439,15 +439,12 @@ plot_data %>%
   geom_line() +
   geom_text_repel(data=plot_data %>%
                     filter(sample_name == "trt-3", gene_type != "null"),
-            aes(sample_name, logcounts, label=SYMBOL), nudge_x=.5, seed=1) +
+                  aes(sample_name, logcounts, label=SYMBOL),
+                  nudge_x=.5, seed=1, max.overlaps=Inf) +
   scale_color_identity() +
   facet_wrap(~gene_type) +
   scale_x_discrete(expand = expansion(add = 2)) +
   xlab("sample")
-```
-
-```
-## Warning: ggrepel: 3 unlabeled data points (too many overlaps). Consider increasing max.overlaps
 ```
 
 <img src="rna-seq-eda_files/figure-html/tidy-lines-faceted-1.png" width="672" />

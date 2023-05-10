@@ -7,8 +7,9 @@ genes overlapping a set of query ranges.
 
 We move on from the "classroom example" by seeing how we compute
 overlaps when the features are in genomic space. We will use *GRanges*
-in the Bioconductor package *GenomicRanges* to represent the features
-and *plyranges* to compute the overlaps, similarly to how we used
+in the Bioconductor package *GenomicRanges* [@Lawrence2013]
+to represent the features and *plyranges* [@Lee2019]
+to compute the overlaps, similarly to how we used
 *dplyr* to compute the overlaps in the previous analysis. So
 data.frame is to *dplyr* as GRanges is to *plyranges*.
 
@@ -403,10 +404,12 @@ Above when we used `group_by` and `summarize` we lost the original
 range data. Another option, to preserve the range data, is to use
 the function `reduce_ranges` within groups that we define. If we want
 to preserve the range information for the `r` object, we can start
-with `r` and proceed to join, group by, and reduce within groups. In
-order to compute on the gene widths, we have to add that as a metadata
-column within the join. To keep the no-gene-overlapping ranges in `r`,
-we can count when the gene ID is not `NA`.
+with `r` and proceed to join, group by, and reduce within groups. 
+For an example of `reduce_ranges` used in the context of a genomic
+data analysis see @Lee2020.
+In order to compute on the gene widths, we have to add that as a
+metadata column within the join. To keep the no-gene-overlapping
+ranges in `r`, we can count when the gene ID is not `NA`.
 
 
 ```r

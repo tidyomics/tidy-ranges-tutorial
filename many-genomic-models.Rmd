@@ -26,11 +26,25 @@ out:
 Given the size of genomic data, and the way in which
 *tidySummarizedExperiment* abstracts the link between data (`assay`)
 and metadata (`rowData` and `colData`), we will consider in this
-chapter, how the speed of the operations may be impacted by our
-choices in setting up the code. In the end, you may find that more
-standard way of running the analyses is more efficient, depending on
-the cost incurred by the nesting operation, which we will describe
-shortly.
+chapter how the speed of the operations may be impacted by our
+choices in setting up the code. In the end, you may find that a more
+standard way of running the analyses (e.g. using base R/Bioc) is more
+efficient, depending on the cost incurred by the nesting operation,
+which we will describe shortly.
+
+We will work with a Bioconductor experiment package *fission* which
+contains a dataset created by @Leong2014 
+[PMC4050258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4050258/):
+
+> Here we integrate high-throughput RNA sequencing and label-free
+> quantitative protein mass spectrometry to investigate global changes
+> in transcript and protein levels in the fission yeast stress
+> response.
+
+The experiment considers fission yeast of two strains,
+wild-type (WT) and atf21$\delta$, but here we will not focus on these
+two strains but just lump the data together, to increase our sample
+size for the point of building the models.
 
 ```{r message=FALSE}
 library(fission)

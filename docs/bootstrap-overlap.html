@@ -203,10 +203,10 @@ the genome, even after considering things like excluded regions. This
 technique of generating null feature sets is called
 <em>block bootstrap resampling</em>,
 and we will use the <em>nullranges</em> implementation of the
-block bootstrapping algorithm to generate the null features, followed
-by overlap analysis with <em>plyranges</em>. The approach used in
-<em>nullranges</em> to generate bootstrap ranges closely follows the method
-described by <span class="citation"><a href="#ref-bickel2010" role="doc-biblioref">Bickel et al.</a> (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
+block bootstrapping algorithm <span class="citation">(<a href="#ref-Mu2023" role="doc-biblioref">Mu et al. 2023</a>)</span> to generate the null features,
+followed by overlap analysis with <em>plyranges</em> <span class="citation">(<a href="#ref-Lee2019" role="doc-biblioref">Lee, Cook, and Lawrence 2019</a>)</span>.
+The approach used in <em>nullranges</em> to generate bootstrap ranges closely
+follows the GSC method proposed by <span class="citation"><a href="#ref-bickel2010" role="doc-biblioref">Bickel et al.</a> (<a href="#ref-bickel2010" role="doc-biblioref">2010</a>)</span>.</p>
 <p>We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
 peaks used in the previous analysis <span class="citation">(<a href="#ref-encode" role="doc-biblioref">Dunham and others 2012</a>)</span>.</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="bootstrap-overlap.html#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationHub)</span>
@@ -488,6 +488,12 @@ Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang
 </div>
 <div id="ref-encode" class="csl-entry">
 Dunham, I., and others. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74.
+</div>
+<div id="ref-Lee2019" class="csl-entry">
+Lee, Stuart, Dianne Cook, and Michael Lawrence. 2019. <span>“Plyranges: A Grammar of Genomic Data Transformation.”</span> <em>Genome Biol.</em> 20 (1): 4.
+</div>
+<div id="ref-Mu2023" class="csl-entry">
+Mu, Wancen, Eric S Davis, Stuart Lee, Mikhail G Dozmorov, Douglas H Phanstiel, and Michael I Love. 2023. <span>“<span class="nocase">bootRanges: flexible generation of null sets of genomic ranges for hypothesis testing</span>.”</span> <em>Bioinformatics</em> 39 (5). <a href="https://doi.org/10.1093/bioinformatics/btad190">https://doi.org/10.1093/bioinformatics/btad190</a>.
 </div>
 </div>
             </section>
