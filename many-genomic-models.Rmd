@@ -79,7 +79,9 @@ pca %>%
   geom_point()
 ```
 
-We can plot the gene with the most contribution to PC1:
+We can plot the gene with the most contribution to PC1. Here we will
+begin working with the data as a *tidySE* (shortened name for
+*tidySummarizedExperiment*):
 
 ```{r max_pc1, message=FALSE}
 max_pc1 <- which.max(abs(attr(pca, "internals")[["PCA"]][["rotation"]][,"PC1"]))
@@ -108,7 +110,7 @@ The steps will be:
 * Create centered log scaled counts
 * Create "blocks" of genes, by tiling the genome and labeling the
   genes that fall within the same tile
-* "Nest" the *tidySE* such that we can operate on the blocks of genes
+* "Nest" the tidySE such that we can operate on the blocks of genes
   together
 * Run a series of models, each time predicting the `minute` variable
   using the expression of the genes in the block
@@ -196,16 +198,20 @@ tiles
 ```
 
 We now determine which tile the genes fall in (using TSS only, so
-that genes fall in a single tile).
+that genes fall in a single tile). We can add this data back onto the
+tidySE using a `left_join`:
 
 ```{r}
 ranges_tiled <- rowRanges(se) %>%
   anchor_5p() %>%
   mutate(width=1) %>%
   join_overlap_left(tiles) %>%
-  select(tile, .drop_ranges=TRUE)
+  mutate(.feature = names(.)) %>%
+  select(tile, .feature, .drop_ranges=TRUE) %>%
+  as_tibble()
 nrow(se) == nrow(ranges_tiled)
-rowData(se) <- cbind(rowData(se), ranges_tiled)
+# combining the tile information with the SE
+se <- se %>% left_join(ranges_tiled)
 ```
 
 Typically we have a little less than 50 genes per tile:
@@ -214,11 +220,10 @@ Typically we have a little less than 50 genes per tile:
 summary(as.vector(table(rowData(se)$tile)))
 ```
 
-Next, we want to create a *nested* table, where *tidySE* (shortened
-name for *tidySummarizedExperiment*) objects are grouped by tile and
-placed within a column of the table. There are a few choices on how to
-proceed. One option would be to `pivot_wider` the *tidySE*, as in this
-chunk below:
+Next, we want to create a *nested* table, where tidySE objects are
+grouped by tile and placed within a column of the table. There are a
+few choices on how to proceed. One option would be to `pivot_wider`
+the tidySE, as in this chunk below:
 
 ```{r}
 se %>%

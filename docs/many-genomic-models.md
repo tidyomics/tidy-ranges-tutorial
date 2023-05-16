@@ -128,7 +128,9 @@ pca %>%
 
 <img src="many-genomic-models_files/figure-html/fission-pca-1.png" width="672" />
 
-We can plot the gene with the most contribution to PC1:
+We can plot the gene with the most contribution to PC1. Here we will
+begin working with the data as a *tidySE* (shortened name for
+*tidySummarizedExperiment*):
 
 
 ```r
@@ -168,7 +170,7 @@ The steps will be:
 * Create centered log scaled counts
 * Create "blocks" of genes, by tiling the genome and labeling the
   genes that fall within the same tile
-* "Nest" the *tidySE* such that we can operate on the blocks of genes
+* "Nest" the tidySE such that we can operate on the blocks of genes
   together
 * Run a series of models, each time predicting the `minute` variable
   using the expression of the genes in the block
@@ -209,21 +211,21 @@ se
 ```
 ## # A SummarizedExperiment-tibble abstraction: 210,996 × 20
 ## # [90mFeatures=5861 | Samples=36 | Assays=counts, counts_scaled, logcounts[0m
-##    .feature    .sample counts count…¹ logco…² strain minute repli…³ id      TMM multi…⁴  time symbol
-##    <chr>       <chr>    <int>   <dbl>   <dbl> <fct>  <fct>  <fct>   <chr> <dbl>   <dbl> <dbl> <chr> 
-##  1 SPAC212.09c GSM136…     23    23.1  -1.70  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
-##  2 SPAC212.04c GSM136…     37    37.1  -1.42  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
-##  3 SPAC977.11  GSM136…    155   155.   -0.581 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  4 SPAC977.13c GSM136…     19    19.0  -1.81  wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  5 SPAC977.15  GSM136…     91    91.2  -0.896 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  6 SPAC977.16c GSM136…    184   184.   -0.479 wt     0      r1      wt_0…  1.18    1.00     0 dak2  
-##  7 SPNCRNA.607 GSM136…     49    49.1  -1.26  wt     0      r1      wt_0…  1.18    1.00     0 SPNCR…
-##  8 SPAC1F8.06  GSM136…    105   105.   -0.812 wt     0      r1      wt_0…  1.18    1.00     0 fta5  
-##  9 SPAC1F8.08  GSM136…    151   151.   -0.597 wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
-## 10 SPAC11D3.19 GSM136…     22    22.1  -1.72  wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
-## # … with 40 more rows, 7 more variables: biotype <fct>, .abundant <lgl>, seqnames <fct>,
-## #   start <int>, end <int>, width <int>, strand <fct>, and abbreviated variable names
-## #   ¹​counts_scaled, ²​logcounts, ³​replicate, ⁴​multiplier
+##    .feature    .sample counts counts_scaled logcounts strain minute replicate id      TMM multiplier
+##    <chr>       <chr>    <int>         <dbl>     <dbl> <fct>  <fct>  <fct>     <chr> <dbl>      <dbl>
+##  1 SPAC212.09c GSM136…     23          23.1    -1.70  wt     0      r1        wt_0…  1.18       1.00
+##  2 SPAC212.04c GSM136…     37          37.1    -1.42  wt     0      r1        wt_0…  1.18       1.00
+##  3 SPAC977.11  GSM136…    155         155.     -0.581 wt     0      r1        wt_0…  1.18       1.00
+##  4 SPAC977.13c GSM136…     19          19.0    -1.81  wt     0      r1        wt_0…  1.18       1.00
+##  5 SPAC977.15  GSM136…     91          91.2    -0.896 wt     0      r1        wt_0…  1.18       1.00
+##  6 SPAC977.16c GSM136…    184         184.     -0.479 wt     0      r1        wt_0…  1.18       1.00
+##  7 SPNCRNA.607 GSM136…     49          49.1    -1.26  wt     0      r1        wt_0…  1.18       1.00
+##  8 SPAC1F8.06  GSM136…    105         105.     -0.812 wt     0      r1        wt_0…  1.18       1.00
+##  9 SPAC1F8.08  GSM136…    151         151.     -0.597 wt     0      r1        wt_0…  1.18       1.00
+## 10 SPAC11D3.19 GSM136…     22          22.1    -1.72  wt     0      r1        wt_0…  1.18       1.00
+## # ℹ 40 more rows
+## # ℹ 9 more variables: time <dbl>, symbol <chr>, biotype <fct>, .abundant <lgl>, seqnames <fct>,
+## #   start <int>, end <int>, width <int>, strand <fct>
 ```
 
 For demonstration, we will work with just the first chromosome: `I`.
@@ -309,7 +311,8 @@ tiles
 ```
 
 We now determine which tile the genes fall in (using TSS only, so
-that genes fall in a single tile).
+that genes fall in a single tile). We can add this data back onto the
+tidySE using a `left_join`:
 
 
 ```r
@@ -317,7 +320,9 @@ ranges_tiled <- rowRanges(se) %>%
   anchor_5p() %>%
   mutate(width=1) %>%
   join_overlap_left(tiles) %>%
-  select(tile, .drop_ranges=TRUE)
+  mutate(.feature = names(.)) %>%
+  select(tile, .feature, .drop_ranges=TRUE) %>%
+  as_tibble()
 nrow(se) == nrow(ranges_tiled)
 ```
 
@@ -326,7 +331,13 @@ nrow(se) == nrow(ranges_tiled)
 ```
 
 ```r
-rowData(se) <- cbind(rowData(se), ranges_tiled)
+# combining the tile information with the SE
+se <- se %>% left_join(ranges_tiled)
+```
+
+```
+## Joining with `by = join_by(.feature)`
+## Joining with `by = join_by(.feature)`
 ```
 
 Typically we have a little less than 50 genes per tile:
@@ -341,11 +352,10 @@ summary(as.vector(table(rowData(se)$tile)))
 ##    5.00   44.00   49.00   46.98   51.25   59.00
 ```
 
-Next, we want to create a *nested* table, where *tidySE* (shortened
-name for *tidySummarizedExperiment*) objects are grouped by tile and
-placed within a column of the table. There are a few choices on how to
-proceed. One option would be to `pivot_wider` the *tidySE*, as in this
-chunk below:
+Next, we want to create a *nested* table, where tidySE objects are
+grouped by tile and placed within a column of the table. There are a
+few choices on how to proceed. One option would be to `pivot_wider`
+the tidySE, as in this chunk below:
 
 
 ```r
@@ -373,7 +383,7 @@ se %>%
 ##  8 GSM1368283 wt     0.333       -0.959      -1.58      -0.910      -0.828     -1.11 
 ##  9 GSM1368284 wt     0.333       -0.832      -1.51      -0.874      -1.07      -1.01 
 ## 10 GSM1368285 wt     0.667       -1.03       -1.49      -0.866      -1.74      -1.40 
-## # … with 20 more rows
+## # ℹ 20 more rows
 ```
 
 This ends up being a bit slower than just extracting the information
@@ -403,7 +413,7 @@ nested
 ##  8     8 <RngdSmmE[,30]>
 ##  9     9 <RngdSmmE[,30]>
 ## 10    10 <RngdSmmE[,30]>
-## # … with 46 more rows
+## # ℹ 46 more rows
 ```
 
 Now, by row, extract out and transpose log scaled counts:
@@ -431,7 +441,7 @@ nested
 ##  8     8 <RngdSmmE[,30]> <dbl [30 × 47]>
 ##  9     9 <RngdSmmE[,30]> <dbl [30 × 41]>
 ## 10    10 <RngdSmmE[,30]> <dbl [30 × 59]>
-## # … with 46 more rows
+## # ℹ 46 more rows
 ```
 
 We fit an elastic net model [@Friedman2010].
@@ -461,7 +471,7 @@ nested
 ##  8     8 <RngdSmmE[,30]> <dbl [30 × 47]> <elnet>
 ##  9     9 <RngdSmmE[,30]> <dbl [30 × 41]> <elnet>
 ## 10    10 <RngdSmmE[,30]> <dbl [30 × 59]> <elnet>
-## # … with 46 more rows
+## # ℹ 46 more rows
 ```
 
 We use the elastic net model, to predict the design from the gene
@@ -494,7 +504,7 @@ nested
 ##  8     8 <RngdSmmE[,30]> <dbl [30 × 47]> <elnet> <dbl [30]>    47 0.856
 ##  9     9 <RngdSmmE[,30]> <dbl [30 × 41]> <elnet> <dbl [30]>    41 0.890
 ## 10    10 <RngdSmmE[,30]> <dbl [30 × 59]> <elnet> <dbl [30]>    59 0.894
-## # … with 46 more rows
+## # ℹ 46 more rows
 ```
 
 Finally we plot the prediction $R^2$, and compare to the number of

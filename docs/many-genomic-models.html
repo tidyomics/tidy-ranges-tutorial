@@ -7,7 +7,7 @@
   <title>Chapter 8 Many genomic models | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 8 Many genomic models | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -279,7 +279,9 @@ later remove these samples for simple modeling.</p>
 <span id="cb10-4"><a href="many-genomic-models.html#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(PC1, PC2, <span class="at">shape=</span>strain, <span class="at">color=</span>minute)) <span class="sc">+</span></span>
 <span id="cb10-5"><a href="many-genomic-models.html#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div>
 <p><img src="many-genomic-models_files/figure-html/fission-pca-1.png" width="672" /></p>
-<p>We can plot the gene with the most contribution to PC1:</p>
+<p>We can plot the gene with the most contribution to PC1. Here we will
+begin working with the data as a <em>tidySE</em> (shortened name for
+<em>tidySummarizedExperiment</em>):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="many-genomic-models.html#cb11-1" aria-hidden="true" tabindex="-1"></a>max_pc1 <span class="ot">&lt;-</span> <span class="fu">which.max</span>(<span class="fu">abs</span>(<span class="fu">attr</span>(pca, <span class="st">&quot;internals&quot;</span>)[[<span class="st">&quot;PCA&quot;</span>]][[<span class="st">&quot;rotation&quot;</span>]][,<span class="st">&quot;PC1&quot;</span>]))</span>
 <span id="cb11-2"><a href="many-genomic-models.html#cb11-2" aria-hidden="true" tabindex="-1"></a>max_pc1</span></code></pre></div>
 <pre><code>## SPBC839.06 
@@ -306,7 +308,7 @@ experimental design.</p>
 <li>Create centered log scaled counts</li>
 <li>Create “blocks” of genes, by tiling the genome and labeling the
 genes that fall within the same tile</li>
-<li>“Nest” the <em>tidySE</em> such that we can operate on the blocks of genes
+<li>“Nest” the tidySE such that we can operate on the blocks of genes
 together</li>
 <li>Run a series of models, each time predicting the <code>minute</code> variable
 using the expression of the genes in the block</li>
@@ -355,21 +357,21 @@ coefficients across gene later.</p>
 <span id="cb14-6"><a href="many-genomic-models.html#cb14-6" aria-hidden="true" tabindex="-1"></a>se</span></code></pre></div>
 <pre><code>## # A SummarizedExperiment-tibble abstraction: 210,996 × 20
 ## # [90mFeatures=5861 | Samples=36 | Assays=counts, counts_scaled, logcounts[0m
-##    .feature    .sample counts count…¹ logco…² strain minute repli…³ id      TMM multi…⁴  time symbol
-##    &lt;chr&gt;       &lt;chr&gt;    &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;   &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; 
-##  1 SPAC212.09c GSM136…     23    23.1  -1.70  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
-##  2 SPAC212.04c GSM136…     37    37.1  -1.42  wt     0      r1      wt_0…  1.18    1.00     0 SPAC2…
-##  3 SPAC977.11  GSM136…    155   155.   -0.581 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  4 SPAC977.13c GSM136…     19    19.0  -1.81  wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  5 SPAC977.15  GSM136…     91    91.2  -0.896 wt     0      r1      wt_0…  1.18    1.00     0 SPAC9…
-##  6 SPAC977.16c GSM136…    184   184.   -0.479 wt     0      r1      wt_0…  1.18    1.00     0 dak2  
-##  7 SPNCRNA.607 GSM136…     49    49.1  -1.26  wt     0      r1      wt_0…  1.18    1.00     0 SPNCR…
-##  8 SPAC1F8.06  GSM136…    105   105.   -0.812 wt     0      r1      wt_0…  1.18    1.00     0 fta5  
-##  9 SPAC1F8.08  GSM136…    151   151.   -0.597 wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
-## 10 SPAC11D3.19 GSM136…     22    22.1  -1.72  wt     0      r1      wt_0…  1.18    1.00     0 SPAC1…
-## # … with 40 more rows, 7 more variables: biotype &lt;fct&gt;, .abundant &lt;lgl&gt;, seqnames &lt;fct&gt;,
-## #   start &lt;int&gt;, end &lt;int&gt;, width &lt;int&gt;, strand &lt;fct&gt;, and abbreviated variable names
-## #   ¹​counts_scaled, ²​logcounts, ³​replicate, ⁴​multiplier</code></pre>
+##    .feature    .sample counts counts_scaled logcounts strain minute replicate id      TMM multiplier
+##    &lt;chr&gt;       &lt;chr&gt;    &lt;int&gt;         &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;     &lt;chr&gt; &lt;dbl&gt;      &lt;dbl&gt;
+##  1 SPAC212.09c GSM136…     23          23.1    -1.70  wt     0      r1        wt_0…  1.18       1.00
+##  2 SPAC212.04c GSM136…     37          37.1    -1.42  wt     0      r1        wt_0…  1.18       1.00
+##  3 SPAC977.11  GSM136…    155         155.     -0.581 wt     0      r1        wt_0…  1.18       1.00
+##  4 SPAC977.13c GSM136…     19          19.0    -1.81  wt     0      r1        wt_0…  1.18       1.00
+##  5 SPAC977.15  GSM136…     91          91.2    -0.896 wt     0      r1        wt_0…  1.18       1.00
+##  6 SPAC977.16c GSM136…    184         184.     -0.479 wt     0      r1        wt_0…  1.18       1.00
+##  7 SPNCRNA.607 GSM136…     49          49.1    -1.26  wt     0      r1        wt_0…  1.18       1.00
+##  8 SPAC1F8.06  GSM136…    105         105.     -0.812 wt     0      r1        wt_0…  1.18       1.00
+##  9 SPAC1F8.08  GSM136…    151         151.     -0.597 wt     0      r1        wt_0…  1.18       1.00
+## 10 SPAC11D3.19 GSM136…     22          22.1    -1.72  wt     0      r1        wt_0…  1.18       1.00
+## # ℹ 40 more rows
+## # ℹ 9 more variables: time &lt;dbl&gt;, symbol &lt;chr&gt;, biotype &lt;fct&gt;, .abundant &lt;lgl&gt;, seqnames &lt;fct&gt;,
+## #   start &lt;int&gt;, end &lt;int&gt;, width &lt;int&gt;, strand &lt;fct&gt;</code></pre>
 <p>For demonstration, we will work with just the first chromosome: <code>I</code>.</p>
 <p>For our task of modeling the design using gene expression, in blocks
 along the genome, we need to create tiles to determine which genes
@@ -428,28 +430,33 @@ keep just the features on chromosome I.</p>
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>We now determine which tile the genes fall in (using TSS only, so
-that genes fall in a single tile).</p>
+that genes fall in a single tile). We can add this data back onto the
+tidySE using a <code>left_join</code>:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="many-genomic-models.html#cb22-1" aria-hidden="true" tabindex="-1"></a>ranges_tiled <span class="ot">&lt;-</span> <span class="fu">rowRanges</span>(se) <span class="sc">%&gt;%</span></span>
 <span id="cb22-2"><a href="many-genomic-models.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb22-3"><a href="many-genomic-models.html#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb22-4"><a href="many-genomic-models.html#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">join_overlap_left</span>(tiles) <span class="sc">%&gt;%</span></span>
-<span id="cb22-5"><a href="many-genomic-models.html#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tile, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>)</span>
-<span id="cb22-6"><a href="many-genomic-models.html#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(se) <span class="sc">==</span> <span class="fu">nrow</span>(ranges_tiled)</span></code></pre></div>
+<span id="cb22-5"><a href="many-genomic-models.html#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.feature =</span> <span class="fu">names</span>(.)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-6"><a href="many-genomic-models.html#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tile, .feature, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb22-7"><a href="many-genomic-models.html#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb22-8"><a href="many-genomic-models.html#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(se) <span class="sc">==</span> <span class="fu">nrow</span>(ranges_tiled)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="many-genomic-models.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rowData</span>(se) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rowData</span>(se), ranges_tiled)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="many-genomic-models.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># combining the tile information with the SE</span></span>
+<span id="cb24-2"><a href="many-genomic-models.html#cb24-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(ranges_tiled)</span></code></pre></div>
+<pre><code>## Joining with `by = join_by(.feature)`
+## Joining with `by = join_by(.feature)`</code></pre>
 <p>Typically we have a little less than 50 genes per tile:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="many-genomic-models.html#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.vector</span>(<span class="fu">table</span>(<span class="fu">rowData</span>(se)<span class="sc">$</span>tile)))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="many-genomic-models.html#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.vector</span>(<span class="fu">table</span>(<span class="fu">rowData</span>(se)<span class="sc">$</span>tile)))</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##    5.00   44.00   49.00   46.98   51.25   59.00</code></pre>
-<p>Next, we want to create a <em>nested</em> table, where <em>tidySE</em> (shortened
-name for <em>tidySummarizedExperiment</em>) objects are grouped by tile and
-placed within a column of the table. There are a few choices on how to
-proceed. One option would be to <code>pivot_wider</code> the <em>tidySE</em>, as in this
-chunk below:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="many-genomic-models.html#cb27-1" aria-hidden="true" tabindex="-1"></a>se <span class="sc">%&gt;%</span></span>
-<span id="cb27-2"><a href="many-genomic-models.html#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.feature <span class="sc">%in%</span> <span class="fu">rownames</span>(se)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">%&gt;%</span></span>
-<span id="cb27-3"><a href="many-genomic-models.html#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(.sample, strain, time, .feature, logcounts) <span class="sc">%&gt;%</span></span>
-<span id="cb27-4"><a href="many-genomic-models.html#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> .feature, <span class="at">values_from =</span> logcounts)</span></code></pre></div>
+<p>Next, we want to create a <em>nested</em> table, where tidySE objects are
+grouped by tile and placed within a column of the table. There are a
+few choices on how to proceed. One option would be to <code>pivot_wider</code>
+the tidySE, as in this chunk below:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="many-genomic-models.html#cb28-1" aria-hidden="true" tabindex="-1"></a>se <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="many-genomic-models.html#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.feature <span class="sc">%in%</span> <span class="fu">rownames</span>(se)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="many-genomic-models.html#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(.sample, strain, time, .feature, logcounts) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="many-genomic-models.html#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> .feature, <span class="at">values_from =</span> logcounts)</span></code></pre></div>
 <pre><code>## tidySummarizedExperiment says: A data frame is returned for independent data analysis.</code></pre>
 <pre><code>## # A tibble: 30 × 8
 ##    .sample    strain   time SPAC212.09c SPAC212.04c SPAC977.11 SPAC977.13c SPAC977.15
@@ -464,14 +471,14 @@ chunk below:</p>
 ##  8 GSM1368283 wt     0.333       -0.959      -1.58      -0.910      -0.828     -1.11 
 ##  9 GSM1368284 wt     0.333       -0.832      -1.51      -0.874      -1.07      -1.01 
 ## 10 GSM1368285 wt     0.667       -1.03       -1.49      -0.866      -1.74      -1.40 
-## # … with 20 more rows</code></pre>
+## # ℹ 20 more rows</code></pre>
 <p>This ends up being a bit slower than just extracting the information
 with <code>assay</code> and transposing it.</p>
 <p>First let’s create our nested dataset:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="many-genomic-models.html#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb30-2"><a href="many-genomic-models.html#cb30-2" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
-<span id="cb30-3"><a href="many-genomic-models.html#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">data =</span> <span class="sc">-</span>tile)</span>
-<span id="cb30-4"><a href="many-genomic-models.html#cb30-4" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="many-genomic-models.html#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb31-2"><a href="many-genomic-models.html#cb31-2" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> se <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="many-genomic-models.html#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">data =</span> <span class="sc">-</span>tile)</span>
+<span id="cb31-4"><a href="many-genomic-models.html#cb31-4" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
 <pre><code>## # A tibble: 56 × 2
 ##     tile data           
 ##    &lt;int&gt; &lt;list&gt;         
@@ -485,13 +492,13 @@ with <code>assay</code> and transposing it.</p>
 ##  8     8 &lt;RngdSmmE[,30]&gt;
 ##  9     9 &lt;RngdSmmE[,30]&gt;
 ## 10    10 &lt;RngdSmmE[,30]&gt;
-## # … with 46 more rows</code></pre>
+## # ℹ 46 more rows</code></pre>
 <p>Now, by row, extract out and transpose log scaled counts:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="many-genomic-models.html#cb32-1" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
-<span id="cb32-2"><a href="many-genomic-models.html#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trainx =</span> <span class="fu">map</span>(data, \(d) {</span>
-<span id="cb32-3"><a href="many-genomic-models.html#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>(<span class="fu">assay</span>(d, <span class="st">&quot;logcounts&quot;</span>))</span>
-<span id="cb32-4"><a href="many-genomic-models.html#cb32-4" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb32-5"><a href="many-genomic-models.html#cb32-5" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="many-genomic-models.html#cb33-1" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="many-genomic-models.html#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trainx =</span> <span class="fu">map</span>(data, \(d) {</span>
+<span id="cb33-3"><a href="many-genomic-models.html#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>(<span class="fu">assay</span>(d, <span class="st">&quot;logcounts&quot;</span>))</span>
+<span id="cb33-4"><a href="many-genomic-models.html#cb33-4" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb33-5"><a href="many-genomic-models.html#cb33-5" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
 <pre><code>## # A tibble: 56 × 3
 ##     tile data            trainx         
 ##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;         
@@ -505,15 +512,15 @@ with <code>assay</code> and transposing it.</p>
 ##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt;
 ##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt;
 ## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt;
-## # … with 46 more rows</code></pre>
+## # ℹ 46 more rows</code></pre>
 <p>We fit an elastic net model <span class="citation">(<a href="#ref-Friedman2010" role="doc-biblioref">Friedman, Hastie, and Tibshirani 2010</a>)</span>.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="many-genomic-models.html#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
-<span id="cb34-2"><a href="many-genomic-models.html#cb34-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">colData</span>(se)<span class="sc">$</span>time</span>
-<span id="cb34-3"><a href="many-genomic-models.html#cb34-3" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
-<span id="cb34-4"><a href="many-genomic-models.html#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">map</span>(trainx, \(x) {</span>
-<span id="cb34-5"><a href="many-genomic-models.html#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glmnet</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">alpha =</span> .<span class="dv">5</span>, <span class="at">lambda =</span> .<span class="dv">1</span>)</span>
-<span id="cb34-6"><a href="many-genomic-models.html#cb34-6" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb34-7"><a href="many-genomic-models.html#cb34-7" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="many-genomic-models.html#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb35-2"><a href="many-genomic-models.html#cb35-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">colData</span>(se)<span class="sc">$</span>time</span>
+<span id="cb35-3"><a href="many-genomic-models.html#cb35-3" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="many-genomic-models.html#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">map</span>(trainx, \(x) {</span>
+<span id="cb35-5"><a href="many-genomic-models.html#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glmnet</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">alpha =</span> .<span class="dv">5</span>, <span class="at">lambda =</span> .<span class="dv">1</span>)</span>
+<span id="cb35-6"><a href="many-genomic-models.html#cb35-6" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb35-7"><a href="many-genomic-models.html#cb35-7" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
 <pre><code>## # A tibble: 56 × 4
 ##     tile data            trainx          fit    
 ##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;          &lt;list&gt; 
@@ -527,18 +534,18 @@ with <code>assay</code> and transposing it.</p>
 ##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt; &lt;elnet&gt;
 ##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt;
 ## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt; &lt;elnet&gt;
-## # … with 46 more rows</code></pre>
+## # ℹ 46 more rows</code></pre>
 <p>We use the elastic net model, to predict the design from the gene
 expression (a variable number and set of genes per tile):</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="many-genomic-models.html#cb36-1" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
-<span id="cb36-2"><a href="many-genomic-models.html#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb36-3"><a href="many-genomic-models.html#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred =</span> <span class="fu">map2</span>(trainx, fit, \(tr,fit) {</span>
-<span id="cb36-4"><a href="many-genomic-models.html#cb36-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">predict</span>(fit, <span class="at">newx =</span> tr)[,<span class="dv">1</span>]</span>
-<span id="cb36-5"><a href="many-genomic-models.html#cb36-5" aria-hidden="true" tabindex="-1"></a>    }),</span>
-<span id="cb36-6"><a href="many-genomic-models.html#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">map_dbl</span>(data, nrow),</span>
-<span id="cb36-7"><a href="many-genomic-models.html#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">in_r2 =</span> <span class="fu">map_dbl</span>(pred, \(pred) <span class="fu">cor</span>(pred,y)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb36-8"><a href="many-genomic-models.html#cb36-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb36-9"><a href="many-genomic-models.html#cb36-9" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="many-genomic-models.html#cb37-1" aria-hidden="true" tabindex="-1"></a>nested <span class="ot">&lt;-</span> nested <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="many-genomic-models.html#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb37-3"><a href="many-genomic-models.html#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred =</span> <span class="fu">map2</span>(trainx, fit, \(tr,fit) {</span>
+<span id="cb37-4"><a href="many-genomic-models.html#cb37-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">predict</span>(fit, <span class="at">newx =</span> tr)[,<span class="dv">1</span>]</span>
+<span id="cb37-5"><a href="many-genomic-models.html#cb37-5" aria-hidden="true" tabindex="-1"></a>    }),</span>
+<span id="cb37-6"><a href="many-genomic-models.html#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">map_dbl</span>(data, nrow),</span>
+<span id="cb37-7"><a href="many-genomic-models.html#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">in_r2 =</span> <span class="fu">map_dbl</span>(pred, \(pred) <span class="fu">cor</span>(pred,y)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb37-8"><a href="many-genomic-models.html#cb37-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-9"><a href="many-genomic-models.html#cb37-9" aria-hidden="true" tabindex="-1"></a>nested</span></code></pre></div>
 <pre><code>## # A tibble: 56 × 7
 ##     tile data            trainx          fit     pred           n in_r2
 ##    &lt;int&gt; &lt;list&gt;          &lt;list&gt;          &lt;list&gt;  &lt;list&gt;     &lt;dbl&gt; &lt;dbl&gt;
@@ -552,13 +559,13 @@ expression (a variable number and set of genes per tile):</p>
 ##  8     8 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 47]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    47 0.856
 ##  9     9 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 41]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    41 0.890
 ## 10    10 &lt;RngdSmmE[,30]&gt; &lt;dbl [30 × 59]&gt; &lt;elnet&gt; &lt;dbl [30]&gt;    59 0.894
-## # … with 46 more rows</code></pre>
+## # ℹ 46 more rows</code></pre>
 <p>Finally we plot the prediction <span class="math inline">\(R^2\)</span>, and compare to the number of
 genes in the models:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="many-genomic-models.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb38-2"><a href="many-genomic-models.html#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nested, <span class="fu">aes</span>(n, in_r2)) <span class="sc">+</span></span>
-<span id="cb38-3"><a href="many-genomic-models.html#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb38-4"><a href="many-genomic-models.html#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;in-sample r2&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="many-genomic-models.html#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb39-2"><a href="many-genomic-models.html#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nested, <span class="fu">aes</span>(n, in_r2)) <span class="sc">+</span></span>
+<span id="cb39-3"><a href="many-genomic-models.html#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb39-4"><a href="many-genomic-models.html#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;in-sample r2&quot;</span>)</span></code></pre></div>
 <p><img src="many-genomic-models_files/figure-html/many-models-r2-1.png" width="672" /></p>
 <p>Questions:</p>
 <ul>
