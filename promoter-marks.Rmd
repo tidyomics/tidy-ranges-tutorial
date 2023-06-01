@@ -35,6 +35,7 @@ kidney_expr <- tissues %>%
 int <- intersect(bladder_expr, kidney_expr)
 bladder_expr <- setdiff(bladder_expr, int)
 kidney_expr <- setdiff(kidney_expr, int)
+# save(bladder_expr, kidney_expr, file="data/bladder_kidney_expr.rda")
 ```
 
 Next, use an existing TxDb to locate these genes in the genomes. While
