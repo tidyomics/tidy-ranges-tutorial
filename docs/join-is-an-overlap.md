@@ -79,15 +79,6 @@ shared_friends <- friends %>%
   inner_join(class, by="friend") %>%
   arrange(classmate, friend) %>%
   relocate(classmate) # classmate to 1st column
-```
-
-```
-## Warning in inner_join(., class, by = "friend"): Each row in `x` is expected to match at most 1 row in `y`.
-## ℹ Row 1 of `x` matches multiple rows.
-## ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
-```
-
-```r
 shared_friends
 ```
 

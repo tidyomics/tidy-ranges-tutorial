@@ -7,7 +7,7 @@
   <title>Chapter 3 Promoter marks | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 3 Promoter marks | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-05-09" />
+<meta name="date" content="2023-06-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -214,7 +214,8 @@ wide format into a tidy format.</p>
 <span id="cb59-6"><a href="promoter-marks.html#cb59-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(gene)</span>
 <span id="cb59-7"><a href="promoter-marks.html#cb59-7" aria-hidden="true" tabindex="-1"></a>int <span class="ot">&lt;-</span> <span class="fu">intersect</span>(bladder_expr, kidney_expr)</span>
 <span id="cb59-8"><a href="promoter-marks.html#cb59-8" aria-hidden="true" tabindex="-1"></a>bladder_expr <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(bladder_expr, int)</span>
-<span id="cb59-9"><a href="promoter-marks.html#cb59-9" aria-hidden="true" tabindex="-1"></a>kidney_expr <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(kidney_expr, int)</span></code></pre></div>
+<span id="cb59-9"><a href="promoter-marks.html#cb59-9" aria-hidden="true" tabindex="-1"></a>kidney_expr <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(kidney_expr, int)</span>
+<span id="cb59-10"><a href="promoter-marks.html#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="co"># save(bladder_expr, kidney_expr, file=&quot;data/bladder_kidney_expr.rda&quot;)</span></span></code></pre></div>
 <p>Next, use an existing TxDb to locate these genes in the genomes. While
 we usually recommend to use GENCODE genes for human analysis, because
 the ENCODE chromatin modification peak files on AnnotationHub are in
@@ -279,12 +280,12 @@ tissue-specific genes for both bladder and kidney.</p>
 <pre><code>## DataFrame with 6 rows and 3 columns
 ##   gtissue     ptissue     count
 ##     &lt;Rle&gt; &lt;character&gt; &lt;integer&gt;
-## 1 bladder     bladder      2175
-## 2 bladder      kidney      1579
-## 3 bladder          NA       863
+## 1 bladder     bladder      2163
+## 2 bladder      kidney      1568
+## 3 bladder          NA       859
 ## 4  kidney     bladder       103
 ## 5  kidney      kidney       208
-## 6  kidney          NA       243</code></pre>
+## 6  kidney          NA       242</code></pre>
 <p>The above number could also be found with four <code>countOverlaps</code> calls,
 by considering all four pairs of overlaps of the two sets of genes and
 peaks.</p>
@@ -297,12 +298,12 @@ use the <em>plyranges</em> function, <code>n_distinct()</code>:</p>
 <pre><code>## DataFrame with 6 rows and 3 columns
 ##   gtissue     ptissue     count
 ##     &lt;Rle&gt; &lt;character&gt; &lt;integer&gt;
-## 1 bladder     bladder      2175
-## 2 bladder      kidney      1579
-## 3 bladder          NA       863
+## 1 bladder     bladder      2163
+## 2 bladder      kidney      1568
+## 3 bladder          NA       859
 ## 4  kidney     bladder       103
 ## 5  kidney      kidney       208
-## 6  kidney          NA       243</code></pre>
+## 6  kidney          NA       242</code></pre>
 <p>If we want more information per gene, e.g. suppose we want to compute
 the average signal per gene of peaks nearby, we need to group twice,
 once also by gene ID, and the second time integrating over gene
@@ -323,12 +324,12 @@ results, etc.</p>
 ## # Groups:   gtissue [2]
 ##   gtissue ptissue sum_any_overlaps mean_signal
 ##   &lt;chr&gt;   &lt;chr&gt;              &lt;int&gt;       &lt;dbl&gt;
-## 1 bladder bladder             2175       1.18 
-## 2 bladder kidney              1579       0.929
-## 3 bladder &lt;NA&gt;                 863      NA    
+## 1 bladder bladder             2163       1.18 
+## 2 bladder kidney              1568       0.929
+## 3 bladder &lt;NA&gt;                 859      NA    
 ## 4 kidney  bladder              103       0.991
 ## 5 kidney  kidney               208       0.714
-## 6 kidney  &lt;NA&gt;                 243      NA</code></pre>
+## 6 kidney  &lt;NA&gt;                 242      NA</code></pre>
 <p>What’s wrong with this analysis?</p>
 <ul>
 <li>We didn’t figure out the expressed promoter, we just looked at the

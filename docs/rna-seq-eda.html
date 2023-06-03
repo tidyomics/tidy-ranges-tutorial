@@ -7,7 +7,7 @@
   <title>Chapter 7 RNA-seq EDA | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 7 RNA-seq EDA | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-05-09" />
+<meta name="date" content="2023-06-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -322,20 +322,21 @@ current character vector and not alphabetical.</p>
 <div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="rna-seq-eda.html#cb166-1" aria-hidden="true" tabindex="-1"></a>oct4</span></code></pre></div>
 <pre><code>## # A SummarizedExperiment-tibble abstraction: 322,182 × 18
 ## # [90mFeatures=53697 | Samples=6 | Assays=counts, abundance, length[0m
-##    .feature    .sample counts abund…¹ length names line  condi…²   rep sampl…³ gene_id tx_ids SYMBOL
-##    &lt;chr&gt;       &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;fct&gt;   &lt;int&gt; &lt;fct&gt;   &lt;chr&gt;   &lt;name&gt; &lt;chr&gt; 
-##  1 ENSMUSG000… OCT4-u…   2920 16.6     2953. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Gnai3 
-##  2 ENSMUSG000… OCT4-u…      0  0        589. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Pbsn  
-##  3 ENSMUSG000… OCT4-u…   1906 19.0     1688. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Cdc45 
-##  4 ENSMUSG000… OCT4-u…   9044 74.8     2034. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  H19   
-##  5 ENSMUSG000… OCT4-u…    132  0.826   2688. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Scml2 
-##  6 ENSMUSG000… OCT4-u…      0  0        943. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Apoh  
-##  7 ENSMUSG000… OCT4-u…    444  1.84    4062. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Narf  
-##  8 ENSMUSG000… OCT4-u…      8  0.0554  2430. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Cav2  
-##  9 ENSMUSG000… OCT4-u…   2503 16.3     2588. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Klf6  
-## 10 ENSMUSG000… OCT4-u…    610  7.58    1354. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… &lt;chr&gt;  Scmh1 
-## # … with 40 more rows, 5 more variables: seqnames &lt;fct&gt;, start &lt;int&gt;, end &lt;int&gt;, width &lt;int&gt;,
-## #   strand &lt;fct&gt;, and abbreviated variable names ¹​abundance, ²​condition, ³​sample_name</code></pre>
+##    .feature   .sample counts abundance length names line  condition   rep sample_name gene_id tx_ids
+##    &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;fct&gt;     &lt;int&gt; &lt;fct&gt;       &lt;chr&gt;   &lt;name&gt;
+##  1 ENSMUSG00… OCT4-u…   2920   16.6     2953. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  2 ENSMUSG00… OCT4-u…      0    0        589. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  3 ENSMUSG00… OCT4-u…   1906   19.0     1688. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  4 ENSMUSG00… OCT4-u…   9044   74.8     2034. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  5 ENSMUSG00… OCT4-u…    132    0.826   2688. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  6 ENSMUSG00… OCT4-u…      0    0        943. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  7 ENSMUSG00… OCT4-u…    444    1.84    4062. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  8 ENSMUSG00… OCT4-u…      8    0.0554  2430. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+##  9 ENSMUSG00… OCT4-u…   2503   16.3     2588. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+## 10 ENSMUSG00… OCT4-u…    610    7.58    1354. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… &lt;chr&gt; 
+## # ℹ 40 more rows
+## # ℹ 6 more variables: SYMBOL &lt;chr&gt;, seqnames &lt;fct&gt;, start &lt;int&gt;, end &lt;int&gt;, width &lt;int&gt;,
+## #   strand &lt;fct&gt;</code></pre>
 <p><em>tidybulk</em> provides access to many steps in bulk analysis, including
 filtering and count scaling. For details on what is happening behind
 the scene, see the help, e.g. <code>?keep_abundant</code> describes that it makes

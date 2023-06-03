@@ -7,7 +7,7 @@
   <title>Chapter 4 Bootstrap overlap | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 4 Bootstrap overlap | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-05-09" />
+<meta name="date" content="2023-06-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -300,20 +300,20 @@ in the <code>iter</code> metadata column.</p>
 <span id="cb87-3"><a href="bootstrap-overlap.html#cb87-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>) <span class="co"># set seed for reproducibility</span></span>
 <span id="cb87-4"><a href="bootstrap-overlap.html#cb87-4" aria-hidden="true" tabindex="-1"></a>boots <span class="ot">&lt;-</span> <span class="fu">bootRanges</span>(pks_to_boot, <span class="at">blockLength=</span><span class="fl">5e5</span>, <span class="at">R=</span>R, <span class="at">exclude=</span>exclude)</span>
 <span id="cb87-5"><a href="bootstrap-overlap.html#cb87-5" aria-hidden="true" tabindex="-1"></a>boots</span></code></pre></div>
-<pre><code>## BootRanges object with 174764 ranges and 5 metadata columns:
-##            seqnames            ranges strand |        id    signal     block  iter blockLength
-##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt; &lt;Rle&gt;       &lt;Rle&gt;
-##        [1]     chr1   2011397-2011809      * |       931  14.42934         5     1      500000
-##        [2]     chr1   2011973-2012399      * |       932  17.57052         5     1      500000
-##        [3]     chr1   2012505-2013073      * |       933   9.64691         5     1      500000
-##        [4]     chr1   2503670-2505748      * |      3752  20.84181         6     1      500000
-##        [5]     chr1   2505855-2507134      * |      3753  15.29241         6     1      500000
-##        ...      ...               ...    ... .       ...       ...       ...   ...         ...
-##   [174760]     chrY 57499850-57501632      * |      5141  10.09210      6202    30      500000
-##   [174761]     chrY 57937341-57937960      * |      1062  15.98656      6203    30      500000
-##   [174762]     chrY 58145916-58146540      * |       264  15.23097      6204    30      500000
-##   [174763]     chrY 58146662-58147585      * |       265  12.26661      6204    30      500000
-##   [174764]     chrY 58214091-58214746      * |       266   9.69322      6204    30      500000
+<pre><code>## BootRanges object with 174764 ranges and 3 metadata columns:
+##            seqnames            ranges strand |        id    signal  iter
+##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;numeric&gt; &lt;Rle&gt;
+##        [1]     chr1   2011397-2011809      * |       931  14.42934     1
+##        [2]     chr1   2011973-2012399      * |       932  17.57052     1
+##        [3]     chr1   2012505-2013073      * |       933   9.64691     1
+##        [4]     chr1   2503670-2505748      * |      3752  20.84181     1
+##        [5]     chr1   2505855-2507134      * |      3753  15.29241     1
+##        ...      ...               ...    ... .       ...       ...   ...
+##   [174760]     chrY 57499850-57501632      * |      5141  10.09210    30
+##   [174761]     chrY 57937341-57937960      * |      1062  15.98656    30
+##   [174762]     chrY 58145916-58146540      * |       264  15.23097    30
+##   [174763]     chrY 58146662-58147585      * |       265  12.26661    30
+##   [174764]     chrY 58214091-58214746      * |       266   9.69322    30
 ##   -------
 ##   seqinfo: 24 sequences from hg19 genome</code></pre>
 <p>The default use above of the <code>exclude</code> argument is to drop bootstrapped
@@ -483,7 +483,7 @@ bootstrap.</p>
 ##  8 8           79  5836 0.0135 
 ##  9 9           59  5770 0.0102 
 ## 10 10          50  5991 0.00835
-## # … with 20 more rows</code></pre>
+## # ℹ 20 more rows</code></pre>
 
 </div>
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>

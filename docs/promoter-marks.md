@@ -38,6 +38,7 @@ kidney_expr <- tissues %>%
 int <- intersect(bladder_expr, kidney_expr)
 bladder_expr <- setdiff(bladder_expr, int)
 kidney_expr <- setdiff(kidney_expr, int)
+# save(bladder_expr, kidney_expr, file="data/bladder_kidney_expr.rda")
 ```
 
 Next, use an existing TxDb to locate these genes in the genomes. While
@@ -150,12 +151,12 @@ tss %>%
 ## DataFrame with 6 rows and 3 columns
 ##   gtissue     ptissue     count
 ##     <Rle> <character> <integer>
-## 1 bladder     bladder      2175
-## 2 bladder      kidney      1579
-## 3 bladder          NA       863
+## 1 bladder     bladder      2163
+## 2 bladder      kidney      1568
+## 3 bladder          NA       859
 ## 4  kidney     bladder       103
 ## 5  kidney      kidney       208
-## 6  kidney          NA       243
+## 6  kidney          NA       242
 ```
 
 The above number could also be found with four `countOverlaps` calls,
@@ -177,12 +178,12 @@ tss %>%
 ## DataFrame with 6 rows and 3 columns
 ##   gtissue     ptissue     count
 ##     <Rle> <character> <integer>
-## 1 bladder     bladder      2175
-## 2 bladder      kidney      1579
-## 3 bladder          NA       863
+## 1 bladder     bladder      2163
+## 2 bladder      kidney      1568
+## 3 bladder          NA       859
 ## 4  kidney     bladder       103
 ## 5  kidney      kidney       208
-## 6  kidney          NA       243
+## 6  kidney          NA       242
 ```
 
 If we want more information per gene, e.g. suppose we want to compute
@@ -214,12 +215,12 @@ tss %>%
 ## # Groups:   gtissue [2]
 ##   gtissue ptissue sum_any_overlaps mean_signal
 ##   <chr>   <chr>              <int>       <dbl>
-## 1 bladder bladder             2175       1.18 
-## 2 bladder kidney              1579       0.929
-## 3 bladder <NA>                 863      NA    
+## 1 bladder bladder             2163       1.18 
+## 2 bladder kidney              1568       0.929
+## 3 bladder <NA>                 859      NA    
 ## 4 kidney  bladder              103       0.991
 ## 5 kidney  kidney               208       0.714
-## 6 kidney  <NA>                 243      NA
+## 6 kidney  <NA>                 242      NA
 ```
 
 What's wrong with this analysis?

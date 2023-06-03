@@ -40,18 +40,37 @@ seqnames(r)
 strand(r)
 ```
 
-Let's find which genes overlap a region of interest. We will load the
-Ensembl genes, here from a Bioconductor data package (usually we would
-obtain these from AnnotationHub). The last lines use convenience
-functions to convert to, e.g. `"chr1"`, ..., `"chrY"`.
+Let's use *plyranges* to find the genes that overlap a region of
+interest.
+
+Typically, it is prefered to use Ensembl or GENCODE gene annotation, 
+the latter of which can by obtained from *AnnotationHub*. Ensembl gene
+annotation can be easily manipulated with the *ensembldb*
+package [@rainer2019].
+Provided is some example code in an unevaluated code chunk:
+
+```{r eval=FALSE}
+library(ensembldb)
+edb <- ... # obtain from AnnotationHub or from GTF file
+g <- genes(edb)
+```
+
+Here, we will work with a static TxDb that is distributed as an
+annotation package in Bioconductor. We use this TxDb because it is
+an older genome release (hg19) that matches some ranges we will work
+with later, but generally it is recommended to use a recent (and
+versioned) Ensembl or GENCODE gene annotation.
 
 ```{r message=FALSE}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 ```
 
+The same function can be used to extract the gene ranges:
+
 ```{r}
 g <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 g <- keepStandardChromosomes(g, pruning.mode="coarse")
+g
 ```
 
 Now we are ready to test for overlaps. A left join gives us all the
@@ -139,7 +158,7 @@ g %>% join_overlap_inner_directed(r) %>%
   summarize(count=n(), mean_width=mean(width))
 ```
 
-What about `"boo"`? We need to add a `complete()` call to account for
+What about `"foo"`? We need to add a `complete()` call to account for
 the fact that we are missing those overlaps after the join. We need to
 call the function explicitly from the *tidyr* package but by not
 loading the package we can avoid some function name conflicts with
@@ -157,9 +176,11 @@ g %>% join_overlap_inner_directed(r) %>%
 
 Why did we have to convert to tibble before running `complete()`?
 This is because metadata columns of *GRanges* objects are in a format
-called *DataFrame* which the *tidyr* / *dplyr* functions don't know
-how to operate on. To access these metadata columns, you can use any
-of these types of calls:
+called *DataFrame*, on which the *tidyr* / *dplyr* functions don't
+know how to operate. 
+
+To access metadata columns of a *GRanges* object, you can use any
+of these paradigms:
 
 ```{r}
 mcols(r)
@@ -178,11 +199,11 @@ mcols(r) %>% as_tibble()
 **Reduce instead of summarize:**
 Above when we used `group_by` and `summarize` we lost the original
 range data. Another option, to preserve the range data, is to use
-the function `reduce_ranges` within groups that we define. If we want
-to preserve the range information for the `r` object, we can start
-with `r` and proceed to join, group by, and reduce within groups. 
-For an example of `reduce_ranges` used in the context of a genomic
-data analysis see @Lee2020.
+the function `reduce_ranges` within groups that we define (which can
+be `_directed` or not). If we want to preserve the range information
+for the `r` object, we can start with `r` and proceed to join, group
+by, and reduce within groups.  For an example of `reduce_ranges` used
+in the context of a genomic data analysis see @Lee2020.
 In order to compute on the gene widths, we have to add that as a
 metadata column within the join. To keep the no-gene-overlapping
 ranges in `r`, we can count when the gene ID is not `NA`.
@@ -199,5 +220,6 @@ Hopefully, you've seen that there are many routes to compute the types
 of statistics of interest. The best way to decide which one to use is
 to think first: what do I want the final output to look like, and do I
 need to keep track of non-overlapping ranges? This will help dictate
-the way you set up the call, whether a `join` or a `mutate` to just
-tally a column of overlaps, etc.
+the way you set up your code, whether a `join` or a `mutate` to just
+tally a column of overlaps, etc., and whether a `complete` call is
+needed to fill in missing levels at the end of the analysis.

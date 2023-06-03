@@ -198,20 +198,21 @@ oct4
 ```
 ## # A SummarizedExperiment-tibble abstraction: 322,182 × 18
 ## # [90mFeatures=53697 | Samples=6 | Assays=counts, abundance, length[0m
-##    .feature    .sample counts abund…¹ length names line  condi…²   rep sampl…³ gene_id tx_ids SYMBOL
-##    <chr>       <chr>    <dbl>   <dbl>  <dbl> <chr> <chr> <fct>   <int> <fct>   <chr>   <name> <chr> 
-##  1 ENSMUSG000… OCT4-u…   2920 16.6     2953. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Gnai3 
-##  2 ENSMUSG000… OCT4-u…      0  0        589. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Pbsn  
-##  3 ENSMUSG000… OCT4-u…   1906 19.0     1688. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Cdc45 
-##  4 ENSMUSG000… OCT4-u…   9044 74.8     2034. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  H19   
-##  5 ENSMUSG000… OCT4-u…    132  0.826   2688. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Scml2 
-##  6 ENSMUSG000… OCT4-u…      0  0        943. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Apoh  
-##  7 ENSMUSG000… OCT4-u…    444  1.84    4062. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Narf  
-##  8 ENSMUSG000… OCT4-u…      8  0.0554  2430. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Cav2  
-##  9 ENSMUSG000… OCT4-u…   2503 16.3     2588. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Klf6  
-## 10 ENSMUSG000… OCT4-u…    610  7.58    1354. SRX2… OCT4  untrt       1 untrt-1 ENSMUS… <chr>  Scmh1 
-## # … with 40 more rows, 5 more variables: seqnames <fct>, start <int>, end <int>, width <int>,
-## #   strand <fct>, and abbreviated variable names ¹​abundance, ²​condition, ³​sample_name
+##    .feature   .sample counts abundance length names line  condition   rep sample_name gene_id tx_ids
+##    <chr>      <chr>    <dbl>     <dbl>  <dbl> <chr> <chr> <fct>     <int> <fct>       <chr>   <name>
+##  1 ENSMUSG00… OCT4-u…   2920   16.6     2953. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  2 ENSMUSG00… OCT4-u…      0    0        589. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  3 ENSMUSG00… OCT4-u…   1906   19.0     1688. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  4 ENSMUSG00… OCT4-u…   9044   74.8     2034. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  5 ENSMUSG00… OCT4-u…    132    0.826   2688. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  6 ENSMUSG00… OCT4-u…      0    0        943. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  7 ENSMUSG00… OCT4-u…    444    1.84    4062. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  8 ENSMUSG00… OCT4-u…      8    0.0554  2430. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+##  9 ENSMUSG00… OCT4-u…   2503   16.3     2588. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+## 10 ENSMUSG00… OCT4-u…    610    7.58    1354. SRX2… OCT4  untrt         1 untrt-1     ENSMUS… <chr> 
+## # ℹ 40 more rows
+## # ℹ 6 more variables: SYMBOL <chr>, seqnames <fct>, start <int>, end <int>, width <int>,
+## #   strand <fct>
 ```
 
 *tidybulk* provides access to many steps in bulk analysis, including

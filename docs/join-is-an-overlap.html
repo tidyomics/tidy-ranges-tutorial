@@ -7,7 +7,7 @@
   <title>Chapter 1 Join is an overlap | Tidy Ranges Tutorial</title>
   <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 1 Join is an overlap | Tidy Ranges Tutorial" />
   <meta property="og:type" content="book" />
@@ -26,7 +26,7 @@ tidy data philosophy.</p>" />
 <meta name="author" content="nullranges devel team" />
 
 
-<meta name="date" content="2023-05-09" />
+<meta name="date" content="2023-06-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -239,11 +239,8 @@ about the friends’ birthdays.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="join-is-an-overlap.html#cb6-1" aria-hidden="true" tabindex="-1"></a>shared_friends <span class="ot">&lt;-</span> friends <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="join-is-an-overlap.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(class, <span class="at">by=</span><span class="st">&quot;friend&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-3"><a href="join-is-an-overlap.html#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(classmate, friend) <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="join-is-an-overlap.html#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(classmate) <span class="co"># classmate to 1st column</span></span></code></pre></div>
-<pre><code>## Warning in inner_join(., class, by = &quot;friend&quot;): Each row in `x` is expected to match at most 1 row in `y`.
-## ℹ Row 1 of `x` matches multiple rows.
-## ℹ If multiple matches are expected, set `multiple = &quot;all&quot;` to silence this warning.</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="join-is-an-overlap.html#cb8-1" aria-hidden="true" tabindex="-1"></a>shared_friends</span></code></pre></div>
+<span id="cb6-4"><a href="join-is-an-overlap.html#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(classmate) <span class="co"># classmate to 1st column</span></span>
+<span id="cb6-5"><a href="join-is-an-overlap.html#cb6-5" aria-hidden="true" tabindex="-1"></a>shared_friends</span></code></pre></div>
 <pre><code>##                classmate             friend birthday
 ## 1          Brandon Jones Christopher Rivera       13
 ## 2          Brandon Jones       Jose Jimenez       26
@@ -274,10 +271,10 @@ in common with <code>n()</code> and the median birthday of shared friends. The
 whom we share no friends (here, the use of <code>factor</code> earlier becomes
 relevant). We can choose which columns to fill in, and what value to
 add.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="join-is-an-overlap.html#cb10-1" aria-hidden="true" tabindex="-1"></a>shared_friends <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="join-is-an-overlap.html#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(classmate) <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="join-is-an-overlap.html#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">in_common=</span><span class="fu">n</span>(), <span class="at">median_bday=</span><span class="fu">median</span>(birthday)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="join-is-an-overlap.html#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(classmate, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">in_common=</span><span class="dv">0</span>,<span class="at">median_bday=</span><span class="sc">-</span><span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="join-is-an-overlap.html#cb8-1" aria-hidden="true" tabindex="-1"></a>shared_friends <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="join-is-an-overlap.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(classmate) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="join-is-an-overlap.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">in_common=</span><span class="fu">n</span>(), <span class="at">median_bday=</span><span class="fu">median</span>(birthday)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="join-is-an-overlap.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(classmate, <span class="at">fill=</span><span class="fu">list</span>(<span class="at">in_common=</span><span class="dv">0</span>,<span class="at">median_bday=</span><span class="sc">-</span><span class="dv">1</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 17 × 3
 ##    classmate             in_common median_bday
 ##    &lt;fct&gt;                     &lt;int&gt;       &lt;dbl&gt;
