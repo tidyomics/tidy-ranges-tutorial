@@ -150,7 +150,7 @@ library(org.Mm.eg.db)
 
 ```r
 # pluripotency
-tab <- select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
+tab <- AnnotationDbi::select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
 ```
 
 ```

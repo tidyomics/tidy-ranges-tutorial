@@ -106,7 +106,7 @@ code:
 library(AnnotationDbi)
 library(org.Mm.eg.db)
 # pluripotency
-tab <- select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
+tab <- AnnotationDbi::select(org.Mm.eg.db, "GO:0019827", "SYMBOL", "GO")
 tab <- tab[!duplicated(tab$SYMBOL),]
 pluri <- tab$SYMBOL
 ```
