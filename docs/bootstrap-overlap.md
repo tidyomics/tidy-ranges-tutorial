@@ -157,7 +157,7 @@ variable that we create, and the signal value which we rename to
 
 ```r
 pks_to_boot <- y %>%
-  mutate(id = seq_along(y)) %>%
+  mutate(id = seq_along(.)) %>%
   plyranges::select(id, signal = signalValue)
 ```
 

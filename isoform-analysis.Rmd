@@ -14,14 +14,14 @@ isoforms that switch in terms of their expression after cells are
 treated, one can use the
 [IsoformSwitchAnalyzeR](https://github.com/kvittingseerup/IsoformSwitchAnalyzeR)
 Bioconductor package to visualize and analyze a set of isoform
-switches [@Vitting-Seerup2019].
-For example, one can test the functional consequences of a
-set of isoform switches in terms of the gain or loss of protein
-domains, or splicing-centric changes (e.g. alternative 3' or 5'
-acceptor sites, alternative transcription start or ends sites, etc.)
-*IsoformSwitchAnalyzeR* is a multi-feature and mature package for this
-type of analysis, but we can perform some simpler within-gene isoform
-comparisons using *plyranges*, mostly for demonstration.
+switches [@Vitting-Seerup2019]. For example, one can test the
+functional consequences of a set of isoform switches in terms of the
+gain or loss of protein domains, or splicing-centric changes (e.g.
+alternative 3' or 5' acceptor sites, alternative transcription start
+or ends sites, etc.) *IsoformSwitchAnalyzeR* is a multi-feature and
+mature package for this type of analysis, but we can perform some
+simpler within-gene isoform comparisons using *plyranges*, mostly for
+demonstration.
 
 Here we will suppose that we have somehow identified isoforms of
 interest, and we want to compare these isoforms to other isoforms of
@@ -83,16 +83,15 @@ The following is one way to identify which isoforms belong to
 multi-isoform genes:
 
 ```{r message=FALSE}
-library(tibble)
-tab <- txp %>%
-  group_by(gene_id) %>%
-  summarize(ntxp = n_distinct(tx_id)) %>%
-  as_tibble()
-tab
-tab_longer <- dplyr::left_join(tibble(gene_id=txp$gene_id), tab)
+# this is slow for some reason...
+## txp %>%
+##   group_by(gene_id) %>% 
+##   mutate(ntxp = n()) %>%
+##   ungroup()
+
+# this is faster...
 txp <- txp %>%
-  mutate(ntxp = tab_longer$ntxp)
-txp
+  mutate(ntxp = as.integer(table(txp$gene_id)[ gene_id ]))
 ```
 
 We can now filter to the multi-isoform genes:
@@ -105,7 +104,8 @@ txp <- txp %>%
 Here we arbitrarily pick one isoform per gene, first by identifying
 those in a tibble...
 
-```{r}
+```{r message=FALSE}
+library(tibble)
 set.seed(3)
 pick_one <- txp %>%
   as_tibble() %>%

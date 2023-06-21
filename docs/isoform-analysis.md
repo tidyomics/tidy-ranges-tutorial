@@ -14,14 +14,14 @@ isoforms that switch in terms of their expression after cells are
 treated, one can use the
 [IsoformSwitchAnalyzeR](https://github.com/kvittingseerup/IsoformSwitchAnalyzeR)
 Bioconductor package to visualize and analyze a set of isoform
-switches [@Vitting-Seerup2019].
-For example, one can test the functional consequences of a
-set of isoform switches in terms of the gain or loss of protein
-domains, or splicing-centric changes (e.g. alternative 3' or 5'
-acceptor sites, alternative transcription start or ends sites, etc.)
-*IsoformSwitchAnalyzeR* is a multi-feature and mature package for this
-type of analysis, but we can perform some simpler within-gene isoform
-comparisons using *plyranges*, mostly for demonstration.
+switches [@Vitting-Seerup2019]. For example, one can test the
+functional consequences of a set of isoform switches in terms of the
+gain or loss of protein domains, or splicing-centric changes (e.g.
+alternative 3' or 5' acceptor sites, alternative transcription start
+or ends sites, etc.) *IsoformSwitchAnalyzeR* is a multi-feature and
+mature package for this type of analysis, but we can perform some
+simpler within-gene isoform comparisons using *plyranges*, mostly for
+demonstration.
 
 Here we will suppose that we have somehow identified isoforms of
 interest, and we want to compare these isoforms to other isoforms of
@@ -88,68 +88,15 @@ multi-isoform genes:
 
 
 ```r
-library(tibble)
-tab <- txp %>%
-  group_by(gene_id) %>%
-  summarize(ntxp = n_distinct(tx_id)) %>%
-  as_tibble()
-tab
-```
+# this is slow for some reason...
+## txp %>%
+##   group_by(gene_id) %>% 
+##   mutate(ntxp = n()) %>%
+##   ungroup()
 
-```
-## # A tibble: 2,324 × 2
-##    gene_id    ntxp
-##    <chr>     <int>
-##  1 10000         3
-##  2 100126331     1
-##  3 100126346     1
-##  4 100126348     1
-##  5 100126349     1
-##  6 100128071     1
-##  7 100128787     1
-##  8 100129046     1
-##  9 100129138     1
-## 10 100129196     1
-## # ℹ 2,314 more rows
-```
-
-```r
-tab_longer <- dplyr::left_join(tibble(gene_id=txp$gene_id), tab)
+# this is faster...
 txp <- txp %>%
-  mutate(ntxp = tab_longer$ntxp)
-txp
-```
-
-```
-## GRanges object with 7177 ranges and 5 metadata columns:
-##          seqnames              ranges strand |       tx_id     tx_name     gene_id       symbol
-##             <Rle>           <IRanges>  <Rle> | <character> <character> <character>  <character>
-##      [1]     chr1         11874-14409      + |           1  uc001aaa.3   100287102      DDX11L1
-##      [2]     chr1         11874-14409      + |           2  uc010nxq.1   100287102      DDX11L1
-##      [3]     chr1         11874-14409      + |           3  uc010nxr.1   100287102      DDX11L1
-##      [4]     chr1         69091-70008      + |           4  uc001aal.1       79501        OR4F5
-##      [5]     chr1       323892-328581      + |           8  uc001aau.3   100132062 LOC100132062
-##      ...      ...                 ...    ... .         ...         ...         ...          ...
-##   [7173]     chr1 249144203-249152264      - |        7963  uc031pta.1       55657       ZNF692
-##   [7174]     chr1 249144203-249152912      - |        7964  uc001ifb.2       55657       ZNF692
-##   [7175]     chr1 249144203-249153125      - |        7965  uc010pzr.2       55657       ZNF692
-##   [7176]     chr1 249144203-249153315      - |        7966  uc001ifc.2       55657       ZNF692
-##   [7177]     chr1 249144203-249153315      - |        7967  uc001iff.2       55657       ZNF692
-##               ntxp
-##          <integer>
-##      [1]         3
-##      [2]         3
-##      [3]         3
-##      [4]         1
-##      [5]         1
-##      ...       ...
-##   [7173]         6
-##   [7174]         6
-##   [7175]         6
-##   [7176]         6
-##   [7177]         6
-##   -------
-##   seqinfo: 93 sequences (1 circular) from hg19 genome
+  mutate(ntxp = as.integer(table(txp$gene_id)[ gene_id ]))
 ```
 
 We can now filter to the multi-isoform genes:
@@ -165,6 +112,7 @@ those in a tibble...
 
 
 ```r
+library(tibble)
 set.seed(3)
 pick_one <- txp %>%
   as_tibble() %>%
