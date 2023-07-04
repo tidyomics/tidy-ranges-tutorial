@@ -1,6 +1,6 @@
 --- 
 title: "Tidy Ranges Tutorial"
-author: "nullranges devel team"
+author: "Michael Love"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: 
@@ -22,8 +22,10 @@ description: |
 
 # About {-}
 
-We provide examples of computing operations on genomic ranges using the
+I provide examples of computing operations on genomic ranges using the
 [tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).
 
 These examples focus on the packages *dplyr*, *plyranges*,
-*nullranges*, and *excluderanges*.
+*nullranges*, *excluderanges*, as well as 
+*tidy transcriptomics* packages such as 
+*tidybulk* and *tidySummarizedExperiment*.

@@ -14,7 +14,7 @@ tidy data philosophy.</p>" />
   
   <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
 tidy data philosophy.</p>" />
-  <meta name="github-repo" content="nullranges/tidy-ranges-tutorial" />
+  <meta name="github-repo" content="tidybiology/tidy-ranges-tutorial" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 9 Isoform analysis | Tidy Ranges Tutorial" />
@@ -23,10 +23,10 @@ tidy data philosophy.</p>" />
 tidy data philosophy.</p>" />
   
 
-<meta name="author" content="nullranges devel team" />
+<meta name="author" content="Michael Love" />
 
 
-<meta name="date" content="2023-06-03" />
+<meta name="date" content="2023-07-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -222,60 +222,60 @@ isoforms alone by the interval definitions. Then to reformulate:</p>
 <p>Specific objective 1: compare one isoform per gene to the others, in
 terms of the extent from TSS to TES. What makes this isoform distinct?</p>
 <p>We will start again with the transcript database we’ve used before:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="isoform-analysis.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
-<span id="cb1-2"><a href="isoform-analysis.html#cb1-2" aria-hidden="true" tabindex="-1"></a>txdb <span class="ot">&lt;-</span> TxDb.Hsapiens.UCSC.hg19.knownGene</span>
-<span id="cb1-3"><a href="isoform-analysis.html#cb1-3" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> <span class="fu">transcripts</span>(txdb)</span></code></pre></div>
+<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="isoform-analysis.html#cb229-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</span>
+<span id="cb229-2"><a href="isoform-analysis.html#cb229-2" aria-hidden="true" tabindex="-1"></a>txdb <span class="ot">&lt;-</span> TxDb.Hsapiens.UCSC.hg19.knownGene</span>
+<span id="cb229-3"><a href="isoform-analysis.html#cb229-3" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> <span class="fu">transcripts</span>(txdb)</span></code></pre></div>
 <p>For further operations it will be convenient to have the <code>tx_id</code> be a
 character variable, and we filter now to a set of genes of interest
 (here just picking those on <code>chr1</code>):</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="isoform-analysis.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
-<span id="cb2-2"><a href="isoform-analysis.html#cb2-2" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb2-3"><a href="isoform-analysis.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">as.character</span>(tx_id)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="isoform-analysis.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(seqnames <span class="sc">==</span> <span class="st">&quot;chr1&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="isoform-analysis.html#cb230-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb230-2"><a href="isoform-analysis.html#cb230-2" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb230-3"><a href="isoform-analysis.html#cb230-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">as.character</span>(tx_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb230-4"><a href="isoform-analysis.html#cb230-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(seqnames <span class="sc">==</span> <span class="st">&quot;chr1&quot;</span>)</span></code></pre></div>
 <p>It is sometimes useful to have other identifiers, such as the gene ID
 (Entrez)…</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="isoform-analysis.html#cb3-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="isoform-analysis.html#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_id =</span> <span class="fu">mapIds</span>(</span>
-<span id="cb3-3"><a href="isoform-analysis.html#cb3-3" aria-hidden="true" tabindex="-1"></a>           txdb, <span class="at">keys=</span>tx_id,</span>
-<span id="cb3-4"><a href="isoform-analysis.html#cb3-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;GENEID&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;TXID&quot;</span>)</span>
-<span id="cb3-5"><a href="isoform-analysis.html#cb3-5" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href="isoform-analysis.html#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gene_id))</span></code></pre></div>
+<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="isoform-analysis.html#cb231-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb231-2"><a href="isoform-analysis.html#cb231-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gene_id =</span> <span class="fu">mapIds</span>(</span>
+<span id="cb231-3"><a href="isoform-analysis.html#cb231-3" aria-hidden="true" tabindex="-1"></a>           txdb, <span class="at">keys=</span>tx_id,</span>
+<span id="cb231-4"><a href="isoform-analysis.html#cb231-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;GENEID&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;TXID&quot;</span>)</span>
+<span id="cb231-5"><a href="isoform-analysis.html#cb231-5" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb231-6"><a href="isoform-analysis.html#cb231-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gene_id))</span></code></pre></div>
 <p>…and the gene symbol. For simplicity we will keep genes that have a
 non-NA symbol but this step is not necessary.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="isoform-analysis.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
-<span id="cb4-2"><a href="isoform-analysis.html#cb4-2" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="isoform-analysis.html#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">symbol =</span> <span class="fu">mapIds</span>(</span>
-<span id="cb4-4"><a href="isoform-analysis.html#cb4-4" aria-hidden="true" tabindex="-1"></a>           org.Hs.eg.db, <span class="at">keys=</span>gene_id,</span>
-<span id="cb4-5"><a href="isoform-analysis.html#cb4-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;ENTREZID&quot;</span>)</span>
-<span id="cb4-6"><a href="isoform-analysis.html#cb4-6" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
-<span id="cb4-7"><a href="isoform-analysis.html#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(symbol))</span></code></pre></div>
+<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="isoform-analysis.html#cb232-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb232-2"><a href="isoform-analysis.html#cb232-2" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb232-3"><a href="isoform-analysis.html#cb232-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">symbol =</span> <span class="fu">mapIds</span>(</span>
+<span id="cb232-4"><a href="isoform-analysis.html#cb232-4" aria-hidden="true" tabindex="-1"></a>           org.Hs.eg.db, <span class="at">keys=</span>gene_id,</span>
+<span id="cb232-5"><a href="isoform-analysis.html#cb232-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">column=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;ENTREZID&quot;</span>)</span>
+<span id="cb232-6"><a href="isoform-analysis.html#cb232-6" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb232-7"><a href="isoform-analysis.html#cb232-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(symbol))</span></code></pre></div>
 <p>The following is one way to identify which isoforms belong to
 multi-isoform genes:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="isoform-analysis.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># this is slow for some reason...</span></span>
-<span id="cb5-2"><a href="isoform-analysis.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="do">## txp %&gt;%</span></span>
-<span id="cb5-3"><a href="isoform-analysis.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   group_by(gene_id) %&gt;% </span></span>
-<span id="cb5-4"><a href="isoform-analysis.html#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   mutate(ntxp = n()) %&gt;%</span></span>
-<span id="cb5-5"><a href="isoform-analysis.html#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ungroup()</span></span>
-<span id="cb5-6"><a href="isoform-analysis.html#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="isoform-analysis.html#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># this is faster...</span></span>
-<span id="cb5-8"><a href="isoform-analysis.html#cb5-8" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb5-9"><a href="isoform-analysis.html#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ntxp =</span> <span class="fu">as.integer</span>(<span class="fu">table</span>(txp<span class="sc">$</span>gene_id)[ gene_id ]))</span></code></pre></div>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="isoform-analysis.html#cb233-1" aria-hidden="true" tabindex="-1"></a><span class="co"># this is slow for some reason...</span></span>
+<span id="cb233-2"><a href="isoform-analysis.html#cb233-2" aria-hidden="true" tabindex="-1"></a><span class="do">## txp %&gt;%</span></span>
+<span id="cb233-3"><a href="isoform-analysis.html#cb233-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   group_by(gene_id) %&gt;% </span></span>
+<span id="cb233-4"><a href="isoform-analysis.html#cb233-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   mutate(ntxp = n()) %&gt;%</span></span>
+<span id="cb233-5"><a href="isoform-analysis.html#cb233-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ungroup()</span></span>
+<span id="cb233-6"><a href="isoform-analysis.html#cb233-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb233-7"><a href="isoform-analysis.html#cb233-7" aria-hidden="true" tabindex="-1"></a><span class="co"># this is faster...</span></span>
+<span id="cb233-8"><a href="isoform-analysis.html#cb233-8" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb233-9"><a href="isoform-analysis.html#cb233-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ntxp =</span> <span class="fu">as.integer</span>(<span class="fu">table</span>(txp<span class="sc">$</span>gene_id)[ gene_id ]))</span></code></pre></div>
 <p>We can now filter to the multi-isoform genes:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="isoform-analysis.html#cb6-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="isoform-analysis.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ntxp <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="isoform-analysis.html#cb234-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb234-2"><a href="isoform-analysis.html#cb234-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ntxp <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div>
 <p>Here we arbitrarily pick one isoform per gene, first by identifying
 those in a tibble…</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="isoform-analysis.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
-<span id="cb7-2"><a href="isoform-analysis.html#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
-<span id="cb7-3"><a href="isoform-analysis.html#cb7-3" aria-hidden="true" tabindex="-1"></a>pick_one <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb7-4"><a href="isoform-analysis.html#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-5"><a href="isoform-analysis.html#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
-<span id="cb7-6"><a href="isoform-analysis.html#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="fu">sample.int</span>(<span class="fu">n</span>(), <span class="at">size=</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb7-7"><a href="isoform-analysis.html#cb7-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_id)</span></code></pre></div>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="isoform-analysis.html#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb235-2"><a href="isoform-analysis.html#cb235-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb235-3"><a href="isoform-analysis.html#cb235-3" aria-hidden="true" tabindex="-1"></a>pick_one <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb235-4"><a href="isoform-analysis.html#cb235-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb235-5"><a href="isoform-analysis.html#cb235-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb235-6"><a href="isoform-analysis.html#cb235-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="fu">sample.int</span>(<span class="fu">n</span>(), <span class="at">size=</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb235-7"><a href="isoform-analysis.html#cb235-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_id)</span></code></pre></div>
 <p>…then we can label these in our <code>txp</code> object. We will track these
 with an integer, 1 for the isoform of interest, and 0 for the others.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="isoform-analysis.html#cb8-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="isoform-analysis.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">the_one =</span> <span class="fu">as.integer</span>(tx_id <span class="sc">%in%</span> pick_one))</span></code></pre></div>
+<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="isoform-analysis.html#cb236-1" aria-hidden="true" tabindex="-1"></a>txp <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb236-2"><a href="isoform-analysis.html#cb236-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">the_one =</span> <span class="fu">as.integer</span>(tx_id <span class="sc">%in%</span> pick_one))</span></code></pre></div>
 <p>To identify which “parts” of the TSS-to-TES interval belong to which
 isoform, we can use <code>disjoin_ranges</code>. This breaks up the ranges, here
 grouped by gene, into distinct parts, and labels those according to
@@ -284,9 +284,9 @@ whatever metadata variables we specify. Here we specify to combine
 operations, e.g. <code>min</code> or <code>mean</code> etc. And we can specify more than one
 new variable to be created during the <code>disjoin_ranges</code> operation. As
 with <code>reduce_ranges</code>, this operation can be <code>_directed</code> or not.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="isoform-analysis.html#cb9-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="isoform-analysis.html#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="isoform-analysis.html#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">tx_ids =</span> <span class="fu">paste</span>(tx_id,<span class="at">collapse=</span><span class="st">&quot;,&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="isoform-analysis.html#cb237-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb237-2"><a href="isoform-analysis.html#cb237-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb237-3"><a href="isoform-analysis.html#cb237-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">tx_ids =</span> <span class="fu">paste</span>(tx_id,<span class="at">collapse=</span><span class="st">&quot;,&quot;</span>))</span></code></pre></div>
 <pre><code>## GRanges object with 4438 ranges and 2 metadata columns:
 ##          seqnames              ranges strand |     gene_id                 tx_ids
 ##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;            &lt;character&gt;
@@ -307,10 +307,10 @@ with <code>reduce_ranges</code>, this operation can be <code>_directed</code> or
 belong exclusively to the isoform of interest by computing
 <code>min(the_one)</code> (try to convince yourself that this does in fact
 identify these intervals).</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="isoform-analysis.html#cb11-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="isoform-analysis.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="isoform-analysis.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
-<span id="cb11-4"><a href="isoform-analysis.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="isoform-analysis.html#cb239-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb239-2"><a href="isoform-analysis.html#cb239-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb239-3"><a href="isoform-analysis.html#cb239-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
+<span id="cb239-4"><a href="isoform-analysis.html#cb239-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## GRanges object with 257 ranges and 2 metadata columns:
 ##         seqnames              ranges strand |     gene_id the_one_parts
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;     &lt;integer&gt;
@@ -328,8 +328,8 @@ identify these intervals).</p>
 ##   -------
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
 <p>Do the parts identified make sense if we check one gene?</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="isoform-analysis.html#cb13-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="isoform-analysis.html#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;9651&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb241-1"><a href="isoform-analysis.html#cb241-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb241-2"><a href="isoform-analysis.html#cb241-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;9651&quot;</span>)</span></code></pre></div>
 <pre><code>## GRanges object with 6 ranges and 6 metadata columns:
 ##       seqnames          ranges strand |       tx_id     tx_name     gene_id      symbol      ntxp
 ##          &lt;Rle&gt;       &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
@@ -359,14 +359,14 @@ gene.</p>
 <p>Specific objective 2: compare one isoform per gene to the others, in
 terms of the exonic intervals. What makes this isoform distinct?</p>
 <p>To start, we will need a list of the exons, grouped by transcript.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="isoform-analysis.html#cb15-1" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> <span class="fu">exonsBy</span>(txdb, <span class="at">by=</span><span class="st">&quot;tx&quot;</span>)</span>
-<span id="cb15-2"><a href="isoform-analysis.html#cb15-2" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> ebt[txp<span class="sc">$</span>tx_id] <span class="co"># subset to those txp/genes of interest</span></span></code></pre></div>
+<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="isoform-analysis.html#cb243-1" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> <span class="fu">exonsBy</span>(txdb, <span class="at">by=</span><span class="st">&quot;tx&quot;</span>)</span>
+<span id="cb243-2"><a href="isoform-analysis.html#cb243-2" aria-hidden="true" tabindex="-1"></a>ebt <span class="ot">&lt;-</span> ebt[txp<span class="sc">$</span>tx_id] <span class="co"># subset to those txp/genes of interest</span></span></code></pre></div>
 <p>Here, we could have also used <code>bind_ranges</code> but I find that for very
 large lists of ranges, <code>unlist</code> is faster:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="isoform-analysis.html#cb16-1" aria-hidden="true" tabindex="-1"></a>exons <span class="ot">&lt;-</span> <span class="fu">unlist</span>(ebt) <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="isoform-analysis.html#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(exon_id, exon_rank) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="isoform-analysis.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">rep</span>(<span class="fu">names</span>(ebt), <span class="fu">lengths</span>(ebt)))</span>
-<span id="cb16-4"><a href="isoform-analysis.html#cb16-4" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
+<div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb244-1"><a href="isoform-analysis.html#cb244-1" aria-hidden="true" tabindex="-1"></a>exons <span class="ot">&lt;-</span> <span class="fu">unlist</span>(ebt) <span class="sc">%&gt;%</span></span>
+<span id="cb244-2"><a href="isoform-analysis.html#cb244-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(exon_id, exon_rank) <span class="sc">%&gt;%</span></span>
+<span id="cb244-3"><a href="isoform-analysis.html#cb244-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_id =</span> <span class="fu">rep</span>(<span class="fu">names</span>(ebt), <span class="fu">lengths</span>(ebt)))</span>
+<span id="cb244-4"><a href="isoform-analysis.html#cb244-4" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
 <pre><code>## GRanges object with 67595 ranges and 3 metadata columns:
 ##        seqnames              ranges strand |   exon_id exon_rank       tx_id
 ##           &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;integer&gt; &lt;character&gt;
@@ -390,12 +390,12 @@ this into a tibble and <code>left_join</code>-ing to the <code>exons</code>. I a
 we add the extra columns with <code>cbind</code>.</p>
 <p>Some of this code wouldn’t be necessary for TranscriptDb with more
 details <code>exons</code> output, as with <em>ensembldb</em>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="isoform-analysis.html#cb18-1" aria-hidden="true" tabindex="-1"></a>txp_data <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a href="isoform-analysis.html#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tx_id, gene_id, ntxp, the_one, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a href="isoform-analysis.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
-<span id="cb18-4"><a href="isoform-analysis.html#cb18-4" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">tibble</span>(<span class="at">tx_id =</span> exons<span class="sc">$</span>tx_id),</span>
-<span id="cb18-5"><a href="isoform-analysis.html#cb18-5" aria-hidden="true" tabindex="-1"></a>                        txp_data, <span class="at">by=</span><span class="st">&quot;tx_id&quot;</span>)</span>
-<span id="cb18-6"><a href="isoform-analysis.html#cb18-6" aria-hidden="true" tabindex="-1"></a>ids</span></code></pre></div>
+<div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb246-1"><a href="isoform-analysis.html#cb246-1" aria-hidden="true" tabindex="-1"></a>txp_data <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb246-2"><a href="isoform-analysis.html#cb246-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tx_id, gene_id, ntxp, the_one, <span class="at">.drop_ranges=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb246-3"><a href="isoform-analysis.html#cb246-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb246-4"><a href="isoform-analysis.html#cb246-4" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">tibble</span>(<span class="at">tx_id =</span> exons<span class="sc">$</span>tx_id),</span>
+<span id="cb246-5"><a href="isoform-analysis.html#cb246-5" aria-hidden="true" tabindex="-1"></a>                        txp_data, <span class="at">by=</span><span class="st">&quot;tx_id&quot;</span>)</span>
+<span id="cb246-6"><a href="isoform-analysis.html#cb246-6" aria-hidden="true" tabindex="-1"></a>ids</span></code></pre></div>
 <pre><code>## # A tibble: 67,595 × 4
 ##    tx_id gene_id    ntxp the_one
 ##    &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;int&gt;
@@ -410,10 +410,10 @@ details <code>exons</code> output, as with <em>ensembldb</em>.</p>
 ##  9 3     100287102     3       0
 ## 10 11    729759        2       0
 ## # ℹ 67,585 more rows</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="isoform-analysis.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(exons<span class="sc">$</span>tx_id, ids<span class="sc">$</span>tx_id)</span></code></pre></div>
+<div class="sourceCode" id="cb248"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb248-1"><a href="isoform-analysis.html#cb248-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(exons<span class="sc">$</span>tx_id, ids<span class="sc">$</span>tx_id)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="isoform-analysis.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(exons) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">mcols</span>(exons), ids <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>tx_id))</span>
-<span id="cb22-2"><a href="isoform-analysis.html#cb22-2" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
+<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="isoform-analysis.html#cb250-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcols</span>(exons) <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">mcols</span>(exons), ids <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>tx_id))</span>
+<span id="cb250-2"><a href="isoform-analysis.html#cb250-2" aria-hidden="true" tabindex="-1"></a>exons</span></code></pre></div>
 <pre><code>## GRanges object with 67595 ranges and 6 metadata columns:
 ##        seqnames              ranges strand |   exon_id exon_rank       tx_id     gene_id      ntxp
 ##           &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt; &lt;integer&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
@@ -445,11 +445,11 @@ details <code>exons</code> output, as with <em>ensembldb</em>.</p>
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
 <p>We repeat similar code as performed above with <code>txp</code>, now identifying
 parts of exons that are unique to the isoform of interest, per gene:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="isoform-analysis.html#cb24-1" aria-hidden="true" tabindex="-1"></a>exon_parts <span class="ot">&lt;-</span> exons <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="isoform-analysis.html#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
-<span id="cb24-3"><a href="isoform-analysis.html#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
-<span id="cb24-4"><a href="isoform-analysis.html#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb24-5"><a href="isoform-analysis.html#cb24-5" aria-hidden="true" tabindex="-1"></a>exon_parts</span></code></pre></div>
+<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="isoform-analysis.html#cb252-1" aria-hidden="true" tabindex="-1"></a>exon_parts <span class="ot">&lt;-</span> exons <span class="sc">%&gt;%</span></span>
+<span id="cb252-2"><a href="isoform-analysis.html#cb252-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">%&gt;%</span></span>
+<span id="cb252-3"><a href="isoform-analysis.html#cb252-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disjoin_ranges</span>(<span class="at">the_one_parts =</span> <span class="fu">min</span>(the_one)) <span class="sc">%&gt;%</span></span>
+<span id="cb252-4"><a href="isoform-analysis.html#cb252-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(the_one_parts <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb252-5"><a href="isoform-analysis.html#cb252-5" aria-hidden="true" tabindex="-1"></a>exon_parts</span></code></pre></div>
 <pre><code>## GRanges object with 1604 ranges and 2 metadata columns:
 ##          seqnames              ranges strand |     gene_id the_one_parts
 ##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;     &lt;integer&gt;
@@ -468,8 +468,8 @@ parts of exons that are unique to the isoform of interest, per gene:</p>
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
 <p>To confirm that we’ve identified the right parts, let’s use
 <em>plotgardener</em> to visualize a particular gene:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="isoform-analysis.html#cb26-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="isoform-analysis.html#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb254"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb254-1"><a href="isoform-analysis.html#cb254-1" aria-hidden="true" tabindex="-1"></a>txp <span class="sc">%&gt;%</span></span>
+<span id="cb254-2"><a href="isoform-analysis.html#cb254-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
 <pre><code>## GRanges object with 5 ranges and 6 metadata columns:
 ##       seqnames        ranges strand |       tx_id     tx_name     gene_id      symbol      ntxp
 ##          &lt;Rle&gt;     &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt;
@@ -487,41 +487,41 @@ parts of exons that are unique to the isoform of interest, per gene:</p>
 ##   [5]         1
 ##   -------
 ##   seqinfo: 93 sequences (1 circular) from hg19 genome</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="isoform-analysis.html#cb28-1" aria-hidden="true" tabindex="-1"></a>tx_to_show <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
-<span id="cb28-2"><a href="isoform-analysis.html#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span> <span class="sc">&amp;</span> the_one <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb28-3"><a href="isoform-analysis.html#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb28-4"><a href="isoform-analysis.html#cb28-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_name)</span>
-<span id="cb28-5"><a href="isoform-analysis.html#cb28-5" aria-hidden="true" tabindex="-1"></a>these_parts <span class="ot">&lt;-</span> exon_parts <span class="sc">%&gt;%</span></span>
-<span id="cb28-6"><a href="isoform-analysis.html#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb256"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb256-1"><a href="isoform-analysis.html#cb256-1" aria-hidden="true" tabindex="-1"></a>tx_to_show <span class="ot">&lt;-</span> txp <span class="sc">%&gt;%</span></span>
+<span id="cb256-2"><a href="isoform-analysis.html#cb256-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span> <span class="sc">&amp;</span> the_one <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb256-3"><a href="isoform-analysis.html#cb256-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb256-4"><a href="isoform-analysis.html#cb256-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(tx_name)</span>
+<span id="cb256-5"><a href="isoform-analysis.html#cb256-5" aria-hidden="true" tabindex="-1"></a>these_parts <span class="ot">&lt;-</span> exon_parts <span class="sc">%&gt;%</span></span>
+<span id="cb256-6"><a href="isoform-analysis.html#cb256-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gene_id <span class="sc">==</span> <span class="st">&quot;339451&quot;</span>)</span></code></pre></div>
 <p>We lay out a page zooming into this gene and its isoforms:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="isoform-analysis.html#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotgardener)</span>
-<span id="cb29-2"><a href="isoform-analysis.html#cb29-2" aria-hidden="true" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">pgParams</span>(</span>
-<span id="cb29-3"><a href="isoform-analysis.html#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">chrom =</span> <span class="st">&quot;chr1&quot;</span>, </span>
-<span id="cb29-4"><a href="isoform-analysis.html#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromstart =</span> <span class="fl">895.9e3</span>, <span class="at">chromend =</span> <span class="fl">901.2e3</span>,</span>
-<span id="cb29-5"><a href="isoform-analysis.html#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> <span class="st">&quot;hg19&quot;</span>, <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
-<span id="cb29-6"><a href="isoform-analysis.html#cb29-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb257"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb257-1"><a href="isoform-analysis.html#cb257-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotgardener)</span>
+<span id="cb257-2"><a href="isoform-analysis.html#cb257-2" aria-hidden="true" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">pgParams</span>(</span>
+<span id="cb257-3"><a href="isoform-analysis.html#cb257-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">chrom =</span> <span class="st">&quot;chr1&quot;</span>, </span>
+<span id="cb257-4"><a href="isoform-analysis.html#cb257-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromstart =</span> <span class="fl">895.9e3</span>, <span class="at">chromend =</span> <span class="fl">901.2e3</span>,</span>
+<span id="cb257-5"><a href="isoform-analysis.html#cb257-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> <span class="st">&quot;hg19&quot;</span>, <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb257-6"><a href="isoform-analysis.html#cb257-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>We will highlight our isoform of interest:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="isoform-analysis.html#cb30-1" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">transcript=</span>tx_to_show, <span class="at">color=</span><span class="st">&quot;magenta&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb258"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb258-1"><a href="isoform-analysis.html#cb258-1" aria-hidden="true" tabindex="-1"></a>hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">transcript=</span>tx_to_show, <span class="at">color=</span><span class="st">&quot;magenta&quot;</span>)</span></code></pre></div>
 <p>Finally, putting it all together:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="isoform-analysis.html#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="fl">2.5</span>, <span class="at">showGuides =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb31-2"><a href="isoform-analysis.html#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotTranscripts</span>(</span>
-<span id="cb31-3"><a href="isoform-analysis.html#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">1.5</span>,</span>
-<span id="cb31-4"><a href="isoform-analysis.html#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcriptHighlights =</span> hilite</span>
-<span id="cb31-5"><a href="isoform-analysis.html#cb31-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-6"><a href="isoform-analysis.html#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRanges</span>(</span>
-<span id="cb31-7"><a href="isoform-analysis.html#cb31-7" aria-hidden="true" tabindex="-1"></a>  these_parts, <span class="at">fill=</span><span class="st">&quot;darkorchid&quot;</span>,</span>
-<span id="cb31-8"><a href="isoform-analysis.html#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.75</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> .<span class="dv">25</span></span>
-<span id="cb31-9"><a href="isoform-analysis.html#cb31-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-10"><a href="isoform-analysis.html#cb31-10" aria-hidden="true" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;unique parts of&quot;</span>, tx_to_show)</span>
-<span id="cb31-11"><a href="isoform-analysis.html#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plotText</span>(</span>
-<span id="cb31-12"><a href="isoform-analysis.html#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> label, <span class="at">fontcolor =</span> <span class="st">&quot;darkorchid&quot;</span>,</span>
-<span id="cb31-13"><a href="isoform-analysis.html#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">3.1</span>, <span class="at">y =</span> <span class="fl">1.75</span>,</span>
-<span id="cb31-14"><a href="isoform-analysis.html#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">fontsize =</span> <span class="dv">8</span></span>
-<span id="cb31-15"><a href="isoform-analysis.html#cb31-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-16"><a href="isoform-analysis.html#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenomeLabel</span>(</span>
-<span id="cb31-17"><a href="isoform-analysis.html#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">2</span>, <span class="at">length =</span> <span class="dv">4</span>,</span>
-<span id="cb31-18"><a href="isoform-analysis.html#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;top&quot;</span>)</span>
-<span id="cb31-19"><a href="isoform-analysis.html#cb31-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb259"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb259-1"><a href="isoform-analysis.html#cb259-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="fl">2.5</span>, <span class="at">showGuides =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb259-2"><a href="isoform-analysis.html#cb259-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotTranscripts</span>(</span>
+<span id="cb259-3"><a href="isoform-analysis.html#cb259-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">1.5</span>,</span>
+<span id="cb259-4"><a href="isoform-analysis.html#cb259-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcriptHighlights =</span> hilite</span>
+<span id="cb259-5"><a href="isoform-analysis.html#cb259-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb259-6"><a href="isoform-analysis.html#cb259-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRanges</span>(</span>
+<span id="cb259-7"><a href="isoform-analysis.html#cb259-7" aria-hidden="true" tabindex="-1"></a>  these_parts, <span class="at">fill=</span><span class="st">&quot;darkorchid&quot;</span>,</span>
+<span id="cb259-8"><a href="isoform-analysis.html#cb259-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">1.75</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> .<span class="dv">25</span></span>
+<span id="cb259-9"><a href="isoform-analysis.html#cb259-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb259-10"><a href="isoform-analysis.html#cb259-10" aria-hidden="true" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;unique parts of&quot;</span>, tx_to_show)</span>
+<span id="cb259-11"><a href="isoform-analysis.html#cb259-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plotText</span>(</span>
+<span id="cb259-12"><a href="isoform-analysis.html#cb259-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> label, <span class="at">fontcolor =</span> <span class="st">&quot;darkorchid&quot;</span>,</span>
+<span id="cb259-13"><a href="isoform-analysis.html#cb259-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">3.1</span>, <span class="at">y =</span> <span class="fl">1.75</span>,</span>
+<span id="cb259-14"><a href="isoform-analysis.html#cb259-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">fontsize =</span> <span class="dv">8</span></span>
+<span id="cb259-15"><a href="isoform-analysis.html#cb259-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb259-16"><a href="isoform-analysis.html#cb259-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenomeLabel</span>(</span>
+<span id="cb259-17"><a href="isoform-analysis.html#cb259-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">2</span>, <span class="at">length =</span> <span class="dv">4</span>,</span>
+<span id="cb259-18"><a href="isoform-analysis.html#cb259-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;top&quot;</span>)</span>
+<span id="cb259-19"><a href="isoform-analysis.html#cb259-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p><img src="isoform-analysis_files/figure-html/isoform-plot-1.png" width="480" /></p>
 <p>Questions:</p>
 <ul>
@@ -597,6 +597,20 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>

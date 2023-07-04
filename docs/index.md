@@ -1,7 +1,7 @@
 --- 
 title: "Tidy Ranges Tutorial"
-author: "nullranges devel team"
-date: "2023-06-03"
+author: "Michael Love"
+date: "2023-07-04"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
@@ -13,8 +13,8 @@ documentclass: book
 bibliography: references.bib
 biblio-style: apalike
 link-citations: yes
-url: https\://nullranges.github.io/tidy-ranges-tutorial
-github-repo: nullranges/tidy-ranges-tutorial
+url: https\://tidybiology.github.io/tidy-ranges-tutorial
+github-repo: tidybiology/tidy-ranges-tutorial
 description: |
     Basic examples of computing operations on genomic ranges using the
     tidy data philosophy.
@@ -22,8 +22,10 @@ description: |
 
 # About {-}
 
-We provide examples of computing operations on genomic ranges using the
+I provide examples of computing operations on genomic ranges using the
 [tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).
 
 These examples focus on the packages *dplyr*, *plyranges*,
-*nullranges*, and *excluderanges*.
+*nullranges*, *excluderanges*, as well as 
+*tidy transcriptomics* packages such as 
+*tidybulk* and *tidySummarizedExperiment*.
