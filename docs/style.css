@@ -12,3 +12,11 @@ pre {
 pre code {
   white-space: inherit;
 }
+
+.note {
+  margin: 30px;
+  padding: 1em;
+  background: #FFF8F0;
+  border: 1px solid #EFE8E0;
+  border-radius: 10px;
+}

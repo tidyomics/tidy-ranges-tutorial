@@ -122,28 +122,6 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -191,9 +169,11 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="join-is-an-overlap" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Join is an overlap<a href="join-is-an-overlap.html#join-is-an-overlap" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>Objective: learn that a “join” is like an overlap.</p>
+<p>Objective: learn that a <code>join</code> operation implies finding overlapping
+data in two tables, according to some particular criterion.</p>
 <p>We start with a quick example explaining why we use functions called
-<code>join</code>.</p>
+<code>join</code>. Later we will extend from simple tables to examples making use
+of genomic ranges.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="join-is-an-overlap.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="join-is-an-overlap.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb1-3"><a href="join-is-an-overlap.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(randomNames)</span></code></pre></div>
@@ -357,20 +337,6 @@ gitbook.start({
 });
 </script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 </body>
 
 </html>

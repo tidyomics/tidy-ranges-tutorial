@@ -1,9 +1,11 @@
 # Join is an overlap
 
-Objective: learn that a "join" is like an overlap.
+Objective: learn that a `join` operation implies finding overlapping
+data in two tables, according to some particular criterion.
 
 We start with a quick example explaining why we use functions called
-`join`.
+`join`. Later we will extend from simple tables to examples making use
+of genomic ranges.
 
 
 ```r

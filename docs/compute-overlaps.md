@@ -14,6 +14,8 @@ to compute the overlaps, similarly to how we used
 data.frame is to *dplyr* as GRanges is to *plyranges*.
 
 
+
+
 ```r
 library(plyranges)
 ```
@@ -203,16 +205,17 @@ r %>% join_overlap_inner(g)
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
-**What about other types of overlap?**
-Note that we can specify a distance, called a "gap", if we want to
-also find when ranges are *near* each other, up to a maximum allowed
-distance. We can also specify the minimum amount of overlapping
-basepairs. Every overlap function in plyranges has arguments `maxgap`
-and `minoverlap`. For example, to see if ranges are 50kb from each
-other, we would specify `maxgap=5e4`. If we want to know if ranges are
-50kb from a particular endpoint of another set of ranges, for example
-TSS, we could perform the operations `anchor_5p()` followed by
-`mutate(width=1)`, before overlapping the sets.
+:::: {.note}
+What about other types of overlap?  We can specify a distance, called
+a "gap", if we want to also find when ranges are *near* each other, up
+to a maximum allowed distance. We can also specify the minimum amount
+of overlapping basepairs. Every overlap function in plyranges has
+arguments `maxgap` and `minoverlap`. For example, to see if ranges are
+50kb from each other, we would specify `maxgap=5e4`. If we want to
+know if ranges are 50kb from a particular endpoint of another set of
+ranges, for example TSS, we could perform the operations `anchor_5p()`
+followed by `mutate(width=1)`, before overlapping the sets.
+::::
 
 We can also perform summarization by columns either in the `r` or the
 `g` object:
@@ -261,6 +264,18 @@ r %>% mutate(overlaps = count_overlaps(., g))
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
+
+:::: {.note}
+Up to this point, we could have used R's native pipe `|>` in place of
+the *magrittr* pipe `%>%`. However the above line won't work with R's
+native pipe, even if we use the underscore placeholder `_` that goes
+with R's native pipe, instead of the dot placeholder `.`. This is
+because R's native pipe doesn't allow the placeholder to be within a
+nested expression (`count_overlaps` called before `mutate`). In
+addition, R's native pipe only allows use of the placeholder once;
+sometimes it is convenient to access the incoming object more than
+once.
+::::
 
 If we don't care about multiple overlaps, but just want a binary 
 variable that records if there was one or more overlaps or not,
@@ -440,11 +455,15 @@ mcols(r) %>% as_tibble()
 ## 3 boo
 ```
 
-**Reduce instead of summarize:**
+:::: {.note}
+Reduce instead of summarize:
 Above when we used `group_by` and `summarize` we lost the original
 range data. Another option, to preserve the range data, is to use
 the function `reduce_ranges` within groups that we define (which can
-be `_directed` or not). If we want to preserve the range information
+be `_directed` or not). 
+::::
+
+If we want to preserve the range information
 for the `r` object, we can start with `r` and proceed to join, group
 by, and reduce within groups.  For an example of `reduce_ranges` used
 in the context of a genomic data analysis see @Lee2020.
