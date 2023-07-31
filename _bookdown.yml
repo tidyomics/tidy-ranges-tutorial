@@ -11,6 +11,7 @@ rmd_files:
   "rna-seq-eda.Rmd",
   "many-genomic-models.Rmd",
   "isoform-analysis.Rmd",
+  "tximeta-gene-range.Rmd",
   "references.Rmd"]
 bibliography: references.bib
 language:

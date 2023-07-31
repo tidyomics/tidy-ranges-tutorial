@@ -1,0 +1,143 @@
+# Gene range assignment in tximeta
+
+Objective: explore consequences of how features are located when data
+is summarized at gene level.
+
+The *macrophage* package provides Salmon quantification files for a
+set of 24 RNA-seq samples from @Alasoo2018, "Shared genetic effects
+on chromatin and gene expression indicate a role for enhancer priming in
+immune response". Data for six female human donors is available in the
+package, with gene expression at baseline, after IFN-gamma stimulation,
+after exposure to *Salmonella*, and after a combination of the two
+treatments.
+
+```{r message=FALSE}
+library(macrophage)
+library(dplyr)
+library(tximeta)
+dir <- system.file("extdata", package="macrophage")
+coldata <- read.csv(file.path(dir, "coldata.csv")) %>%
+  mutate(files = file.path(dir, "quants", names, "quant.sf.gz"),
+         condition = factor(condition_name),
+         condition = relevel(condition, "naive")) %>%
+  select(files, names=sample_id, condition, line_id)
+se <- tximeta(coldata, dropInfReps=TRUE, skipSeqinfo=TRUE)
+```
+
+```{r message=FALSE}
+library(SummarizedExperiment)
+rowRanges(se)
+seqinfo(se)
+```
+
+```{r}
+gse_default <- summarizeToGene(se)
+```
+
+```{r}
+gse <- summarizeToGene(se, assignRanges="abundant")
+```
+
+```{r message=FALSE}
+library(plyranges)
+default_5p <- rowRanges(gse_default) %>%
+  anchor_5p() %>%
+  mutate(width=1) %>%
+  start()
+gene_dat <- rowRanges(gse) %>%
+  anchor_5p() %>%
+  mutate(width=1) %>%
+  mutate(
+    ave_tpm = rowMeans(assay(gse, "abundance")),
+    dist = abs(start - default_5p))
+table(gene_dat$dist == 0)
+```
+
+```{r}
+library(ggplot2)
+gene_dat %>%
+  as_tibble() %>%
+  filter(dist > 0) %>%
+  mutate(
+    log10_dist = cut(
+      log10(dist),
+      breaks=c(0,3:6,Inf),
+      include.lowest=TRUE),
+    tpm = cut(
+      ave_tpm,
+      breaks=c(0,1,10,100,Inf),
+      include.lowest=TRUE)
+  ) %>%
+  group_by(log10_dist, tpm) %>%
+  tally() %>%
+  ggplot(aes(log10_dist, n)) +
+  geom_col() +
+  ggtitle("change in 5' position of gene") +
+  ylab("number of genes") +
+  facet_wrap(~tpm, labeller=label_both)
+```
+
+```{r message=FALSE}
+library(plotgardener)
+library(org.Hs.eg.db)
+txdb <- retrieveDb(gse)
+new_assembly <- assembly(
+  Genome = "hg38",
+  TxDb = txdb,
+  OrgDb = org.Hs.eg.db,
+  gene.id.column = "GENEID",
+  display.column = "GENEID",
+  BSgenome = NULL
+)
+```
+
+```{r}
+set.seed(5)
+gene <- gene_dat %>%
+  filter(strand == "-", dist > 1e5, ave_tpm > 100) %>%
+  slice(sample(n(),1))
+```
+
+```{r}
+par <- pgParams(
+  chrom = seqnames(gene) %>% as.character(),
+  chromstart = round((start(gene) - 5e5) / 1e5) * 1e5,
+  chromend = round((end(gene) + 5e5) / 1e5) * 1e5,
+  assembly = new_assembly,
+  just = c("left", "bottom")
+)
+```
+
+```{r}
+props <- gene$iso_prop[[1]] %>%
+  sort(decreasing=TRUE) %>%
+  head(5)
+props
+```
+
+```{r}
+gene_hilite <- data.frame(
+  gene=gene$gene_id,
+  color="magenta"
+)
+txp_hilite <- data.frame(
+  transcript=names(props),
+  color=rep(c("dodgerblue","darkgoldenrod"),c(1,length(props)-1))
+)
+```
+
+```{r}
+pageCreate(width = 5, height = 4, showGuides = TRUE)
+plotGenes(
+  params = par, x = 0.5, y = 3.5, width = 4, height = 1,
+  geneHighlights = gene_hilite
+)
+plotTranscripts(
+  params = par, x = 0.5, y = 2.5, width = 4, height = 2.5,
+  transcriptHighlights = txp_hilite, fill="grey90"
+)
+plotGenomeLabel(
+  params = par, x = 0.5, y = 3.5, length = 4,
+  just = c("left", "top")
+)
+```
