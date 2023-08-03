@@ -42,14 +42,13 @@ of the two treatments. We won't focus on the design of the experiment
 itself, but we will use transcript-level quantification data to
 explore the differences between the two range assignment options.
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
-```
+
 
 The following code chunk creates a `coldata` table describing the
 samples.
 
-```{r message=FALSE}
+
+```r
 library(macrophage)
 library(dplyr)
 library(tximeta)
@@ -64,47 +63,159 @@ coldata %>%
   dplyr::select(-files)
 ```
 
+```
+##    names   condition line_id
+## 1 diku_A       naive  diku_1
+## 2 diku_B        IFNg  diku_1
+## 3 diku_C      SL1344  diku_1
+## 4 diku_D IFNg_SL1344  diku_1
+```
+
 Importing the transcript-level data as a SummarizedExperiment:
 
-```{r message=FALSE}
+
+```r
 se <- tximeta(coldata, dropInfReps=TRUE)
 ```
 
 We can then see the ranges of the transcripts and the genome build
 information:
 
-```{r message=FALSE}
+
+```r
 library(SummarizedExperiment)
 rowRanges(se)
+```
+
+```
+## GRanges object with 205870 ranges and 3 metadata columns:
+##                     seqnames      ranges strand |     tx_id           gene_id           tx_name
+##                        <Rle>   <IRanges>  <Rle> | <integer>   <CharacterList>       <character>
+##   ENST00000456328.2     chr1 11869-14409      + |         1 ENSG00000223972.5 ENST00000456328.2
+##   ENST00000450305.2     chr1 12010-13670      + |         2 ENSG00000223972.5 ENST00000450305.2
+##   ENST00000488147.1     chr1 14404-29570      - |      9483 ENSG00000227232.5 ENST00000488147.1
+##   ENST00000619216.1     chr1 17369-17436      - |      9484 ENSG00000278267.1 ENST00000619216.1
+##   ENST00000473358.1     chr1 29554-31097      + |         3 ENSG00000243485.5 ENST00000473358.1
+##                 ...      ...         ...    ... .       ...               ...               ...
+##   ENST00000361681.2     chrM 14149-14673      - |    206692 ENSG00000198695.2 ENST00000361681.2
+##   ENST00000387459.1     chrM 14674-14742      - |    206693 ENSG00000210194.1 ENST00000387459.1
+##   ENST00000361789.2     chrM 14747-15887      + |    206684 ENSG00000198727.2 ENST00000361789.2
+##   ENST00000387460.2     chrM 15888-15953      + |    206685 ENSG00000210195.2 ENST00000387460.2
+##   ENST00000387461.2     chrM 15956-16023      - |    206694 ENSG00000210196.2 ENST00000387461.2
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome
+```
+
+```r
 seqinfo(se)
+```
+
+```
+## Seqinfo object with 25 sequences (1 circular) from hg38 genome:
+##   seqnames seqlengths isCircular genome
+##   chr1      248956422      FALSE   hg38
+##   chr2      242193529      FALSE   hg38
+##   chr3      198295559      FALSE   hg38
+##   chr4      190214555      FALSE   hg38
+##   chr5      181538259      FALSE   hg38
+##   ...             ...        ...    ...
+##   chr21      46709983      FALSE   hg38
+##   chr22      50818468      FALSE   hg38
+##   chrX      156040895      FALSE   hg38
+##   chrY       57227415      FALSE   hg38
+##   chrM          16569       TRUE   hg38
 ```
 
 The default approach to assign ranges during summarization
 (`rowRanges` will represent the total extent of all isoforms of the
 gene): 
 
-```{r}
+
+```r
 gse_default <- summarizeToGene(se)
+```
+
+```
+## loading existing TxDb created: 2022-02-09 23:19:12
+```
+
+```
+## obtaining transcript-to-gene mapping from database
+```
+
+```
+## loading existing gene ranges created: 2022-02-09 23:20:02
+```
+
+```
+## gene ranges assigned by total range of isoforms, see `assignRanges`
+```
+
+```
+## summarizing abundance
+```
+
+```
+## summarizing counts
+```
+
+```
+## summarizing length
 ```
 
 And an alternative method to assign ranges by isoform abundance
 (`rowRanges` will represent the extent of the most abundant isoform):
 
-```{r}
+
+```r
 gse <- summarizeToGene(se, assignRanges="abundant")
+```
+
+```
+## loading existing TxDb created: 2022-02-09 23:19:12
+```
+
+```
+## obtaining transcript-to-gene mapping from database
+```
+
+```
+## loading existing gene ranges created: 2022-02-09 23:20:02
+```
+
+```
+## gene ranges assigned by isoform abundance, see `assignRanges`
+```
+
+```
+## summarizing abundance
+```
+
+```
+## summarizing counts
+```
+
+```
+## summarizing length
 ```
 
 Note that these two steps provide identical counts, abundance,
 etc. They only differ by their `rowRanges`.
 
-```{r}
+
+```r
 all.equal(assay(gse_default), assay(gse))
+```
+
+```
+## [1] TRUE
 ```
 
 We can now compare the 5' location of the ranges using the two
 approaches.
 
-```{r message=FALSE}
+
+```r
 library(plyranges)
 # plyranges to locate the 5' start using default approach
 default_5p <- gse_default %>%
@@ -118,7 +229,8 @@ Pull out information from the SummarizedExperiment: the average
 abundance over the samples, and the absolute distance between the 5'
 start of the new and the old approach.
 
-```{r}
+
+```r
 gene_dat <- gse %>%
   rowRanges() %>%
   anchor_5p() %>%
@@ -130,12 +242,19 @@ gene_dat <- gse %>%
 table(gene_dat$dist == 0)
 ```
 
+```
+## 
+## FALSE  TRUE 
+## 11775 46519
+```
+
 While most genes have the same 5' start, a good number have changed
 their start position.
 
 We can summarize the extent of changes by gene expression:
 
-```{r tss-distance-by-tpm}
+
+```r
 library(ggplot2)
 gene_dat %>%
   as_tibble() %>%
@@ -159,6 +278,8 @@ gene_dat %>%
   facet_wrap(~tpm, labeller=label_both)
 ```
 
+<img src="tximeta-gene-range_files/figure-html/tss-distance-by-tpm-1.png" width="672" />
+
 Considerations:
 
 * The isoform-abundance based representation of the gene is likely a
@@ -181,7 +302,8 @@ functions. Note the use of `tximeta::retrieveDb` to pull the exact
 TxDb used in quantification of the data for representation of the
 ranges in the plots.
 
-```{r message=FALSE}
+
+```r
 library(plotgardener)
 library(org.Hs.eg.db)
 # retrieves the correct TxDb/EnsDb for use in plots, etc.
@@ -198,7 +320,8 @@ new_assembly <- assembly(
 
 We pick a random gene with a large distance and high expression:
 
-```{r}
+
+```r
 set.seed(5)
 gene <- gene_dat %>%
   filter(strand == "-", dist > 1e5, ave_tpm > 100) %>%
@@ -208,7 +331,8 @@ gene <- gene_dat %>%
 The following sets up the parameters for the following plotgardener
 command.
 
-```{r}
+
+```r
 par <- pgParams(
   chrom = seqnames(gene) %>% as.character(),
   chromstart = round((start(gene) - 5e5) / 1e5) * 1e5,
@@ -220,16 +344,23 @@ par <- pgParams(
 
 Examine the isoform proportions for the top 5 isoforms of this gene:
 
-```{r}
+
+```r
 props <- gene$iso_prop[[1]] %>%
   sort(decreasing=TRUE) %>%
   head(5)
 props
 ```
 
+```
+## ENST00000542652.6 ENST00000540638.6 ENST00000544123.5 ENST00000584651.5 ENST00000581292.5 
+##        0.35557166        0.31174119        0.07755495        0.06530776        0.03857342
+```
+
 Highlight the gene, and the top 5 isoforms in the following plot.
 
-```{r}
+
+```r
 gene_hilite <- data.frame(
   gene=gene$gene_id,
   color="magenta"
@@ -242,7 +373,8 @@ txp_hilite <- data.frame(
 
 Building the plotgardener plot:
 
-```{r tximeta-tss-plot, message=FALSE}
+
+```r
 pageCreate(width = 5, height = 4, showGuides = FALSE)
 plotGenes(
   params = par, x = 0.5, y = 3.5, width = 4, height = 1,
@@ -253,8 +385,17 @@ plotTranscripts(
   transcriptHighlights = txp_hilite, fill="grey90"
 
 )
+```
+
+```
+## Warning: Not enough plotting space for all provided elements. ('+' indicates elements not shown.)
+```
+
+```r
 plotGenomeLabel(
   params = par, x = 0.5, y = 3.5, length = 4,
   just = c("left", "top")
 )
 ```
+
+<img src="tximeta-gene-range_files/figure-html/tximeta-tss-plot-1.png" width="672" />

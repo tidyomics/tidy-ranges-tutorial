@@ -7,3 +7,4 @@ gene-plots
 rna-seq-eda
 many-genomic-models
 isoform-analysis
+gene-ranges-in-tximeta

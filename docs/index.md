@@ -1,7 +1,7 @@
 --- 
 title: "Tidy Ranges Tutorial"
 author: "Michael Love"
-date: "2023-07-04"
+date: "2023-08-01"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:

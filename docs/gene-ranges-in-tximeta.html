@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 10 Gene ranges in tximeta | Tidy Ranges Tutorial</title>
+  <meta name="description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 10 Gene ranges in tximeta | Tidy Ranges Tutorial" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  <meta name="github-repo" content="tidybiology/tidy-ranges-tutorial" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 10 Gene ranges in tximeta | Tidy Ranges Tutorial" />
+  
+  <meta name="twitter:description" content="<p>Basic examples of computing operations on genomic ranges using the
+tidy data philosophy.</p>" />
+  
+
+<meta name="author" content="Michael Love" />
+
+
+<meta name="date" content="2023-08-01" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="isoform-analysis.html"/>
+<link rel="next" href="references.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy Ranges Tutorial</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="join-is-an-overlap.html"><a href="join-is-an-overlap.html"><i class="fa fa-check"></i><b>1</b> Join is an overlap</a></li>
+<li class="chapter" data-level="2" data-path="compute-overlaps.html"><a href="compute-overlaps.html"><i class="fa fa-check"></i><b>2</b> Compute overlaps</a></li>
+<li class="chapter" data-level="3" data-path="promoter-marks.html"><a href="promoter-marks.html"><i class="fa fa-check"></i><b>3</b> Promoter marks</a></li>
+<li class="chapter" data-level="4" data-path="bootstrap-overlap.html"><a href="bootstrap-overlap.html"><i class="fa fa-check"></i><b>4</b> Bootstrap overlap</a></li>
+<li class="chapter" data-level="5" data-path="snp-position-in-peaks.html"><a href="snp-position-in-peaks.html"><i class="fa fa-check"></i><b>5</b> SNP position in peaks</a></li>
+<li class="chapter" data-level="6" data-path="gene-plots.html"><a href="gene-plots.html"><i class="fa fa-check"></i><b>6</b> Gene plots</a></li>
+<li class="chapter" data-level="7" data-path="rna-seq-eda.html"><a href="rna-seq-eda.html"><i class="fa fa-check"></i><b>7</b> RNA-seq EDA</a></li>
+<li class="chapter" data-level="8" data-path="many-genomic-models.html"><a href="many-genomic-models.html"><i class="fa fa-check"></i><b>8</b> Many genomic models</a></li>
+<li class="chapter" data-level="9" data-path="isoform-analysis.html"><a href="isoform-analysis.html"><i class="fa fa-check"></i><b>9</b> Isoform analysis</a></li>
+<li class="chapter" data-level="10" data-path="gene-ranges-in-tximeta.html"><a href="gene-ranges-in-tximeta.html"><i class="fa fa-check"></i><b>10</b> Gene ranges in tximeta</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Tidy Ranges Tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="gene-ranges-in-tximeta" class="section level1 hasAnchor" number="10">
+<h1><span class="header-section-number">Chapter 10</span> Gene ranges in tximeta<a href="gene-ranges-in-tximeta.html#gene-ranges-in-tximeta" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Objective: explore how genes are located in the genome during
+summarization with tximeta.</p>
+<p>The tximeta package <span class="citation">(<a href="#ref-Love2020" role="doc-biblioref">Love et al. 2020</a>)</span> imports gene expression quantification
+into Bioconductor. The package is built around a few main ideas:</p>
+<ol style="list-style-type: decimal">
+<li>transcript-level quantification improves accuracy even for
+gene-level inference <span class="citation">(<a href="#ref-Soneson2015" role="doc-biblioref">Soneson, Love, and Robinson 2015</a>)</span></li>
+<li>summarization to gene level is a common use case</li>
+<li>reference sequence hashes (think of a “barcode” that uniquely
+identifies the cDNA sequences) can be used to identify the
+provenance and release information of annotation</li>
+</ol>
+<p>tximeta uses reference sequence hashes embedded in metadata files
+provided with Salmon <span class="citation">(<a href="#ref-Patro2017" role="doc-biblioref">Patro et al. 2017</a>)</span> quantification output to
+automatically attach genomic range information, transcript-to-gene
+mapping, and genome build information to SummarizedExperiments. This
+is done automatically, on behalf of the user, without needing to
+specify the provenance or release numbers used during quantification.
+tximeta can also be used in combination with de novo transcriptomes or
+less common transcriptomes (see <span class="citation"><a href="#ref-Love2020" role="doc-biblioref">Love et al.</a> (<a href="#ref-Love2020" role="doc-biblioref">2020</a>)</span> or package vignette).</p>
+<p>When data is summarized to the gene level, tximeta by default uses the
+<code>genes()</code> function to locate the genes in the genome. This provides a
+genomic range which starts with the leftmost position of any isoform
+and ends with the rightmost position of any isoform. This however may
+not be a good representation of the locus of transcription.</p>
+<p>In this chapter, we explore an alternative way to assign ranges in
+tximeta’s summarization step, which is based on isoform abundance. We
+use plyranges and plotgardener packages to explore the differences
+between these two options for range assignment.</p>
+<p>Data description: the <em>macrophage</em> package provides Salmon
+quantification files for a set of 24 RNA-seq samples from
+<span class="citation"><a href="#ref-Alasoo2018" role="doc-biblioref">Alasoo et al.</a> (<a href="#ref-Alasoo2018" role="doc-biblioref">2018</a>)</span>. Data for six female human donors is available in the
+package, with gene expression at baseline, after IFN-gamma
+stimulation, after exposure to <em>Salmonella</em>, and after a combination
+of the two treatments. We won’t focus on the design of the experiment
+itself, but we will use transcript-level quantification data to
+explore the differences between the two range assignment options.</p>
+<p>The following code chunk creates a <code>coldata</code> table describing the
+samples.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="gene-ranges-in-tximeta.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(macrophage)</span>
+<span id="cb1-2"><a href="gene-ranges-in-tximeta.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="gene-ranges-in-tximeta.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tximeta)</span>
+<span id="cb1-4"><a href="gene-ranges-in-tximeta.html#cb1-4" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package=</span><span class="st">&quot;macrophage&quot;</span>)</span>
+<span id="cb1-5"><a href="gene-ranges-in-tximeta.html#cb1-5" aria-hidden="true" tabindex="-1"></a>coldata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;coldata.csv&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-6"><a href="gene-ranges-in-tximeta.html#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">files =</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;quants&quot;</span>, names, <span class="st">&quot;quant.sf.gz&quot;</span>),</span>
+<span id="cb1-7"><a href="gene-ranges-in-tximeta.html#cb1-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">condition =</span> <span class="fu">factor</span>(condition_name),</span>
+<span id="cb1-8"><a href="gene-ranges-in-tximeta.html#cb1-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">condition =</span> <span class="fu">relevel</span>(condition, <span class="st">&quot;naive&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="gene-ranges-in-tximeta.html#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(files, <span class="at">names=</span>sample_id, condition, line_id) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="gene-ranges-in-tximeta.html#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) <span class="co"># subset to a few samples</span></span>
+<span id="cb1-11"><a href="gene-ranges-in-tximeta.html#cb1-11" aria-hidden="true" tabindex="-1"></a>coldata <span class="sc">%&gt;%</span></span>
+<span id="cb1-12"><a href="gene-ranges-in-tximeta.html#cb1-12" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>files)</span></code></pre></div>
+<pre><code>##    names   condition line_id
+## 1 diku_A       naive  diku_1
+## 2 diku_B        IFNg  diku_1
+## 3 diku_C      SL1344  diku_1
+## 4 diku_D IFNg_SL1344  diku_1</code></pre>
+<p>Importing the transcript-level data as a SummarizedExperiment:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="gene-ranges-in-tximeta.html#cb3-1" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fu">tximeta</span>(coldata, <span class="at">dropInfReps=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>We can then see the ranges of the transcripts and the genome build
+information:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="gene-ranges-in-tximeta.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
+<span id="cb4-2"><a href="gene-ranges-in-tximeta.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rowRanges</span>(se)</span></code></pre></div>
+<pre><code>## GRanges object with 205870 ranges and 3 metadata columns:
+##                     seqnames      ranges strand |     tx_id           gene_id           tx_name
+##                        &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt;   &lt;CharacterList&gt;       &lt;character&gt;
+##   ENST00000456328.2     chr1 11869-14409      + |         1 ENSG00000223972.5 ENST00000456328.2
+##   ENST00000450305.2     chr1 12010-13670      + |         2 ENSG00000223972.5 ENST00000450305.2
+##   ENST00000488147.1     chr1 14404-29570      - |      9483 ENSG00000227232.5 ENST00000488147.1
+##   ENST00000619216.1     chr1 17369-17436      - |      9484 ENSG00000278267.1 ENST00000619216.1
+##   ENST00000473358.1     chr1 29554-31097      + |         3 ENSG00000243485.5 ENST00000473358.1
+##                 ...      ...         ...    ... .       ...               ...               ...
+##   ENST00000361681.2     chrM 14149-14673      - |    206692 ENSG00000198695.2 ENST00000361681.2
+##   ENST00000387459.1     chrM 14674-14742      - |    206693 ENSG00000210194.1 ENST00000387459.1
+##   ENST00000361789.2     chrM 14747-15887      + |    206684 ENSG00000198727.2 ENST00000361789.2
+##   ENST00000387460.2     chrM 15888-15953      + |    206685 ENSG00000210195.2 ENST00000387460.2
+##   ENST00000387461.2     chrM 15956-16023      - |    206694 ENSG00000210196.2 ENST00000387461.2
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="gene-ranges-in-tximeta.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">seqinfo</span>(se)</span></code></pre></div>
+<pre><code>## Seqinfo object with 25 sequences (1 circular) from hg38 genome:
+##   seqnames seqlengths isCircular genome
+##   chr1      248956422      FALSE   hg38
+##   chr2      242193529      FALSE   hg38
+##   chr3      198295559      FALSE   hg38
+##   chr4      190214555      FALSE   hg38
+##   chr5      181538259      FALSE   hg38
+##   ...             ...        ...    ...
+##   chr21      46709983      FALSE   hg38
+##   chr22      50818468      FALSE   hg38
+##   chrX      156040895      FALSE   hg38
+##   chrY       57227415      FALSE   hg38
+##   chrM          16569       TRUE   hg38</code></pre>
+<p>The default approach to assign ranges during summarization
+(<code>rowRanges</code> will represent the total extent of all isoforms of the
+gene):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="gene-ranges-in-tximeta.html#cb8-1" aria-hidden="true" tabindex="-1"></a>gse_default <span class="ot">&lt;-</span> <span class="fu">summarizeToGene</span>(se)</span></code></pre></div>
+<pre><code>## loading existing TxDb created: 2022-02-09 23:19:12</code></pre>
+<pre><code>## obtaining transcript-to-gene mapping from database</code></pre>
+<pre><code>## loading existing gene ranges created: 2022-02-09 23:20:02</code></pre>
+<pre><code>## gene ranges assigned by total range of isoforms, see `assignRanges`</code></pre>
+<pre><code>## summarizing abundance</code></pre>
+<pre><code>## summarizing counts</code></pre>
+<pre><code>## summarizing length</code></pre>
+<p>And an alternative method to assign ranges by isoform abundance
+(<code>rowRanges</code> will represent the extent of the most abundant isoform):</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="gene-ranges-in-tximeta.html#cb16-1" aria-hidden="true" tabindex="-1"></a>gse <span class="ot">&lt;-</span> <span class="fu">summarizeToGene</span>(se, <span class="at">assignRanges=</span><span class="st">&quot;abundant&quot;</span>)</span></code></pre></div>
+<pre><code>## loading existing TxDb created: 2022-02-09 23:19:12</code></pre>
+<pre><code>## obtaining transcript-to-gene mapping from database</code></pre>
+<pre><code>## loading existing gene ranges created: 2022-02-09 23:20:02</code></pre>
+<pre><code>## gene ranges assigned by isoform abundance, see `assignRanges`</code></pre>
+<pre><code>## summarizing abundance</code></pre>
+<pre><code>## summarizing counts</code></pre>
+<pre><code>## summarizing length</code></pre>
+<p>Note that these two steps provide identical counts, abundance,
+etc. They only differ by their <code>rowRanges</code>.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="gene-ranges-in-tximeta.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fu">assay</span>(gse_default), <span class="fu">assay</span>(gse))</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>We can now compare the 5’ location of the ranges using the two
+approaches.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="gene-ranges-in-tximeta.html#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyranges)</span>
+<span id="cb26-2"><a href="gene-ranges-in-tximeta.html#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plyranges to locate the 5&#39; start using default approach</span></span>
+<span id="cb26-3"><a href="gene-ranges-in-tximeta.html#cb26-3" aria-hidden="true" tabindex="-1"></a>default_5p <span class="ot">&lt;-</span> gse_default <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="gene-ranges-in-tximeta.html#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowRanges</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="gene-ranges-in-tximeta.html#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb26-6"><a href="gene-ranges-in-tximeta.html#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-7"><a href="gene-ranges-in-tximeta.html#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">start</span>()</span></code></pre></div>
+<p>Pull out information from the SummarizedExperiment: the average
+abundance over the samples, and the absolute distance between the 5’
+start of the new and the old approach.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="gene-ranges-in-tximeta.html#cb27-1" aria-hidden="true" tabindex="-1"></a>gene_dat <span class="ot">&lt;-</span> gse <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="gene-ranges-in-tximeta.html#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowRanges</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="gene-ranges-in-tximeta.html#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anchor_5p</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb27-4"><a href="gene-ranges-in-tximeta.html#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">width=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-5"><a href="gene-ranges-in-tximeta.html#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb27-6"><a href="gene-ranges-in-tximeta.html#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ave_tpm =</span> <span class="fu">rowMeans</span>(<span class="fu">assay</span>(gse, <span class="st">&quot;abundance&quot;</span>)),</span>
+<span id="cb27-7"><a href="gene-ranges-in-tximeta.html#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist =</span> <span class="fu">abs</span>(start <span class="sc">-</span> default_5p))</span>
+<span id="cb27-8"><a href="gene-ranges-in-tximeta.html#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># how many genes have same 5&#39; start?</span></span>
+<span id="cb27-9"><a href="gene-ranges-in-tximeta.html#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(gene_dat<span class="sc">$</span>dist <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+## 11775 46519</code></pre>
+<p>While most genes have the same 5’ start, a good number have changed
+their start position.</p>
+<p>We can summarize the extent of changes by gene expression:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="gene-ranges-in-tximeta.html#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb29-2"><a href="gene-ranges-in-tximeta.html#cb29-2" aria-hidden="true" tabindex="-1"></a>gene_dat <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="gene-ranges-in-tximeta.html#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-4"><a href="gene-ranges-in-tximeta.html#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dist <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb29-5"><a href="gene-ranges-in-tximeta.html#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-6"><a href="gene-ranges-in-tximeta.html#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">log10_dist =</span> <span class="fu">cut</span>(</span>
+<span id="cb29-7"><a href="gene-ranges-in-tximeta.html#cb29-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">log10</span>(dist),</span>
+<span id="cb29-8"><a href="gene-ranges-in-tximeta.html#cb29-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>,<span class="cn">Inf</span>),</span>
+<span id="cb29-9"><a href="gene-ranges-in-tximeta.html#cb29-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">include.lowest=</span><span class="cn">TRUE</span>),</span>
+<span id="cb29-10"><a href="gene-ranges-in-tximeta.html#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">tpm =</span> <span class="fu">cut</span>(</span>
+<span id="cb29-11"><a href="gene-ranges-in-tximeta.html#cb29-11" aria-hidden="true" tabindex="-1"></a>      ave_tpm,</span>
+<span id="cb29-12"><a href="gene-ranges-in-tximeta.html#cb29-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>,<span class="cn">Inf</span>),</span>
+<span id="cb29-13"><a href="gene-ranges-in-tximeta.html#cb29-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">include.lowest=</span><span class="cn">TRUE</span>)</span>
+<span id="cb29-14"><a href="gene-ranges-in-tximeta.html#cb29-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-15"><a href="gene-ranges-in-tximeta.html#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(log10_dist, tpm) <span class="sc">%&gt;%</span></span>
+<span id="cb29-16"><a href="gene-ranges-in-tximeta.html#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-17"><a href="gene-ranges-in-tximeta.html#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(log10_dist, n)) <span class="sc">+</span></span>
+<span id="cb29-18"><a href="gene-ranges-in-tximeta.html#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb29-19"><a href="gene-ranges-in-tximeta.html#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;change in 5&#39; position of gene&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-20"><a href="gene-ranges-in-tximeta.html#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;number of genes&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-21"><a href="gene-ranges-in-tximeta.html#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>tpm, <span class="at">labeller=</span>label_both)</span></code></pre></div>
+<p><img src="tximeta-gene-range_files/figure-html/tss-distance-by-tpm-1.png" width="672" /></p>
+<p>Considerations:</p>
+<ul>
+<li>The isoform-abundance based representation of the gene is likely a
+much more accurate description of the locus of transcription than
+the total gene extent.</li>
+<li>The isoform-abundance 5’ start can be very far away from the total
+gene extent 5’ start.</li>
+<li>Gene-level summary is an incomplete representation of transcription,
+and perhaps it may be better to perform analysis on the transcript
+level, e.g. DTE (see <code>swish</code> in fishpond package or
+<code>catchSalmon/catchKallisto</code> in edgeR) or DTU (see <code>DEXSeq</code>,
+<code>satuRn</code>, <code>diffSplice</code> in limma package, <span class="citation"><a href="#ref-Segers2023" role="doc-biblioref">Segers et al.</a> (<a href="#ref-Segers2023" role="doc-biblioref">2023</a>)</span>, or the
+rnaseqDTU workflow).</li>
+</ul>
+<p>We conclude this chapter by diagramming the difference between the two
+approaches for a single gene, using plotgardener <span class="citation">(<a href="#ref-plotgardener" role="doc-biblioref">Kramer et al. 2022</a>)</span>.</p>
+<p>We begin by building a custom genome assembly for plotgardener
+functions. Note the use of <code>tximeta::retrieveDb</code> to pull the exact
+TxDb used in quantification of the data for representation of the
+ranges in the plots.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="gene-ranges-in-tximeta.html#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotgardener)</span>
+<span id="cb30-2"><a href="gene-ranges-in-tximeta.html#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb30-3"><a href="gene-ranges-in-tximeta.html#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># retrieves the correct TxDb/EnsDb for use in plots, etc.</span></span>
+<span id="cb30-4"><a href="gene-ranges-in-tximeta.html#cb30-4" aria-hidden="true" tabindex="-1"></a>txdb <span class="ot">&lt;-</span> <span class="fu">retrieveDb</span>(gse)</span>
+<span id="cb30-5"><a href="gene-ranges-in-tximeta.html#cb30-5" aria-hidden="true" tabindex="-1"></a>new_assembly <span class="ot">&lt;-</span> <span class="fu">assembly</span>(</span>
+<span id="cb30-6"><a href="gene-ranges-in-tximeta.html#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Genome =</span> <span class="st">&quot;hg38&quot;</span>,</span>
+<span id="cb30-7"><a href="gene-ranges-in-tximeta.html#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">TxDb =</span> txdb,</span>
+<span id="cb30-8"><a href="gene-ranges-in-tximeta.html#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb =</span> org.Hs.eg.db,</span>
+<span id="cb30-9"><a href="gene-ranges-in-tximeta.html#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene.id.column =</span> <span class="st">&quot;GENEID&quot;</span>,</span>
+<span id="cb30-10"><a href="gene-ranges-in-tximeta.html#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">display.column =</span> <span class="st">&quot;GENEID&quot;</span>,</span>
+<span id="cb30-11"><a href="gene-ranges-in-tximeta.html#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">BSgenome =</span> <span class="cn">NULL</span></span>
+<span id="cb30-12"><a href="gene-ranges-in-tximeta.html#cb30-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>We pick a random gene with a large distance and high expression:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="gene-ranges-in-tximeta.html#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb31-2"><a href="gene-ranges-in-tximeta.html#cb31-2" aria-hidden="true" tabindex="-1"></a>gene <span class="ot">&lt;-</span> gene_dat <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="gene-ranges-in-tximeta.html#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(strand <span class="sc">==</span> <span class="st">&quot;-&quot;</span>, dist <span class="sc">&gt;</span> <span class="fl">1e5</span>, ave_tpm <span class="sc">&gt;</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb31-4"><a href="gene-ranges-in-tximeta.html#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="fu">sample</span>(<span class="fu">n</span>(),<span class="dv">1</span>))</span></code></pre></div>
+<p>The following sets up the parameters for the following plotgardener
+command.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="gene-ranges-in-tximeta.html#cb32-1" aria-hidden="true" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">pgParams</span>(</span>
+<span id="cb32-2"><a href="gene-ranges-in-tximeta.html#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">chrom =</span> <span class="fu">seqnames</span>(gene) <span class="sc">%&gt;%</span> <span class="fu">as.character</span>(),</span>
+<span id="cb32-3"><a href="gene-ranges-in-tximeta.html#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromstart =</span> <span class="fu">round</span>((<span class="fu">start</span>(gene) <span class="sc">-</span> <span class="fl">5e5</span>) <span class="sc">/</span> <span class="fl">1e5</span>) <span class="sc">*</span> <span class="fl">1e5</span>,</span>
+<span id="cb32-4"><a href="gene-ranges-in-tximeta.html#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chromend =</span> <span class="fu">round</span>((<span class="fu">end</span>(gene) <span class="sc">+</span> <span class="fl">5e5</span>) <span class="sc">/</span> <span class="fl">1e5</span>) <span class="sc">*</span> <span class="fl">1e5</span>,</span>
+<span id="cb32-5"><a href="gene-ranges-in-tximeta.html#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">assembly =</span> new_assembly,</span>
+<span id="cb32-6"><a href="gene-ranges-in-tximeta.html#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb32-7"><a href="gene-ranges-in-tximeta.html#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Examine the isoform proportions for the top 5 isoforms of this gene:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="gene-ranges-in-tximeta.html#cb33-1" aria-hidden="true" tabindex="-1"></a>props <span class="ot">&lt;-</span> gene<span class="sc">$</span>iso_prop[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="gene-ranges-in-tximeta.html#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sort</span>(<span class="at">decreasing=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="gene-ranges-in-tximeta.html#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">5</span>)</span>
+<span id="cb33-4"><a href="gene-ranges-in-tximeta.html#cb33-4" aria-hidden="true" tabindex="-1"></a>props</span></code></pre></div>
+<pre><code>## ENST00000542652.6 ENST00000540638.6 ENST00000544123.5 ENST00000584651.5 ENST00000581292.5 
+##        0.35557166        0.31174119        0.07755495        0.06530776        0.03857342</code></pre>
+<p>Highlight the gene, and the top 5 isoforms in the following plot.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="gene-ranges-in-tximeta.html#cb35-1" aria-hidden="true" tabindex="-1"></a>gene_hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb35-2"><a href="gene-ranges-in-tximeta.html#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene=</span>gene<span class="sc">$</span>gene_id,</span>
+<span id="cb35-3"><a href="gene-ranges-in-tximeta.html#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">color=</span><span class="st">&quot;magenta&quot;</span></span>
+<span id="cb35-4"><a href="gene-ranges-in-tximeta.html#cb35-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-5"><a href="gene-ranges-in-tximeta.html#cb35-5" aria-hidden="true" tabindex="-1"></a>txp_hilite <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb35-6"><a href="gene-ranges-in-tximeta.html#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcript=</span><span class="fu">names</span>(props),</span>
+<span id="cb35-7"><a href="gene-ranges-in-tximeta.html#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">color=</span><span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;dodgerblue&quot;</span>,<span class="st">&quot;darkgoldenrod&quot;</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="fu">length</span>(props)<span class="sc">-</span><span class="dv">1</span>))</span>
+<span id="cb35-8"><a href="gene-ranges-in-tximeta.html#cb35-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Building the plotgardener plot:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="gene-ranges-in-tximeta.html#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pageCreate</span>(<span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="dv">4</span>, <span class="at">showGuides =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb36-2"><a href="gene-ranges-in-tximeta.html#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenes</span>(</span>
+<span id="cb36-3"><a href="gene-ranges-in-tximeta.html#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">3.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="dv">1</span>,</span>
+<span id="cb36-4"><a href="gene-ranges-in-tximeta.html#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">geneHighlights =</span> gene_hilite</span>
+<span id="cb36-5"><a href="gene-ranges-in-tximeta.html#cb36-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-6"><a href="gene-ranges-in-tximeta.html#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plotTranscripts</span>(</span>
+<span id="cb36-7"><a href="gene-ranges-in-tximeta.html#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="fl">2.5</span>,</span>
+<span id="cb36-8"><a href="gene-ranges-in-tximeta.html#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">transcriptHighlights =</span> txp_hilite, <span class="at">fill=</span><span class="st">&quot;grey90&quot;</span></span>
+<span id="cb36-9"><a href="gene-ranges-in-tximeta.html#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="gene-ranges-in-tximeta.html#cb36-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## Warning: Not enough plotting space for all provided elements. (&#39;+&#39; indicates elements not shown.)</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="gene-ranges-in-tximeta.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotGenomeLabel</span>(</span>
+<span id="cb38-2"><a href="gene-ranges-in-tximeta.html#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> par, <span class="at">x =</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="fl">3.5</span>, <span class="at">length =</span> <span class="dv">4</span>,</span>
+<span id="cb38-3"><a href="gene-ranges-in-tximeta.html#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">just =</span> <span class="fu">c</span>(<span class="st">&quot;left&quot;</span>, <span class="st">&quot;top&quot;</span>)</span>
+<span id="cb38-4"><a href="gene-ranges-in-tximeta.html#cb38-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="tximeta-gene-range_files/figure-html/tximeta-tss-plot-1.png" width="672" /></p>
+
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Alasoo2018" class="csl-entry">
+Alasoo, Kaur, Julia Rodrigues, Subhankar Mukhopadhyay, Andrew J. Knights, Alice L. Mann, Kousik Kundu, Christine Hale, Gordon Dougan, Daniel J. Gaffney, and H. I. P. S. C. I. Consortium. 2018. <span>“Shared Genetic Effects on Chromatin and Gene Expression Indicate a Role for Enhancer Priming in Immune Response.”</span> <em>Nature Genetics</em> 50 (3): 424–31. <a href="https://doi.org/10.1038/s41588-018-0046-7">https://doi.org/10.1038/s41588-018-0046-7</a>.
+</div>
+<div id="ref-plotgardener" class="csl-entry">
+Kramer, Nicole E, Eric S Davis, Craig D Wenger, Erika M Deoudes, Sarah M Parker, Michael I Love, and Douglas H Phanstiel. 2022. <span>“<span class="nocase">Plotgardener: cultivating precise multi-panel figures in R</span>.”</span> <em>Bioinformatics</em> 38 (7): 2042–45. <a href="https://doi.org/10.1093/bioinformatics/btac057">https://doi.org/10.1093/bioinformatics/btac057</a>.
+</div>
+<div id="ref-Love2020" class="csl-entry">
+Love, Michael I., Charlotte Soneson, Peter F. Hickey, Lisa K. Johnson, N. Tessa Pierce, Lori Shepherd, Martin Morgan, and Rob Patro. 2020. <span>“<span class="nocase">Tximeta: Reference sequence checksums for provenance identification in RNA-seq</span>.”</span> <em>PLOS Computational Biology</em> 16: e1007664. <a href="https://doi.org/10.1371/journal.pcbi.1007664">https://doi.org/10.1371/journal.pcbi.1007664</a>.
+</div>
+<div id="ref-Patro2017" class="csl-entry">
+Patro, Rob, Geet Duggal, Michael I. Love, Rafael A. Irizarry, and Carl Kingsford. 2017. <span>“Salmon Provides Fast and Bias-Aware Quantification of Transcript Expression.”</span> <em>Nature Methods</em>. <a href="https://doi.org/10.1038/nmeth.4197">https://doi.org/10.1038/nmeth.4197</a>.
+</div>
+<div id="ref-Segers2023" class="csl-entry">
+Segers, Alexandre, Jeroen Gilis, Mattias Van Heetvelde, Elfride De Baere, and Lieven Clement. 2023. <span>“Juggling Offsets Unlocks RNA-Seq Tools for Fast Scalable Differential Usage, Aberrant Splicing and Expression Analyses.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2023.06.29.547014">https://doi.org/10.1101/2023.06.29.547014</a>.
+</div>
+<div id="ref-Soneson2015" class="csl-entry">
+Soneson, Charlotte, Michael I. Love, and Mark Robinson. 2015. <span>“<span class="nocase">Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences</span>.”</span> <em>F1000Research</em> 4. <a href="https://doi.org/10.12688/f1000research.7563.1">https://doi.org/10.12688/f1000research.7563.1</a>.
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="isoform-analysis.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
