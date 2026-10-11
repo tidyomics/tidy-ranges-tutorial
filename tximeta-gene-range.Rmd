@@ -181,11 +181,11 @@ functions. Note the use of `tximeta::retrieveDb` to pull the exact
 TxDb used in quantification of the data for representation of the
 ranges in the plots.
 
-```{r message=FALSE}
+```{r message=FALSE, cache=FALSE}
 library(plotgardener)
 library(org.Hs.eg.db)
 # retrieves the correct TxDb/EnsDb for use in plots, etc.
-txdb <- retrieveDb(gse)
+txdb <- tximeta::retrieveDb(gse)
 new_assembly <- assembly(
   Genome = "hg38",
   TxDb = txdb,
@@ -202,17 +202,17 @@ We pick a random gene with a large distance and high expression:
 set.seed(5)
 gene <- gene_dat %>%
   filter(strand == "-", dist > 1e5, ave_tpm > 100) %>%
-  slice(sample(n(),1))
+  dplyr::slice(sample(n(),1))
 ```
 
 The following sets up the parameters for the following plotgardener
 command.
 
-```{r}
+```{r cache=FALSE}
 par <- pgParams(
-  chrom = seqnames(gene) %>% as.character(),
-  chromstart = round((start(gene) - 5e5) / 1e5) * 1e5,
-  chromend = round((end(gene) + 5e5) / 1e5) * 1e5,
+  chrom =  as.character(seqnames(gene)),
+  chromstart = round((start(gene) - 7e5) / 1e5) * 1e5,
+  chromend = round((end(gene) + 7e5) / 1e5) * 1e5,
   assembly = new_assembly,
   just = c("left", "bottom")
 )
@@ -242,19 +242,19 @@ txp_hilite <- data.frame(
 
 Building the plotgardener plot:
 
-```{r tximeta-tss-plot, message=FALSE}
-pageCreate(width = 5, height = 4, showGuides = FALSE)
+```{r tximeta-tss-plot, message=FALSE, fig.width=5, fig.height=10}
+pageCreate(width = 5, height = 10, showGuides = FALSE, default.units = "inches")
 plotGenes(
-  params = par, x = 0.5, y = 3.5, width = 4, height = 1,
+  params = par, x = 0.5, y = 9, width = 4, height = 1,
   geneHighlights = gene_hilite
 )
 plotTranscripts(
-  params = par, x = 0.5, y = 2.5, width = 4, height = 2.5,
+  params = par, x = 0.5, y = 7, width = 4, height = 10,
   transcriptHighlights = txp_hilite, fill="grey90"
 
 )
 plotGenomeLabel(
-  params = par, x = 0.5, y = 3.5, length = 4,
+  params = par, x = 0.5, y = 9, length = 4,
   just = c("left", "top")
 )
 ```

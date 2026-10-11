@@ -2,3 +2,10 @@ _bookdown_files/*
 data/*
 *.rds
 *.gz
+
+/.quarto/
+**/*.quarto_ipynb
+_book/
+*_cache/
+*_files/
+site_libs/

@@ -1,23 +1,7 @@
---- 
-title: "Tidy Ranges Tutorial"
+---
 author: "Michael Love"
 date: "`r Sys.Date()`"
-site: bookdown::bookdown_site
-output: 
-  bookdown::gitbook:
-    config:
-      download: null
-      sharing:
-        twitter: false
-documentclass: book
-bibliography: references.bib
-biblio-style: apalike
-link-citations: yes
-url: https\://tidybiology.github.io/tidy-ranges-tutorial
-github-repo: tidybiology/tidy-ranges-tutorial
-description: |
-    Basic examples of computing operations on genomic ranges using the
-    tidy data philosophy.
+toc: false
 ---
 
 # About {-}

@@ -67,6 +67,7 @@ versioned) Ensembl or GENCODE gene annotation.
 
 ```{r message=FALSE}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(GenomeInfoDb)
 ```
 
 The same function can be used to extract the gene ranges:

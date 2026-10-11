@@ -27,14 +27,15 @@ of using matching with ranges, see the related articles
 We start by loading the ENCODE kidney and bladder H3K27ac ChIP-seq
 peaks used in the previous analysis [@encode].
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 library(AnnotationHub)
 ah <- AnnotationHub()
 kidney_pks <- ah[["AH43443"]]
 bladder_pks <- ah[["AH44180"]]
+save(kidney_pks, bladder_pks, file="data/peaks.rda")
 ```
 
-```{r echo=FALSE}
+```{r eval=FALSE}
 load("data/peaks.rda")
 ```
 
@@ -47,10 +48,10 @@ provided by the *excluderanges* packages and available via
 they are available for hg19, which is the genome used with the peak
 sets.
 
-```{r eval=FALSE}
-# query(ah, c("excluderanges","hg19"))
-exclude <- ah[["AH95912"]]
-save("data/exclude.rda")
+```{r eval=TRUE}
+# get exclude list from ucsc tracks
+exclude <- rtracklayer::import("https://hgdownload-test.gi.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeDukeMapabilityRegionsExcludable.bed.gz")
+save(exclude, file="data/exclude.rda")
 ```
 
 ```{r echo=FALSE}
@@ -86,7 +87,7 @@ using both packages to use the package name.
 ```{r message=FALSE}
 library(plyranges)
 exclude <- exclude %>%
-  plyranges::filter(width(exclude) >= 500)
+  filter(width(exclude) >= 500)
 ```
 
 We also subset to the peaks for kidney and bladder which have q-value
@@ -100,10 +101,10 @@ for the bootstrapping, here we sort both sets.
 q_thr <- 3
 s_thr <- 9
 x <- x %>% 
-  plyranges::filter(qValue > q_thr & signalValue > s_thr) %>%
+  filter(qValue > q_thr & signalValue > s_thr) %>%
   sort()
 y <- y %>% 
-  plyranges::filter(qValue > q_thr & signalValue > s_thr) %>%
+  filter(qValue > q_thr & signalValue > s_thr) %>%
   sort()
 ```
 
@@ -131,7 +132,7 @@ variable that we create, and the signal value which we rename to
 ```{r}
 pks_to_boot <- y %>%
   mutate(id = seq_along(.)) %>%
-  plyranges::select(id, signal = signalValue)
+  select(id, signal = signalValue)
 ```
 
 The `bootRanges` function returns the bootstrap feature sets
@@ -158,7 +159,7 @@ to the original `y`. To do so, we first add the original features as
 combined <- pks_to_boot %>% 
   mutate(iter=0) %>%
   bind_ranges(boots) %>% 
-  plyranges::select(iter)
+  select(iter)
 ```
 
 Then compute summaries:
@@ -186,8 +187,8 @@ feature set `y`.
 ```{r boot-width, message=FALSE}
 library(ggplot2)
 library(ggridges)
-combined %>% plyranges::filter(iter %in% 0:5) %>%
-  plyranges::select(iter) %>%
+combined %>% filter(iter %in% 0:5) %>%
+  select(iter) %>%
   as_tibble() %>%
   mutate(type = ifelse(iter == 0, "original", "boot")) %>%
   ggplot(aes(log10(width), iter, fill=type)) +
@@ -298,8 +299,8 @@ bootstrap.
 We demonstrate one approach to obtain this rate for the bootstraps:
 
 ```{r}
-x_thin <- x %>% plyranges::select(x_id)
-null <- boots %>% plyranges::select(id, iter) %>%
+x_thin <- x %>% select(x_id)
+null <- boots %>% select(id, iter) %>%
   join_overlap_inner(x_thin) %>%
   group_by(id, iter) %>%
   summarize(num_overlaps = n()) %>%

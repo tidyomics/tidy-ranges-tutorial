@@ -1,0 +1,44 @@
+/*-- scss:defaults --*/
+
+
+/*-- scss:rules --*/
+/* Put all your other CSS below this line */
+
+p.caption {
+  color: #777;
+  margin-top: 10px;
+}
+p code {
+  white-space: inherit;
+}
+pre {
+  word-break: normal;
+  word-wrap: normal;
+}
+pre code {
+  white-space: inherit;
+}
+
+.note {
+  margin: 30px;
+  padding: 1em;
+  background: #FFF8F0;
+  border: 1px solid #EFE8E0;
+  border-radius: 10px;
+}
+
+/* Modify the background color of the input code blocks */
+div.sourceCode pre {
+  background-color: #dce4e8 !important; /* Replace with your preferred color */
+}
+
+/* Modify code output background */
+.cell-output pre {
+  background-color: #cee1f3; /* Replace with your preferred color */
+  border-radius: 4px;        /* Optional: rounded corners */
+}
+
+/* Add "Chapter " only to the main document title */
+#title-block-header .chapter-number::before {
+  content: "Chapter ";
+}

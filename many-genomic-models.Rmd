@@ -48,6 +48,7 @@ size for the point of building the models.
 
 ```{r message=FALSE}
 library(fission)
+library(magrittr)
 data(fission)
 se <- fission
 colData(se)
@@ -84,7 +85,7 @@ begin working with the data as a *tidySE* (shortened name for
 *tidySummarizedExperiment*):
 
 ```{r max_pc1, message=FALSE}
-max_pc1 <- which.max(abs(attr(pca, "internals")[["PCA"]][["rotation"]][,"PC1"]))
+max_pc1 <- which.max(abs(metadata(pca)[["tidybulk"]][["PCA"]][["rotation"]][,"PC1"]))
 max_pc1
 library(tidySummarizedExperiment)
 se %>%
