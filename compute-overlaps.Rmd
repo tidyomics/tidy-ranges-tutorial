@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Compute overlaps
 
 Objective: compute overlaps and summary statistics between two sets of

@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Bootstrap overlap
 
 Objective: determine if one set of peaks are overlapping another set
