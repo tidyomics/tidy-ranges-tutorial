@@ -1,3 +1,5 @@
+## About
+
 We provide examples of computing operations on genomic ranges using the
 [tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).
 
