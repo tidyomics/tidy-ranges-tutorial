@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # RNA-seq EDA
 
 Objective: learn how to make basic EDA plots (plotting scaled counts)
@@ -127,7 +131,7 @@ library(dplyr)
 library(stringr)
 oct4 <- gse %>%
   filter(line == "OCT4") %>%
-  mutate(sample_name = .sample %>%
+  mutate(sample_name = pull(., .sample) %>% # this is a hack, .sample seems broken with mutate
            str_remove("OCT4-") %>%
            factor(levels = unique(.)),
          condition = condition %>% factor(c("untrt","trt")))

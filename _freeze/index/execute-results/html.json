@@ -1,0 +1,15 @@
+{
+  "hash": "54a7e6825e1e9beb2843fcb3567d71c4",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\nauthor: \n    - Michael Love\n    - Pierre-Paul Axisa\ndate: \"2026-11-19\"\ntoc: false\n---\n\n# About {-}\n\nWe provide examples of computing operations on genomic ranges using the\n[tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).\n\nThese examples focus on the packages *dplyr*, *plyranges*,\n*nullranges*, *excluderanges*, as well as \n*tidy transcriptomics* packages such as \n*tidybulk* and *tidySummarizedExperiment*.\n\n\n::: {.callout-note}\nAs of fall 2026, we migrated the website from bookdown to quarto. As we rerendered the tutorials, we also updated the code to use the latest versions of the packages. This lead to some changes in the code and the output. If you want to see the original version of the tutorials circa 2023, you can find them in the [archival website](https://tidyomics.github.io/tidy-ranges-tutorial-archive/).\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

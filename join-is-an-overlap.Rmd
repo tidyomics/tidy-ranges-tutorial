@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Join is an overlap
 
 Objective: learn that a `join` operation implies finding overlapping

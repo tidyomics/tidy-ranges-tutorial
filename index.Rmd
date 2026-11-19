@@ -1,31 +1,22 @@
---- 
-title: "Tidy Ranges Tutorial"
-author: "Michael Love"
+---
+author: 
+    - Michael Love
+    - Pierre-Paul Axisa
 date: "`r Sys.Date()`"
-site: bookdown::bookdown_site
-output: 
-  bookdown::gitbook:
-    config:
-      download: null
-      sharing:
-        twitter: false
-documentclass: book
-bibliography: references.bib
-biblio-style: apalike
-link-citations: yes
-url: https\://tidybiology.github.io/tidy-ranges-tutorial
-github-repo: tidybiology/tidy-ranges-tutorial
-description: |
-    Basic examples of computing operations on genomic ranges using the
-    tidy data philosophy.
+toc: false
 ---
 
 # About {-}
 
-I provide examples of computing operations on genomic ranges using the
+We provide examples of computing operations on genomic ranges using the
 [tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).
 
 These examples focus on the packages *dplyr*, *plyranges*,
 *nullranges*, *excluderanges*, as well as 
 *tidy transcriptomics* packages such as 
 *tidybulk* and *tidySummarizedExperiment*.
+
+
+::: {.callout-note}
+As of fall 2026, we migrated the website from bookdown to quarto. As we rerendered the tutorials, we also updated the code to use the latest versions of the packages. This lead to some changes in the code and the output. If you want to see the original version of the tutorials circa 2023, you can find them in the [archival website](https://tidyomics.github.io/tidy-ranges-tutorial-archive/).
+:::

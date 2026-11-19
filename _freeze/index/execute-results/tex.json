@@ -1,0 +1,21 @@
+{
+  "hash": "c5282dcaa77de10e0df0fc279fffb033",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\nauthor: \"Michael Love\"\ndate: \"2026-11-19\"\ntoc: false\n---\n\n# About {-}\n\nI provide examples of computing operations on genomic ranges using the\n[tidy data philosophy](https://tidyr.tidyverse.org/articles/tidy-data.html).\n\nThese examples focus on the packages *dplyr*, *plyranges*,\n*nullranges*, *excluderanges*, as well as \n*tidy transcriptomics* packages such as \n*tidybulk* and *tidySummarizedExperiment*.\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {
+      "knitr": [
+        "{\"type\":\"list\",\"attributes\":{},\"value\":[]}"
+      ]
+    },
+    "preserve": null,
+    "postProcess": false
+  }
+}

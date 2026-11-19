@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # SNP position in peaks
 
 Objective: determine the position of a set of SNPs in peaks, that is, determine the relative positions of those SNPs that overlap the peaks.

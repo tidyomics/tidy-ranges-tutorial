@@ -1,0 +1,31 @@
+name: Publish Quarto Website
+
+on:
+  push:
+    branches:
+      - main
+      - '**' # Runs on feature branches too, filtered by the 'if' below
+
+jobs:
+  build-deploy:
+    # 1. If running on the PROD repo -> ONLY deploy when pushing to 'main'
+    # 2. If running on a FORK -> deploy on 'main' OR any feature branch
+    if: >
+      (github.repository == 'tidyomics/tidy-ranges-tutorial' && github.ref == 'refs/heads/main') ||
+      (github.repository != 'tidyomics/tidy-ranges-tutorial')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render and Publish
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
