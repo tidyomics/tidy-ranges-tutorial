@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Gene ranges in tximeta
 
 Objective: explore how genes are located in the genome during

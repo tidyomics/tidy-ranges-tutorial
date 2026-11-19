@@ -1,0 +1,21 @@
+{
+  "hash": "1dce1df14fdb57b2bc702abf252a06ca",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# References {-}\n\n::: {#refs}\n:::",
+    "supporting": [
+      "references_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {
+      "knitr": [
+        "{\"type\":\"list\",\"attributes\":{},\"value\":[]}"
+      ]
+    },
+    "preserve": null,
+    "postProcess": false
+  }
+}

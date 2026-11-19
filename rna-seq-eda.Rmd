@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # RNA-seq EDA
 
 Objective: learn how to make basic EDA plots (plotting scaled counts)

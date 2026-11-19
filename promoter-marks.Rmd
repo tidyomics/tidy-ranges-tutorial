@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Promoter marks
 
 Objective: determine if tissue-specific promoter marks (e.g. H3K27ac)

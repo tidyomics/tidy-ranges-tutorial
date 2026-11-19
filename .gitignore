@@ -9,3 +9,5 @@ _book/
 *_cache/
 *_files/
 site_libs/
+
+.vscode/

@@ -1,3 +1,7 @@
+---
+author: "Michael Love"
+---
+
 # Isoform analysis
 
 Objective: compare the structure of isoforms within a gene using

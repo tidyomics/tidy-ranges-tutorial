@@ -14,15 +14,14 @@ format:
       body-width: 1100px  # Default is ~800px. Increase as needed.
       sidebar-width: 350px
       margin-width: 100px # Width of the right-side TOC
-  pdf:
-    include-in-header: preamble.tex
 
 bibliography: references.bib
 
 book:
   title: "Tidy Ranges Tutorial"
   description: "Basic examples of computing operations on genomic ranges using the tidy data philosophy."
-  repo-url: https://github.com/tidybiology/tidy-ranges-tutorial
+  repo-url: https://github.com/tidyomics/tidy-ranges-tutorial
+  site-url: https://tidyomics.github.io/tidy-ranges-tutorial/
   reader-mode: true
   sidebar:
     background: "#cee1f3"
@@ -42,3 +41,4 @@ book:
 
 execute:
   results: hold
+  freeze: auto
