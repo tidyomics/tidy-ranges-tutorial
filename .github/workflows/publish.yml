@@ -11,8 +11,8 @@ jobs:
     # 1. If running on the PROD repo -> ONLY deploy when pushing to 'main'
     # 2. If running on a FORK -> deploy on 'main' OR any feature branch
     if: >
-      (github.repository == '<your-org>/<prod-repo>' && github.ref == 'refs/heads/main') ||
-      (github.repository != '<your-org>/<prod-repo>')
+      (github.repository == 'tidyomics/tidy-ranges-tutorial' && github.ref == 'refs/heads/main') ||
+      (github.repository != 'tidyomics/tidy-ranges-tutorial')
     runs-on: ubuntu-latest
     permissions:
       contents: write
